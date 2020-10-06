@@ -1,0 +1,385 @@
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderLink\Definitions.RiderLink.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/BlueprintProvider.cpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\BlueprintProvider.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Editor\UnrealEd\Public\Toolkits/AssetEditorManager.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Editor\Kismet\Public\BlueprintEditor.h
+d:\program files\epic games\ue_4.25\engine\source\editor\kismet\public\WorkflowOrientedApp/WorkflowTabFactory.h
+d:\program files\epic games\ue_4.25\engine\source\editor\kismet\public\WorkflowOrientedApp/WorkflowTabManager.h
+d:\program files\epic games\ue_4.25\engine\source\editor\kismet\public\BlueprintEditorModule.h
+d:\program files\epic games\ue_4.25\engine\source\editor\kismet\public\WorkflowOrientedApp/WorkflowCentricApplication.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Developer/Merge/Public/Merge.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\MessagingCommon\Public\MessageEndpointBuilder.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Messaging\Public\IMessagingModule.h
+d:\program files\epic games\ue_4.25\engine\source\runtime\messagingcommon\public\MessageHandlers.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/ProtocolFactory.cpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\ProtocolFactory.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\protocol/Protocol.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\base/IProtocol.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_framework_cpp\base\IRdDynamic.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\impl/RName.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\thirdparty\thirdparty.hpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\thirdparty\tsl/ordered_set.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\thirdparty\tsl\ordered_hash.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\cassert
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\ucrt\assert.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\iterator
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\thirdparty\tsl/ordered_map.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\thirdparty\optional\tl\optional.hpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\thirdparty\mpark/variant.hpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\thirdparty\mpark\config.hpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\thirdparty\mpark\in_place.hpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\thirdparty\mpark\lib.hpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\thirdparty\nonstd/string_view.hpp
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\cassert
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\ucrt\assert.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\string
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xstring_insert.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\serialization/Serializers.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\protocol/RdId.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\protocol/Buffer.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\types/DateTime.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\std/hash.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\ctime
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\ucrt\time.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\util/core_util.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_core_cpp\util\erase_if.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\util/gen_util.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\std/allocator.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\util/overloaded.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\util/shared_function.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\std/to_string.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\thread
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\chrono
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\ratio
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\thr/xtimec.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\thr/xthrcommon.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\thr/xthread
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\thr/xtime
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\thr/xthreads.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\sstream
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\atomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xatomic.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xxatomic
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\future
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\condition_variable
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\mutex
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\ppltasks.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\pplwin.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\pplinterface.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\ppltaskscheduler.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\crtdefs.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\pplcancellation_token.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\types/wrapper.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\util/core_traits.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\types/Void.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\cassert
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\ucrt\assert.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\std/list.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\util\hashing.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\serialization/ISerializable.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\protocol/Identities.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\base/IUnknownInstance.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\serialization/RdAny.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_framework_cpp\serialization\DefaultAbstractDeclaration.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\std/unordered_map.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\unordered_map
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\scheduler/base/IScheduler.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\logger/Logger.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\cstdarg
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\base/IWire.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\reactive/interfaces.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\lifetime/Lifetime.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_core_cpp\lifetime\LifetimeImpl.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\map
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xtree
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\base/IRdReactive.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_framework_cpp\base\IRdBindable.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_framework_cpp\base\IRdWireable.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\reactive/Property.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_core_cpp\reactive\base/IProperty.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\reactive/SignalX.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_core_cpp\reactive\base\IPropertyBase.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\lifetime/SequentialLifetimes.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\lifetime/LifetimeDefinition.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\serialization/SerializationCtx.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\regex
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\locale
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xlocbuf
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xlocmes
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xlocmon
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\xloctime
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\intern/InternRoot.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\base/RdReactiveBase.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\base/RdBindableBase.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\util\guards.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\pch.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\cassert
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\ucrt\assert.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_framework_cpp\intern\InternScheduler.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\serialization/InternedAnySerializer.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\serialization/SerializationCtx.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Core\Public\Windows/AllowWindowsPlatformTypes.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Core\Public\Windows/WindowsHWrapper.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Core\Public\Windows/PreWindowsApi.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Core\Public\Windows/MinWindows.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\Windows.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\sdkddkver.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\excpt.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\windef.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\minwindef.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\winnt.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\kernelspecs.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\basetsd.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\guiddef.h
+c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\pshpack4.h
+c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\poppack.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\pshpack4.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\poppack.h
+c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\pshpack4.h
+c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\pshpack2.h
+c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\poppack.h
+c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\pshpack2.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\pshpack2.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\poppack.h
+c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\poppack.h
+c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\pshpack8.h
+c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\poppack.h
+c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\pshpack1.h
+c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\poppack.h
+c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\pshpack1.h
+c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\poppack.h
+c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\poppack.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\apiset.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\ktmtypes.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\winbase.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\apisetcconv.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\minwinbase.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\processenv.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\fileapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\debugapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\utilapiset.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\handleapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\errhandlingapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\fibersapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\namedpipeapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\profileapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\heapapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\ioapiset.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\synchapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\interlockedapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\processthreadsapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\sysinfoapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\memoryapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\enclaveapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\threadpoollegacyapiset.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\threadpoolapiset.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\jobapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\jobapi2.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\wow64apiset.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\libloaderapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\securitybaseapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\namespaceapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\systemtopologyapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\processtopologyapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\securityappcontainer.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\realtimeapiset.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\winerror.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\timezoneapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\wingdi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\pshpack1.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\poppack.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\pshpack2.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\poppack.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\pshpack4.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\poppack.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\pshpack4.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\poppack.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\winuser.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\pshpack2.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\poppack.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\tvout.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\winnls.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\datetimeapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\stringapiset.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\winnls.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\wincon.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\consoleapi.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\winver.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\verrsrc.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\winreg.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\reason.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\winnetwk.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\wnnc.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\stralign.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\imm.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\ime_cmodes.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Core\Public\Windows/PostWindowsApi.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Core\Public\Misc/FileHelper.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\EngineSettings\Classes\GeneralProjectSettings.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Intermediate\Build\Win64\UE4Editor\Inc\EngineSettings\GeneralProjectSettings.generated.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Core\Public\Windows/HideWindowsPlatformTypes.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\wire\SocketWire.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\base/WireBase.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\protocol/MessageBroker.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_framework_cpp\wire\ByteBufferAsyncProcessor.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_framework_cpp\wire\PkgInputStream.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\thirdparty\clsocket\src\SimpleSocket.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\ucrt\io.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\ucrt\corecrt_io.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\winsock2.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\ws2def.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\inaddr.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\qos.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\um\Ws2tcpip.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\ws2ipdef.h
+C:\Program Files (x86)\Windows Kits\10\include\10.0.16299.0\shared\in6addr.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\thirdparty\clsocket\src\Host.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\thirdparty\clsocket\src\StatTimer.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\thirdparty\clsocket\src\ActiveSocket.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\thirdparty\clsocket\src\PassiveSocket.h
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\INCLUDE\array
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdConnection.cpp
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RiderLink\Public\RdConnection.hpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\RdEditorProtocol/RdEditorModel/RdEditorModel.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\impl/RdSignal.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\serialization/Polymorphic.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\impl/RdProperty.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\base/RdPropertyBase.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\impl/RdList.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\reactive/ViewableList.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_core_cpp\reactive\base/IViewableList.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_core_cpp\reactive\base\viewable_collections.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\impl/RdSet.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\reactive/ViewableSet.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_core_cpp\reactive\base/IViewableSet.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\impl/RdMap.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\reactive/ViewableMap.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_core_cpp\reactive\base/IViewableMap.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\base/ISerializersOwner.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\serialization/NullableSerializer.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\serialization/AbstractPolymorphic.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\util\framework_traits.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\serialization/ArraySerializer.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\serialization/InternedSerializer.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\ext/RdExtBase.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_framework_cpp\ext\ExtWire.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\task/RdCall.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_framework_cpp\task\RdTask.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_framework_cpp\task\RdTaskImpl.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_framework_cpp\task\RdTaskResult.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\scheduler/SynchronousScheduler.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_framework_cpp\task\WiredRdTask.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_framework_cpp\task\WiredRdTaskImpl.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\task/RdEndpoint.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\task/RdSymmetricCall.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_core_cpp\util/enum.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\rdeditormodel\../instantiations.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\public\UE4TypesMarshallers.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\rdeditormodel\../UE4Library/UnrealLogEvent.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\ue4library\../UE4Library/LogMessageInfo.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\rdeditormodel\../UE4Library/BlueprintReference.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\rdeditormodel\../UE4Library/UClass.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\scheduler\SimpleScheduler.h
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RD\include\rd_framework_cpp\scheduler\SingleThreadScheduler.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\rd\include\rd_framework_cpp\scheduler\base/SingleThreadSchedulerBase.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Core\Public\Windows/AllowWindowsPlatformTypes.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\AssetRegistry\Public\AssetRegistryModule.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\CoreUObject\Public\Misc/AssetRegistryInterface.h
+d:\program files\epic games\ue_4.25\engine\source\runtime\assetregistry\public\IAssetRegistry.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Intermediate\Build\Win64\UE4Editor\Inc\AssetRegistry\IAssetRegistry.generated.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\RdEditorProtocol/UE4Library/UE4Library.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Core\Public\Windows/HideWindowsPlatformTypes.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/instantiations.cpp
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/pch_RdEditorRoot.cpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\pch_RdEditorRoot.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/pch_UE4Library.cpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\pch_UE4Library.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/RdEditorModel/RdEditorModel.cpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\rdeditormodel\../RdEditorRoot/RdEditorRoot.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/RdEditorRoot/RdEditorRoot.cpp
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/BlueprintFunction.cpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\ue4library\BlueprintFunction.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/BlueprintHighlighter.cpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\ue4library\BlueprintHighlighter.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/BlueprintReference.cpp
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/EmptyScriptCallStack.cpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\ue4library\EmptyScriptCallStack.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\ue4library\IScriptCallStack.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/IScriptCallStack.cpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\ue4library\IScriptCallStack_Unknown.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/IScriptCallStack_Unknown.cpp
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/IScriptMsg.cpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\ue4library\IScriptMsg.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\ue4library\IScriptMsg_Unknown.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/IScriptMsg_Unknown.cpp
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/LogMessageInfo.cpp
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/ScriptCallStack.cpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\ue4library\ScriptCallStack.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\ue4library\../UE4Library/ScriptCallStackFrame.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/ScriptCallStackFrame.cpp
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/ScriptMsgCallStack.cpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\ue4library\ScriptMsgCallStack.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/ScriptMsgException.cpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\ue4library\ScriptMsgException.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/StringRange.cpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\ue4library\StringRange.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/UClass.cpp
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/UE4Library.cpp
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\private\rdeditorprotocol\ue4library\../UE4Library/UnableToDisplayScriptCallStack.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/UnableToDisplayScriptCallStack.cpp
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RdEditorProtocol/UE4Library/UnrealLogEvent.cpp
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RiderLink.cpp
+C:\Unreal Projects\GuildGame\Plugins\Developer\RiderLink\Source\RiderLink\Public\RiderLink.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Core\Public\Windows/AllowWindowsPlatformTypes.h
+c:\unreal projects\guildgame\plugins\developer\riderlink\source\riderlink\public\RiderOutputDevice.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Core\Public\Windows/HideWindowsPlatformTypes.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Editor\UnrealEd\Classes\Editor/UnrealEdEngine.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Editor\UnrealEd\Public\IPackageAutoSaver.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Developer\SourceControl\Public\ISourceControlProvider.h
+d:\program files\epic games\ue_4.25\engine\source\developer\sourcecontrol\public\ISourceControlOperation.h
+d:\program files\epic games\ue_4.25\engine\source\developer\sourcecontrol\public\ISourceControlState.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Editor\UnrealEd\Public\IDDCNotifications.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Editor\UnrealEd\Public\ComponentVisualizer.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Editor\UnrealEd\Public\ComponentVisualizerManager.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Intermediate\Build\Win64\UE4Editor\Inc\UnrealEd\UnrealEdEngine.generated.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Editor\UnrealEd\Public\Kismet2/DebuggerCommands.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Editor\UnrealEd\Public\UnrealEdGlobals.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Editor\UnrealEd\Public\IAssetViewport.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Slate\Public\Widgets/SViewport.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\SlateCore\Public\Input/HittestGrid.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\HeadMountedDisplay\Public\IHeadMountedDisplay.h
+d:\program files\epic games\ue_4.25\engine\source\runtime\headmounteddisplay\public\HeadMountedDisplayTypes.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Intermediate\Build\Win64\UE4Editor\Inc\HeadMountedDisplay\HeadMountedDisplayTypes.generated.h
+d:\program files\epic games\ue_4.25\engine\source\runtime\headmounteddisplay\public\LateUpdateManager.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\HeadMountedDisplay\Public\IXRTrackingSystem.h
+d:\program files\epic games\ue_4.25\engine\source\runtime\headmounteddisplay\public\IIdentifiableXRDevice.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Intermediate\Build\Win64\UE4Editor\Inc\HeadMountedDisplay\IIdentifiableXRDevice.generated.h
+d:\program files\epic games\ue_4.25\engine\source\runtime\headmounteddisplay\public\IXRInput.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Editor\LevelEditor\Public\LevelEditor.h
+d:\program files\epic games\ue_4.25\engine\source\editor\leveleditor\public\ILevelEditor.h
+d:\program files\epic games\ue_4.25\engine\source\editor\leveleditor\public\ViewportTypeDefinition.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Engine\Classes\Components/CapsuleComponent.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Engine\Classes\Components/ShapeComponent.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\ShapeComponent.generated.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\CapsuleComponent.generated.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Engine\Classes\GameFramework/PlayerStart.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Engine\Classes\Engine/NavigationObjectBase.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\NavigationObjectBase.generated.h
+D:\Program Files\Epic Games\UE_4.25\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\PlayerStart.generated.h
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/RiderOutputDevice.cpp
+C:/Unreal Projects/GuildGame/Plugins/Developer/RiderLink/Source/RiderLink/Private/UE4TypesMarshallers.cpp

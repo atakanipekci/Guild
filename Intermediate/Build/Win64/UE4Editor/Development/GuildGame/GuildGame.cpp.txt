@@ -1,0 +1,2 @@
+C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\Definitions.GuildGame.h
+c:\unreal projects\guildgame\source\guildgame\GuildGame.h

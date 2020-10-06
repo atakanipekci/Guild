@@ -1,0 +1,36 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.RiderLink.cpp.obj": [
+			"BlueprintProvider.cpp.obj",
+			"ProtocolFactory.cpp.obj",
+			"RdConnection.cpp.obj",
+			"instantiations.cpp.obj",
+			"pch_RdEditorRoot.cpp.obj",
+			"pch_UE4Library.cpp.obj",
+			"RdEditorModel.cpp.obj",
+			"RdEditorRoot.cpp.obj",
+			"BlueprintFunction.cpp.obj",
+			"BlueprintHighlighter.cpp.obj",
+			"BlueprintReference.cpp.obj",
+			"EmptyScriptCallStack.cpp.obj",
+			"IScriptCallStack.cpp.obj",
+			"IScriptCallStack_Unknown.cpp.obj",
+			"IScriptMsg.cpp.obj",
+			"IScriptMsg_Unknown.cpp.obj",
+			"LogMessageInfo.cpp.obj",
+			"ScriptCallStack.cpp.obj",
+			"ScriptCallStackFrame.cpp.obj",
+			"ScriptMsgCallStack.cpp.obj",
+			"ScriptMsgException.cpp.obj",
+			"StringRange.cpp.obj",
+			"UClass.cpp.obj",
+			"UE4Library.cpp.obj",
+			"UnableToDisplayScriptCallStack.cpp.obj",
+			"UnrealLogEvent.cpp.obj",
+			"RiderLink.cpp.obj",
+			"RiderOutputDevice.cpp.obj",
+			"UE4TypesMarshallers.cpp.obj"
+		]
+	}
+}

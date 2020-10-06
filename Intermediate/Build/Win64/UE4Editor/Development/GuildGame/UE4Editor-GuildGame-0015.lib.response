@@ -1,0 +1,32 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UE4Editor-GuildGame-0015.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\GuildGameEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GGCameraSpectatorPawn.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GGCharacter.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GGGrid.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GGPawn.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GGPlayerController.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GridFloor.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GridGraph.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GridGraphQueryFilter.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GridManager.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GridNavigationData.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GuildGame.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GuildGameGameModeBase.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GGCameraSpectatorPawn.gen.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GGCharacter.gen.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GGPawn.gen.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GGPlayerController.gen.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GridFloor.gen.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GridNavigationData.gen.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GuildGame.init.gen.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\GuildGameGameModeBase.gen.cpp.obj"
+"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\Default.rc2.res"
+/OUT:"C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\UE4Editor-GuildGame-0015.lib"
+/INCLUDE:IMPLEMENT_MODULE_GuildGame

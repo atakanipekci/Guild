@@ -10,7 +10,8 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
-				"NavigationSystem"
+				"NavigationSystem",
+				"UMG"
 			]
 		}
 	]

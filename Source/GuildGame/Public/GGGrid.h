@@ -11,18 +11,7 @@
 enum class EGridState
 {
 	Empty = 0,
-	Obstacle = 1,
-	HalfObstacle = 2
-};
-
-enum class EGridEdge
-{
-	Empty = 0,
-	Cover = 1,
-	HalfCover = 2,
-	Obstacle = 3,
-	HalfObstacle = 4
-	
+	Obstacle = 1
 };
 
 class GUILDGAME_API GGGrid
@@ -32,5 +21,4 @@ public:
 	~GGGrid();
 	int Index;
 	EGridState GridState = EGridState::Empty;
-	EGridEdge GridEdge[4];
 };

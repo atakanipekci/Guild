@@ -1,7 +1,0 @@
-C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\Definitions.GuildGame.h
-c:\unreal projects\guildgame\source\guildgame\GuildGameGameModeBase.h
-D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Engine\Classes\GameFramework/GameModeBase.h
-D:\Program Files\Epic Games\UE_4.25\Engine\Source\Runtime\Engine\Classes\Engine/ServerStatReplicator.h
-D:\Program Files\Epic Games\UE_4.25\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\ServerStatReplicator.generated.h
-D:\Program Files\Epic Games\UE_4.25\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\GameModeBase.generated.h
-C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Inc\GuildGame\GuildGameGameModeBase.generated.h

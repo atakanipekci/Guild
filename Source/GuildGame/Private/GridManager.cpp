@@ -2,7 +2,11 @@
 
 
 #include "GridManager.h"
+
 #include "GGLogHelper.h"
+#include "NavigationSystem.h"
+#include "NavigationPath.h"
+#include "GridFloor.h"
 
 GridManager::GridManager(FVector2D StartPos, float GridSize, int ColumnCount, int RowCount)
 {
@@ -26,7 +30,7 @@ bool GridManager::IsGridWalkable(int Index) const
     int row = Index/ColumnCount;
     int col = Index%ColumnCount;
 
-    if(Index < 0 || Index > ColumnCount*RowCount || GGGrids[Index].GridState != EGridState::Empty)
+    if(Index < 0 || Index >= ColumnCount*RowCount || GGGrids[Index].GridState != EGridState::Empty)
     {
         return false;
     }
@@ -36,7 +40,11 @@ bool GridManager::IsGridWalkable(int Index) const
 
 bool GridManager::IsGridWalkable(FIntPoint Point) const
 {
-    return IsGridValid(PointToIndex(Point));
+    if(IsGridValid(PointToIndex(Point)))
+    {
+        return true;
+    }
+    return false;
 }
 
 bool GridManager::IsGridValid(FIntPoint Point) const
@@ -46,7 +54,16 @@ bool GridManager::IsGridValid(FIntPoint Point) const
 
 bool GridManager::IsGridValid(int Index) const
 {
-    return !(Index < 0 || Index > ColumnCount*RowCount);
+    if(Index < 0 || Index >= ColumnCount*RowCount)
+    {
+        return false;
+    }
+
+    if(GGGrids[Index].GridState == EGridState::Obstacle)
+    {
+        return false;
+    }
+    return true;
 }
 
 int GridManager::WorldToGrid(FVector WorldPos) const
@@ -133,17 +150,14 @@ void GridManager::SetGridState(int Index, EGridState NewState)
     GridToSet->GridState = NewState;
 }
 
-TArray<GGGrid*> GridManager::GetGridsFromCenter(int Index, int ARowCount, int AColumnCount)
+bool GridManager::GetGridsFromCenter(int Index, int ARowCount, int AColumnCount,  TArray<GGGrid*>* GridsResult)
 {
     //todo: add controls for the edges of the map
-
-    
-    TArray<GGGrid*> GridsResult;
-    if(Index < 0)
+    if(Index < 0 || GridsResult == nullptr)
     {
-        return GridsResult;  
+        return false;  
     }
-    GridsResult.Reserve(ARowCount*AColumnCount);
+    GridsResult->Reserve(ARowCount*AColumnCount);
 
     int RowIndex = Index/this->ColumnCount;
     int ColIndex = Index%this->ColumnCount;
@@ -155,20 +169,23 @@ TArray<GGGrid*> GridManager::GetGridsFromCenter(int Index, int ARowCount, int AC
     {
         for(int j = 0; j < ARowCount; j++)
         {
-            GridsResult.Add(&GGGrids[StartIndex + (j*this->ColumnCount) +  i]);                
+            int result = StartIndex + (j*this->ColumnCount) +  i;
+            if(result >= 0 && result < ColumnCount*RowCount)
+            {
+                GridsResult->Add(&GGGrids[result]);
+            }
         }
     }
-    return GridsResult; 
+    return true; 
 }
 
-TArray<GGGrid*> GridManager::GetNeighbours(int Index, int ARowCount, int AColumnCount)
+bool GridManager::GetNeighbours(int Index, int ARowCount, int AColumnCount, TArray<GGGrid*>* GridsResult)
 {
-    TArray<GGGrid*> GridsResult;
-    if(Index < 0)
+    if(Index < 0|| GridsResult == nullptr)
     {
-        return GridsResult;  
+        return false;  
     }
-     GridsResult.Reserve((ARowCount+1)*2 + (AColumnCount+1)*2);
+     GridsResult->Reserve((ARowCount+1)*2 + (AColumnCount+1)*2);
 
     int RowIndex = Index/this->ColumnCount;
     int ColIndex = Index%this->ColumnCount;
@@ -180,27 +197,79 @@ TArray<GGGrid*> GridManager::GetNeighbours(int Index, int ARowCount, int AColumn
     //Right
     for(int i = 0; i < ARowCount; i++)
     {
-        GridsResult.Add(&GGGrids[StartIndex + ColumnCount + AColumnCount + 1 + i*ColumnCount]);
+        int result = StartIndex + ColumnCount + AColumnCount + 1 + i*ColumnCount;
+        if(result >= 0 && result < ColumnCount*RowCount)
+        {
+            GridsResult->Add(&GGGrids[StartIndex + ColumnCount + AColumnCount + 1 + i*ColumnCount]);
+        }
     }
     //Bottom
     for(int i = 0; i < AColumnCount+2; i++)
     {
-        GridsResult.Add(&GGGrids[StartIndex+(ColumnCount*(ARowCount+1)) + i]);
+        int result = StartIndex+(ColumnCount*(ARowCount+1)) + i;
+        if(result >= 0 && result < ColumnCount*RowCount)
+        {
+            GridsResult->Add(&GGGrids[result]);
+        }
     }
     //Left
     for(int i = 0; i < ARowCount; i++)
     {
-        GridsResult.Add(&GGGrids[StartIndex + ColumnCount + i*ColumnCount]);
-    }
+        int result = StartIndex + ColumnCount + i*ColumnCount;
+        if(result >= 0 && result < ColumnCount*RowCount)
+        {
+            GridsResult->Add(&GGGrids[result]);
+        }
+     }
     //Top
     for(int i = 0; i < AColumnCount+2; i++)
     {
-        GridsResult.Add(&GGGrids[StartIndex + i]);
+        int result = StartIndex + i;
+
+        if(result >= 0 && result < ColumnCount*RowCount)
+        {
+            GridsResult->Add(&GGGrids[result]);
+        }
     }
-    return GridsResult;   
+    return true;   
 }
 
-FVector GridManager::GetPositionToPlace(int Index, int ARowCount, int AColumnCount)
+bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<GGGrid*>* GridsResult)
+{
+    int IndexDist = Dist/GridSize;
+    int TopLeft = CenterIndex - IndexDist - IndexDist*ColumnCount;
+
+    FVector start = GetGridCenter(CenterIndex);
+    FVector end;
+    int result = 0;
+    for(int i = 0; i <= IndexDist*2; i++)
+    {
+        for(int j = 0; j<= IndexDist*2; j++)
+        {
+            result = TopLeft + i + j*ColumnCount;
+
+            
+            if(result >= 0 && result < RowCount*ColumnCount && AttachedFloor)
+            {
+                end = GetGridCenter(result);
+                UNavigationPath* path =  UNavigationSystemV1::FindPathToLocationSynchronously(AttachedFloor->GetWorld(), start, end, nullptr,nullptr);
+                if(path)
+                {
+                    float PathDist = path->GetPathLength();
+                    LOG("Pathdist %f", PathDist);
+                    if(PathDist<Dist)
+                    {
+                        GridsResult->Add(&GGGrids[result]);
+                    }
+                }
+
+            }
+        }
+    }
+    return true;
+}
+
+FVector GridManager::GetPositionToPlace(int Index, int ARowCount, int AColumnCount) const
 {
     if(ARowCount%2 == 0 && AColumnCount %2 == 0)
     {
@@ -220,11 +289,16 @@ FVector GridManager::GetPositionToPlace(int Index, int ARowCount, int AColumnCou
     }
 }
 
-bool GridManager::IsPlaceable(TArray<GGGrid*> GridsToPlace, EGridState RequiredState) const
+bool GridManager::IsPlaceable(TArray<GGGrid*>* GridsToPlace, EGridState RequiredState) const
 {
-    for(int i = 0; i < GridsToPlace.Num(); i++)
+    if(GridsToPlace == nullptr)
     {
-        if(GridsToPlace[i] == nullptr || GridsToPlace[i]->GridState != RequiredState)
+        return false;  
+    }
+    
+    for(int i = 0; i < GridsToPlace->Num(); i++)
+    {
+        if((*GridsToPlace)[i] == nullptr || (*GridsToPlace)[i]->GridState != RequiredState)
         {
             return false;
         }
@@ -233,14 +307,23 @@ bool GridManager::IsPlaceable(TArray<GGGrid*> GridsToPlace, EGridState RequiredS
     return true;
 }
 
-void GridManager::SetGridStates(TArray<GGGrid*> GridsToSet, EGridState NewState)
+bool GridManager::SetGridStates(TArray<GGGrid*>* GridsToSet, EGridState NewState)
 {
-    for(int i = 0; i < GridsToSet.Num(); i++)
+
+    if(GridsToSet == nullptr)
     {
-        if(GridsToSet[i] == nullptr)
+        return false;  
+    }
+    
+    for(int i = 0; i < GridsToSet->Num(); i++)
+    {
+        if((*GridsToSet)[i] == nullptr)
         {
             continue;
         }
-        GridsToSet[i]->GridState = NewState;
+        (*GridsToSet)[i]->GridState = NewState;
     }
+
+    return true;
+
 }

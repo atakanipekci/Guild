@@ -81,6 +81,12 @@ void AGGPlayerController::SelectCharAtMousePos()
 		if(HitCharacter != nullptr)
 		{
 			SelectedCharacter = HitCharacter;
+			CharacterManager::SetMovableGrids(SelectedCharacter);
+
+			if(GridFloor)
+			{
+				GridFloor->UpdateGridMeshes(*(SelectedCharacter->GetMovableGrids()));
+			}
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "selected");
 		}
 		else

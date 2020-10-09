@@ -1,4 +1,0 @@
-C:\Unreal Projects\GuildGame\Intermediate\Build\Win64\UE4Editor\Development\GuildGame\Definitions.GuildGame.h
-C:\Unreal Projects\GuildGame\Source\GuildGame\Public\GridManager.h
-c:\unreal projects\guildgame\source\guildgame\public\GGGrid.h
-C:\Unreal Projects\GuildGame\Source\GuildGame\Public\GGLogHelper.h

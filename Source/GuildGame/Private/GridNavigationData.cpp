@@ -74,6 +74,7 @@ FPathFindingResult AGridNavigationData::FindPath(const FNavAgentProperties& Agen
 			queryFilter.SetGridManager(AStar->NavGridManager);
 			queryFilter.SetAllowPartialPaths(Query.bAllowPartialPaths);
 
+
 			TArray<FIntPoint> Path;
 			EGraphAStarResult aStarResult = AStar->Pathfinder->FindPath(myGridPos, targetGridPos, queryFilter, Path);
 

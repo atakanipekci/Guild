@@ -18,15 +18,25 @@ AGGCharacter::AGGCharacter()
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 }
 
+void AGGCharacter::SetActive()
+{
+	return;
+}
+
+TArray<GGGrid*>* AGGCharacter::GetMovableGrids()
+{
+	return &MovableGrids;
+}
+
 // Called when the game starts or when spawned
 void AGGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	AGGPlayerController* PlayerController = Cast<AGGPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	/*AGGPlayerController* PlayerController = Cast<AGGPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	if (PlayerController != nullptr)
 	{
 		PlayerController->SetSelectedCharacter(this);
-	}
+	}*/
 	
 }
 

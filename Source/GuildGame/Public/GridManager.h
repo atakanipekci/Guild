@@ -27,11 +27,12 @@ public:
 	FVector GetGridTopLeft(int Index)const;
 	FVector GetGridBottomLeft(int Index)const;
 	void SetGridState(int Index, EGridState NewState);
-	void SetGridStates(TArray<GGGrid*> GridsToSet, EGridState NewState);
-	TArray<GGGrid*> GetGridsFromCenter(int Index, int RowCount, int ColumnCount);
-	TArray<GGGrid*> GetNeighbours(int Index, int RowCount, int ColumnCount);
-	FVector GetPositionToPlace(int Index, int RowCount, int ColumnCount);
-	bool IsPlaceable(TArray<GGGrid*> GridsToPlace, EGridState RequiredState)const;
+	bool IsPlaceable(TArray<GGGrid*>* GridsToPlace, EGridState RequiredState) const;
+	bool GetGridsFromCenter(int Index, int ARowCount, int AColumnCount,  TArray<GGGrid*>* GridsResult);
+	bool GetNeighbours(int Index, int ARowCount, int AColumnCount, TArray<GGGrid*>* GridsResult);
+	bool GetGridsInRange(int CenterIndex, float Dist, TArray<GGGrid*>* GridsResult);
+	FVector GetPositionToPlace(int Index, int RowCount, int ColumnCount) const;
+	bool SetGridStates(TArray<GGGrid*>* GridsToSet, EGridState NewState);
 
 	TArray<GGGrid> GGGrids;
 private:
@@ -39,4 +40,16 @@ private:
 	int ColumnCount;
 	int RowCount;
 	int GridSize;
+	class AGridFloor* AttachedFloor = nullptr;
+public:
+	
+	void SetAttachedFloor(AGridFloor* AAttachedFloor)
+	{
+		this->AttachedFloor = AAttachedFloor;
+	}
+
+	int GetGridSize() const
+	{
+		return GridSize;
+	}
 };

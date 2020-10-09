@@ -2,6 +2,8 @@
 
 
 #include "GridFloor.h"
+
+#include "GGLogHelper.h"
 #include "Kismet/GameplayStatics.h"
 #include "GGPlayerController.h"
 
@@ -23,12 +25,12 @@ AGridFloor::AGridFloor()
 
 GridManager* AGridFloor::GetGridManager() const
 {
-	return MyGridManager;
+	return FloorGridManager;
 }
 
 void AGridFloor::SetGridManager(GridManager* NewGridManager)
 {
-	this->MyGridManager = NewGridManager;
+	this->FloorGridManager = NewGridManager;
 }
 
 // Called when the game starts or when spawned
@@ -47,12 +49,14 @@ void AGridFloor::BeginPlay()
 	}
 	FVector2D StartPos = FVector2D(this->GetActorLocation().X,this->GetActorLocation().Y);
 	//StartPos.X += this->RowCount * this->GridSize;
-	MyGridManager = new GridManager(StartPos,this->GridSize,this->ColumnCount, this->RowCount);
+	FloorGridManager = new GridManager(StartPos,this->GridSize,this->ColumnCount, this->RowCount);
+	FloorGridManager->SetAttachedFloor(this);
+	CharacterManager::CharGridManager = FloorGridManager;
 
-	FVector TempPos = MyGridManager->GetGridCenter(10);
+	FVector TempPos = FloorGridManager->GetGridCenter(10);
 	TempPos.Z = GetActorLocation().Z;
 	AvailableGridMesh->AddInstanceWorldSpace(FTransform{TempPos});
-	TempPos = MyGridManager->GetGridCenter(11);
+	TempPos = FloorGridManager->GetGridCenter(11);
 	TempPos.Z = GetActorLocation().Z;
 	NotAvailableGridMesh->AddInstanceWorldSpace(FTransform{TempPos});
 }
@@ -209,9 +213,9 @@ void AGridFloor::OnConstruction(const FTransform& Transform)
 			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL i MAT");
 		}
 
-		if(ISMPointer && MyGridManager)
+		if(ISMPointer && FloorGridManager)
 		{
-			//ISMPointer->AddInstance(FTransform{MyGridManager->GetGridBottomLeft(i)});
+			//ISMPointer->AddInstance(FTransform{FloorGridManager->GetGridBottomLeft(i)});
 			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "ADD INSTANCE");		
 		}
 		
@@ -245,5 +249,59 @@ void AGridFloor::UpdateSelectedGrid(FVector NewPos, bool IsVisible)
 	SelectionMesh->SetWorldLocation(FVector(NewPos.X, NewPos.Y, GetActorLocation().Z));
 	SelectionMesh->SetVisibility(IsVisible);
 	
+}
+
+bool AGridFloor::UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate) const
+{
+
+	for(int i = 0; i < GridFloorTypeCount; i++)
+	{
+		switch (i)
+		{
+			case 0:
+				if(AvailableGridMesh)
+				{
+					AvailableGridMesh->ClearInstances();
+				}
+			break;
+					
+			case 1:
+				if(NotAvailableGridMesh)
+				{
+					NotAvailableGridMesh->ClearInstances();
+				}
+			break;
+
+			default:
+			break;
+		}
+	}
+	FVector Pos;
+	for(int i = 0; i < GridsToUpdate.Num(); i++)
+	{
+		Pos.Set(FloorGridManager->GetGridCenter(GridsToUpdate[i]->Index).X,FloorGridManager->GetGridCenter(GridsToUpdate[i]->Index).Y, GetActorLocation().Z - 5);
+		switch(GridsToUpdate[i]->GridState)
+		{
+			case EGridState::Empty:
+			if(AvailableGridMesh)
+			{
+				AvailableGridMesh->AddInstanceWorldSpace(FTransform{Pos});
+			}
+			break;
+
+			case EGridState::Obstacle:
+			if(NotAvailableGridMesh)
+			{
+				NotAvailableGridMesh->AddInstanceWorldSpace(FTransform{Pos});
+			}
+			break;
+
+			default:
+				NotAvailableGridMesh->AddInstanceWorldSpace(FTransform{Pos});
+			break;
+		}
+	}
+
+	return true;
 }
 

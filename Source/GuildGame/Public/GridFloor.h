@@ -66,7 +66,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	int GridFloorTypeCount = 2;
 	
-	GridManager* MyGridManager;
+	GridManager* FloorGridManager;
 
 public:
 	
@@ -87,4 +87,6 @@ public:
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 	void UpdateSelectedGrid(FVector NewPos, bool IsVisible);
+
+	bool UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate) const;
 };

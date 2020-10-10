@@ -252,17 +252,18 @@ bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<GGGrid*>* 
             if(result >= 0 && result < RowCount*ColumnCount && AttachedFloor)
             {
                 end = GetGridCenter(result);
-                UNavigationPath* path =  UNavigationSystemV1::FindPathToLocationSynchronously(AttachedFloor->GetWorld(), start, end, nullptr,nullptr);
-                if(path)
+                if(IsGridValid(result))
                 {
-                    float PathDist = path->GetPathLength();
-                    LOG("Pathdist %f", PathDist);
-                    if(PathDist<Dist)
+                    UNavigationPath* path =  UNavigationSystemV1::FindPathToLocationSynchronously(AttachedFloor->GetWorld(), start, end, nullptr,nullptr);
+                    if(path)
                     {
-                        GridsResult->Add(&GGGrids[result]);
-                    }
+                        float PathDist = path->GetPathLength();
+                        if(PathDist<Dist && path->IsValid())
+                        {
+                            GridsResult->Add(&GGGrids[result]);
+                        }
+                    }               
                 }
-
             }
         }
     }

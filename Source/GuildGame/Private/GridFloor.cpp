@@ -3,6 +3,8 @@
 
 #include "GridFloor.h"
 
+
+#include "DrawDebugHelpers.h"
 #include "GGLogHelper.h"
 #include "Kismet/GameplayStatics.h"
 #include "GGPlayerController.h"
@@ -21,6 +23,27 @@ AGridFloor::AGridFloor()
 	AvailableGridMesh->SetupAttachment(RootComponent);
 	NotAvailableGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("NotAvailableGrids");
 	NotAvailableGridMesh->SetupAttachment(RootComponent);
+}
+
+void AGridFloor::UpdateGridStatesWithTrace()
+{
+	FCollisionShape MySphereCollision = FCollisionShape::MakeSphere(GridSize/2);
+	TArray<FHitResult> OutHits;
+	for(int i = 0; i < ColumnCount; i++)
+	{
+		for(int j = 0; j < RowCount; j++)
+		{
+			FVector pos = FloorGridManager->GetGridCenter(i + j*ColumnCount);
+			pos.Z = GetActorLocation().Z;
+			//DrawDebugSphere(GetWorld(), pos, MySphereCollision.GetSphereRadius(), 1, FColor::Purple, true);
+			//ecc_gametracechannel1 should be gridobstacle channel.
+			bool isHit = GetWorld()->SweepMultiByChannel(OutHits,pos,pos,FQuat::Identity,ECC_GameTraceChannel1,MySphereCollision);
+			if(isHit)
+			{
+				FloorGridManager->SetGridState(i + j*ColumnCount, EGridState::Obstacle);
+			}
+		}
+	}
 }
 
 GridManager* AGridFloor::GetGridManager() const
@@ -59,6 +82,8 @@ void AGridFloor::BeginPlay()
 	TempPos = FloorGridManager->GetGridCenter(11);
 	TempPos.Z = GetActorLocation().Z;
 	NotAvailableGridMesh->AddInstanceWorldSpace(FTransform{TempPos});
+
+	UpdateGridStatesWithTrace();
 }
 
 // Called every frame
@@ -304,4 +329,6 @@ bool AGridFloor::UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate) const
 
 	return true;
 }
+
+
 

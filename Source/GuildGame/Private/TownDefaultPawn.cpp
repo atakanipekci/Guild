@@ -46,9 +46,10 @@ void ATownDefaultPawn::LeftClickHandler()
 	if (PlayerController != nullptr)
 	{
 		FHitResult Hit;
-		PlayerController->GetHitResultUnderCursor(ECC_GameTraceChannel1, false, Hit);
+		PlayerController->GetHitResultUnderCursor(ECC_WorldStatic, false, Hit);
 		if (Hit.bBlockingHit)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("hit"));
 			if(Hit.Actor != nullptr)
 			{
 				UActorComponent* Building = Hit.Actor->GetComponentByClass(UTownBuildingActorComponent::StaticClass());
@@ -232,7 +233,7 @@ void ATownDefaultPawn::Tick(float DeltaTime)
 
 	FHitResult Hit;
 	ATownPlayerController* PlayerController = Cast<ATownPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
-	PlayerController->GetHitResultUnderCursor(ECC_GameTraceChannel1, false, Hit);
+	PlayerController->GetHitResultUnderCursor(ECC_WorldStatic, false, Hit);
 	if (Hit.bBlockingHit)
 	{
 		if(Hit.Actor != nullptr)

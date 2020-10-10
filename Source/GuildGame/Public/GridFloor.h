@@ -68,6 +68,8 @@ private:
 	
 	GridManager* FloorGridManager;
 
+	void UpdateGridStatesWithTrace();
+
 public:
 	
 	GridManager* GetGridManager() const;

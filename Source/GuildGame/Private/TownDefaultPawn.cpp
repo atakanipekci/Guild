@@ -91,8 +91,11 @@ void ATownDefaultPawn::PlaySequence(TWeakObjectPtr<AActor> Actor)
 	if(SequenceAsset == nullptr)
 		return;
 	
-	if (SequencePlayer == nullptr && SequenceActor == nullptr)
+	//if (SequencePlayer == nullptr && SequenceActor == nullptr)
+	{
           SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), SequenceAsset, FMovieSceneSequencePlaybackSettings(), SequenceActor);
+	}
+	
      
                  //Sequence Play
            if (SequencePlayer)

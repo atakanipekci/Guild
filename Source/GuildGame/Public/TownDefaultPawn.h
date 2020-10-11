@@ -17,7 +17,7 @@ USTRUCT(BlueprintType)
  		 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 	     class UTownBuildingWidgetBase* UiWidget;
 
-		 UPROPERTY(BlueprintReadWrite, Category = Camera)
+		 UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera)
 	     UTownBuildingWidgetBase* UiWidgetInstance;
 	 };
 

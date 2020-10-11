@@ -4,6 +4,7 @@
 #include "GridNavigationData.h"
 #include "AI/Navigation/NavigationTypes.h"
 #include "EngineUtils.h"
+#include "GGLogHelper.h"
 #include "GridFloor.h"
 #include "GridGraphQueryFilter.h"
 
@@ -24,9 +25,27 @@ void AGridNavigationData::BeginPlay()
 
 	for (TActorIterator<AGridFloor> It(GetWorld(), AGridFloor::StaticClass()); It; ++It)
 	{
+		if(It->GetGridManager() == nullptr)
+		{
+			LOG_ERR("ERROR NAV GRID MAN NULL");
+		}
+		LOG("nav grid man set");
 		NavGridManager = It->GetGridManager();
 		Graph.SetGridManager(NavGridManager);
 		break;
+	}
+}
+
+void AGridNavigationData::Tick(float DeltaTime)
+{
+	if(NavGridManager == nullptr)
+	{
+		for (TActorIterator<AGridFloor> It(GetWorld(), AGridFloor::StaticClass()); It; ++It)
+		{
+			NavGridManager = It->GetGridManager();
+			Graph.SetGridManager(NavGridManager);
+			break;
+		}
 	}
 }
 
@@ -48,7 +67,16 @@ FPathFindingResult AGridNavigationData::FindPath(const FNavAgentProperties& Agen
 	check(AStar != nullptr);
 
 	if (AStar == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("null nav"));
 		return ENavigationQueryResult::Error;
+	}
+
+	if(AStar->NavGridManager == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("null nav grid man"));
+		return ENavigationQueryResult::Error;
+	}
 
 	FPathFindingResult Result(ENavigationQueryResult::Error);
 	Result.Path = Query.PathInstanceToFill.IsValid() ? Query.PathInstanceToFill : Self->CreatePathInstance<FNavigationPath>(Query);

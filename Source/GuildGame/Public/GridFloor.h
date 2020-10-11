@@ -5,10 +5,34 @@
 #include "CoreMinimal.h"
 #include "ProceduralMeshComponent.h"
 #include "GridManager.h"
+#include "Engine/DataTable.h"
 #include "GameFramework/Actor.h"
 #include "GridFloor.generated.h"
 
+UENUM(BlueprintType)
+enum class EISMType: uint8
+{
+	Available,
+	NotAvailable,
+	Enemy
+};
 
+USTRUCT(BlueprintType)
+struct FISMDetails : public FTableRowBase
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	UStaticMesh* Mesh;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	class UMaterialInterface* Material;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	FLinearColor Color;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	float Opacity;
+};
 
 UCLASS()
 class GUILDGAME_API AGridFloor : public AActor
@@ -36,11 +60,6 @@ public:
 	FLinearColor SelectedGridColor;
 
 	UPROPERTY(EditAnywhere)
-	FLinearColor AvailableGridColor;
-	UPROPERTY(EditAnywhere)
-	FLinearColor NotAvailableGridColor;
-
-	UPROPERTY(EditAnywhere)
 	float LineOpacity;
 	UPROPERTY(EditAnywhere)
 	float GridOpacity;
@@ -50,9 +69,6 @@ public:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	UProceduralMeshComponent* GridMesh;
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	UStaticMesh* GridStaticMesh;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	UInstancedStaticMeshComponent* AvailableGridMesh;
@@ -60,7 +76,10 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	UInstancedStaticMeshComponent* NotAvailableGridMesh;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TMap<EISMType,FISMDetails> ISMMap;
 
+	
 	USceneComponent* RootComponent;
 private:
 	UPROPERTY(EditAnywhere)

@@ -33,6 +33,10 @@ public:
 	bool GetGridsInRange(int CenterIndex, float Dist, TArray<GGGrid*>* GridsResult);
 	FVector GetPositionToPlace(int Index, int RowCount, int ColumnCount) const;
 	bool SetGridStates(TArray<GGGrid*>* GridsToSet, EGridState NewState);
+	void SetStartPos(FVector2D& NewPos)
+	{
+		StartPos = NewPos;	
+	}
 
 	TArray<GGGrid> GGGrids;
 private:

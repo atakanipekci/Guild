@@ -18,6 +18,7 @@ class GUILDGAME_API AGridNavigationData : public ANavigationData
 	GENERATED_BODY()
 	AGridNavigationData(const FObjectInitializer&);
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 public:
 	static FPathFindingResult FindPath(const FNavAgentProperties& AgentProperties, const FPathFindingQuery& Query);

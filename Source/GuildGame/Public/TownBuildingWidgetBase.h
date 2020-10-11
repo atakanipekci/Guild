@@ -13,7 +13,9 @@ UCLASS()
 class GUILDGAME_API UTownBuildingWidgetBase : public UUserWidget
 {
 	GENERATED_BODY()
-	public:
+public:
+	virtual void NativeConstruct() override;
+	void virtual OnEnabled();
 	UPROPERTY(meta = (BindWidgetAnim), EditAnywhere, BlueprintReadWrite, Category = Animations)
 	class UWidgetAnimation* OpenUpAnimation;
 

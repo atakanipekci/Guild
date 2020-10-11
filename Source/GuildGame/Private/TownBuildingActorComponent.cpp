@@ -78,3 +78,8 @@ ULevelSequence* UTownBuildingActorComponent::GetSequenceAsset() const
 	return  nullptr;
 }
 
+bool UTownBuildingActorComponent::IsConstructed() const
+{
+	return  IsBuildingConstructed;
+}
+

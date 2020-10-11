@@ -8,9 +8,19 @@
 
 void UTownTavernWidget::NativeConstruct()
 {
-    ATownDefaultPawn* pawn = Cast<ATownDefaultPawn>(UGameplayStatics::GetPlayerPawn(this, 0));
-    if(pawn)
-    {
-        
-    }
+    Super::NativeConstruct();
+    OnEnabled();
 }
+
+void UTownTavernWidget::OnEnabled()
+{
+    Super::OnEnabled();
+
+    // ATownDefaultPawn* Pawn = Cast<ATownDefaultPawn>(UGameplayStatics::GetPlayerPawn(this, 0));
+    // if(Pawn)
+    // {
+    //     
+    // }
+}
+
+

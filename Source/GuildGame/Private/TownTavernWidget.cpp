@@ -3,3 +3,14 @@
 
 #include "TownTavernWidget.h"
 
+#include "TownDefaultPawn.h"
+#include "Kismet/GameplayStatics.h"
+
+void UTownTavernWidget::NativeConstruct()
+{
+    ATownDefaultPawn* pawn = Cast<ATownDefaultPawn>(UGameplayStatics::GetPlayerPawn(this, 0));
+    if(pawn)
+    {
+        
+    }
+}

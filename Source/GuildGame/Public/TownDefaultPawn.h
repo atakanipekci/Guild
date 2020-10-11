@@ -38,10 +38,12 @@ public:
 	void PlaySequenceReverse();
 
 	UFUNCTION(BlueprintCallable)
-	void IsWidgetCreated();
+	void CreateWidgetViaCode();
+	UFUNCTION()
+	void CollapseBuildingWidgetOnAnimationFinish();
 
 	UFUNCTION()
-	void EnableInputOnFinish();
+	void EnablePlayerInputOnSequenceFinish();
 	
 	UFUNCTION(BlueprintCallable)
 	void SetMappedWidgetInstance(FString Key, UTownBuildingWidgetBase* Widget);

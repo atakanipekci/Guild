@@ -24,8 +24,37 @@ void UTownBuildingActorComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	if(TransparentMatBlueprint && DefaultMatBlueprint)
+	{
+		SetMaterialViaState(IsBuildingConstructed);
+	}
+}
+void UTownBuildingActorComponent::SetMaterialViaState(bool IsConstructed)
+{
+	if(IsConstructed == false)
+	{
+		if(TransparentMatInstance == nullptr)
+			TransparentMatInstance = UMaterialInstanceDynamic::Create(TransparentMatBlueprint, this);
+
+		UActorComponent* Building = GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass());
+
+		if(Building != nullptr && TransparentMatInstance != nullptr)
+		{
+			Cast<UStaticMeshComponent>(Building)->SetMaterial(0, TransparentMatInstance);
+		}
+	}
+	else
+	{
+		if(DefaultMatInstance == nullptr)
+			DefaultMatInstance = UMaterialInstanceDynamic::Create(DefaultMatBlueprint, this);
+
+		UActorComponent* Building = GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass());
+
+		if(Building != nullptr && DefaultMatInstance != nullptr)
+		{
+			Cast<UStaticMeshComponent>(Building)->SetMaterial(0, DefaultMatInstance);
+		}
+	}
 }
 
 

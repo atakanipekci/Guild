@@ -18,16 +18,30 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	void SetMaterialViaState(bool IsConstructed);
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
     FString BuildingDataKey;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
+	UMaterialInstance* TransparentMatBlueprint;
+	UPROPERTY(BlueprintReadWrite, Category = Building)
+	UMaterialInstanceDynamic* TransparentMatInstance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
+	
+	UMaterialInstance* DefaultMatBlueprint;
+	UPROPERTY(BlueprintReadWrite, Category = Building)
+	UMaterialInstanceDynamic* DefaultMatInstance;
 
 	class ULevelSequence* GetSequenceAsset() const;
 
-
+private:
+	UPROPERTY(EditAnywhere, Category = Building)
+	bool IsBuildingConstructed = true;
 		
 };

@@ -19,6 +19,8 @@ class GUILDGAME_API UTownMenuWidget : public UUserWidget
 	class UButton* TestButton;
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* TestTextBlock;
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* GoldText;
 
 	virtual void NativeConstruct() override;
 

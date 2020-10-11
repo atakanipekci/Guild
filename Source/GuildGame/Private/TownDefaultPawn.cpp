@@ -8,7 +8,9 @@
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
 #include "TownBuildingActorComponent.h"
+#include "TownBuildingWidgetBase.h"
 #include "TownPlayerController.h"
+#include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -60,7 +62,7 @@ void ATownDefaultPawn::LeftClickHandler()
 						SelectedBuilding = Cast<UTownBuildingActorComponent>(Building);
 						SequenceAsset = SelectedBuilding->GetSequenceAsset();
 						if(SequenceAsset)
-							UE_LOG(LogTemp, Warning, TEXT("Play asset On , %s"),*(Hit.Actor->GetName()));
+							UE_LOG(LogTemp, Warning, TEXT("Play asset On , %s"),*(SequenceAsset->GetName()));
 
 						PlaySequence((Hit.Actor));
 					}
@@ -73,8 +75,6 @@ void ATownDefaultPawn::LeftClickHandler()
 
 void ATownDefaultPawn::RightClickHandler()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Right Mouse Clicked"));
-
 	ATownPlayerController* PlayerController = Cast<ATownPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	
 	if (PlayerController != nullptr)
@@ -91,22 +91,21 @@ void ATownDefaultPawn::PlaySequence(TWeakObjectPtr<AActor> Actor)
 	if(SequenceAsset == nullptr)
 		return;
 	
-	//if (SequencePlayer == nullptr && SequenceActor == nullptr)
+	if (SequencePlayer == nullptr && SequenceActor == nullptr)
 	{
           SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), SequenceAsset, FMovieSceneSequencePlaybackSettings(), SequenceActor);
 	}
-	
      
-                 //Sequence Play
-           if (SequencePlayer)
-           {
-           	  SequenceActor->LevelSequence = SequenceAsset;
-           	  bIsBuildingFocused = true;
-           	  SequencePlayer->Stop();
-              SequencePlayer->Play();
-           	  bEnableInput = false;
-           	  SequencePlayer->OnFinished.AddUniqueDynamic(this, &ATownDefaultPawn::EnableInputOnFinish);
-           }
+    if (SequencePlayer)
+    {
+    	UE_LOG(LogTemp, Warning, TEXT("SETTING SEQ , %s"),*(SequenceAsset->GetName()));
+    	SequenceActor->SetSequence(SequenceAsset);
+    	bIsBuildingFocused = true;
+    	SequencePlayer->Stop();
+        SequencePlayer->Play();
+    	bEnableInput = false;
+    	SequencePlayer->OnFinished.AddUniqueDynamic(this, &ATownDefaultPawn::EnablePlayerInputOnSequenceFinish);
+    }
 }
 
 void ATownDefaultPawn::PlaySequenceReverse()
@@ -118,83 +117,89 @@ void ATownDefaultPawn::PlaySequenceReverse()
 	   SequencePlayer->Stop();
        SequencePlayer->PlayReverse();
 	   bEnableInput = false;
-	   SequencePlayer->OnFinished.AddUniqueDynamic(this, &ATownDefaultPawn::EnableInputOnFinish);
+	   SequencePlayer->OnFinished.AddUniqueDynamic(this, &ATownDefaultPawn::EnablePlayerInputOnSequenceFinish);
 	}
 }
 
-void ATownDefaultPawn::IsWidgetCreated()
+void ATownDefaultPawn::EnablePlayerInputOnSequenceFinish()
 {
-	/*if(SelectedBuilding)
+	bEnableInput = true;
+}
+
+void ATownDefaultPawn::CreateWidgetViaCode()
+{
+	if(SelectedBuilding)
 	{
-		AMyGameModeBase* GameMode = Cast<AMyGameModeBase>(UGameplayStatics::GetGameMode(this));
-		if(GameMode)
+		const FString Key = SelectedBuilding->BuildingDataKey;
+		UTownBuildingWidgetBase* BuildingWidgetInstance = GetMappedWidgetInstance(Key);
+		if(BuildingWidgetInstance)
 		{
-			//UUserWidget* Widget = GameMode->GetMappedWidget(SelectedBuilding->BuildingDataKey);
-
-			if(Widget == nullptr)
+			if(IsReversed == true)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("WIDGET IS NULL"));
-
-				 Widget = CreateWidget<UMyUserWidget>(this, UMyUserWidget::StaticClass());
-				 FInputModeGameAndUI Mode;
-				 Mode.SetLockMouseToViewport(true);
-				 Mode.SetHideCursorDuringCapture(false);
-				 SetInputMode(Mode);
-				 UserInterface->AddToViewport(9999); // Z-order, this just makes it render on the very top.
-				 
+				IsReversed = false;
+				
+				FWidgetAnimationDynamicEvent OnFinishEvent;
+				OnFinishEvent.BindDynamic(this, &ATownDefaultPawn::CollapseBuildingWidgetOnAnimationFinish);
+				BuildingWidgetInstance->BindToAnimationFinished(BuildingWidgetInstance->CloseDownAnimation, OnFinishEvent);
+				UUMGSequencePlayer*  AnimPlayer = BuildingWidgetInstance->PlayAnimation(BuildingWidgetInstance->CloseDownAnimation);
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("WIDGET IS FIRE"));
-				 
-				 UUserWidget* WidgetInstance = NewObject<UUserWidget>(Widget);
-				 FInputModeGameAndUI Mode;
-				
-				 Mode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
-				 Mode.SetHideCursorDuringCapture(false);
-				 WidgetInstance->AddToViewport(9999); // Z-order, this just makes it render on the very top.
-				 
+				IsReversed = true;
+				BuildingWidgetInstance->SetVisibility(ESlateVisibility::Visible);
+				BuildingWidgetInstance->PlayAnimation(BuildingWidgetInstance->OpenUpAnimation);
 			}
 		}
-	}*/
+		else
+		{
+
+			BuildingWidgetInstance = GetMappedWidget(Key);
+			if(BuildingWidgetInstance != nullptr)
+			{
+				  UTownBuildingWidgetBase* NewWidget = CreateWidget<UTownBuildingWidgetBase>(this->GetWorld(), BuildingWidgetInstance->GetClass());
+				  SetMappedWidgetInstance(Key, NewWidget);
+				  FInputModeGameAndUI Mode;
+				 // Mode.SetLockMouseToViewport(true);
+				 // Mode.SetHideCursorDuringCapture(false);
+				 // SetInputMode(Mode);
+				  NewWidget->AddToViewport(9999); // Z-order, this just makes it render on the very top.
+				  IsReversed = true;
+				return;
+			}
+		}
+	}
 }
 
-void ATownDefaultPawn::EnableInputOnFinish()
+
+void ATownDefaultPawn::CollapseBuildingWidgetOnAnimationFinish()
 {
-	bEnableInput = true;
+	if(SelectedBuilding)
+	{
+		const FString Key = SelectedBuilding->BuildingDataKey;
+		UTownBuildingWidgetBase* BuildingWidgetInstance = GetMappedWidgetInstance(Key);
+		if(BuildingWidgetInstance)
+		{
+			BuildingWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
 }
 
 void ATownDefaultPawn::SetMappedWidgetInstance(FString Key, UTownBuildingWidgetBase* Widget)
 {
 	FBuildingData* Data = BuildingDataMap.Find(Key);
-    UE_LOG(LogTemp, Warning, TEXT("TABLE , %s"),*(Key));
-
     if(Data)
     {
        Data->UiWidgetInstance = Widget;
-        if(Data->UiWidgetInstance)
-        {
-            UE_LOG(LogTemp, Warning, TEXT(" SAVED "));
-        }
-    	UE_LOG(LogTemp, Warning, TEXT("NOT SAVED 1 "));
-    }else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("NOT SAVED 2 "));
     }
 }
 
 UTownBuildingWidgetBase* ATownDefaultPawn::GetMappedWidget(FString Key)
 {
 	FBuildingData* Data = BuildingDataMap.Find(Key);
-            UE_LOG(LogTemp, Warning, TEXT("GetMappedWidget  , %s"),*(Key));
 
     if(Data)
     {
-        if(Data->UiWidget)
-            UE_LOG(LogTemp, Warning, TEXT("Get is not null"  ));
-
         return  Data->UiWidget;
-
     }
 
     return  nullptr;
@@ -226,6 +231,8 @@ ULevelSequence* ATownDefaultPawn::GetMappedSequenceAsset(FString Key)
 void ATownDefaultPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	
 	
 }
 
@@ -239,7 +246,7 @@ void ATownDefaultPawn::Tick(float DeltaTime)
 	PlayerController->GetHitResultUnderCursor(ECC_WorldStatic, false, Hit);
 	if (Hit.bBlockingHit)
 	{
-		if(Hit.Actor != nullptr)
+		if(Hit.Actor != nullptr && bIsBuildingFocused == false)
 		{
 			UActorComponent* Building = Hit.Actor->GetComponentByClass(UTownBuildingActorComponent::StaticClass());
 			if(Building != nullptr)
@@ -248,6 +255,10 @@ void ATownDefaultPawn::Tick(float DeltaTime)
 				if(StaticMesh)
 				{
 					UStaticMeshComponent* NewStaticMesh = Cast<UStaticMeshComponent>(StaticMesh);
+					if(HoveredBuildingStaticMeshComp != nullptr)
+					{
+						HoveredBuildingStaticMeshComp->SetRenderCustomDepth(false);
+					}
 					HoveredBuildingStaticMeshComp = NewStaticMesh;
 					HoveredBuildingStaticMeshComp->SetRenderCustomDepth(true);
 					return;
@@ -286,8 +297,10 @@ void ATownDefaultPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// PlayerInputComponent->BindAxis("ZoomIn", this, &AMyDefaultPawn::ZoomCameraInInput);
 	// PlayerInputComponent->BindAxis("Rotate", this, &AMyDefaultPawn::RotateInput);
 	PlayerInputComponent->BindAction("LeftMouseClick", IE_Pressed, this, &ATownDefaultPawn::LeftClickHandler);
+	//PlayerInputComponent->BindAction("LeftMouseClick", IE_Pressed, this, &ATownDefaultPawn::CreateWidgetViaCode);
 	//PlayerInputComponent->BindAction("LeftMouseClick", IE_Released, this, &AMyDefaultPawn::LeftClickReleaseHandler);
 	PlayerInputComponent->BindAction("RightMouseClick", IE_Pressed, this, &ATownDefaultPawn::RightClickHandler);
+
 	// PlayerInputComponent->BindAction("RightMouseClick", IE_Released, this, &AMyDefaultPawn::RightClickReleaseHandler);
 
 }

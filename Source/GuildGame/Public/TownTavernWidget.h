@@ -13,5 +13,5 @@ UCLASS()
 class GUILDGAME_API UTownTavernWidget : public UTownBuildingWidgetBase
 {
 	GENERATED_BODY()
-	
+	virtual void NativeConstruct() override;
 };

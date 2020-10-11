@@ -40,6 +40,8 @@ public:
 
 	class ULevelSequence* GetSequenceAsset() const;
 
+	bool IsConstructed() const;
+
 private:
 	UPROPERTY(EditAnywhere, Category = Building)
 	bool IsBuildingConstructed = true;

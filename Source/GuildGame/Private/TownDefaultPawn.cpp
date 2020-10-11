@@ -51,7 +51,6 @@ void ATownDefaultPawn::LeftClickHandler()
 		PlayerController->GetHitResultUnderCursor(ECC_WorldStatic, false, Hit);
 		if (Hit.bBlockingHit)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("hit"));
 			if(Hit.Actor != nullptr)
 			{
 				UActorComponent* Building = Hit.Actor->GetComponentByClass(UTownBuildingActorComponent::StaticClass());
@@ -146,6 +145,7 @@ void ATownDefaultPawn::CreateWidgetViaCode()
 			else
 			{
 				IsReversed = true;
+				BuildingWidgetInstance->OnEnabled();
 				BuildingWidgetInstance->SetVisibility(ESlateVisibility::Visible);
 				BuildingWidgetInstance->PlayAnimation(BuildingWidgetInstance->OpenUpAnimation);
 			}

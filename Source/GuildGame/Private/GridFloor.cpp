@@ -8,6 +8,7 @@
 #include "GGLogHelper.h"
 #include "Kismet/GameplayStatics.h"
 #include "GGPlayerController.h"
+#include "GridNavigationData.h"
 
 AGridFloor::AGridFloor()
 {
@@ -23,6 +24,12 @@ AGridFloor::AGridFloor()
 	AvailableGridMesh->SetupAttachment(RootComponent);
 	NotAvailableGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("NotAvailableGrids");
 	NotAvailableGridMesh->SetupAttachment(RootComponent);
+	AvailableGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	NotAvailableGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SelectionMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	
 }
 
 void AGridFloor::UpdateGridStatesWithTrace()
@@ -70,18 +77,20 @@ void AGridFloor::BeginPlay()
 	{
 		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "setfail");
 	}
+
+	LOG("col count %d", ColumnCount);
 	FVector2D StartPos = FVector2D(this->GetActorLocation().X,this->GetActorLocation().Y);
-	//StartPos.X += this->RowCount * this->GridSize;
 	FloorGridManager = new GridManager(StartPos,this->GridSize,this->ColumnCount, this->RowCount);
 	FloorGridManager->SetAttachedFloor(this);
 	CharacterManager::CharGridManager = FloorGridManager;
+	
 
-	FVector TempPos = FloorGridManager->GetGridCenter(10);
+	/*FVector TempPos = FloorGridManager->GetGridCenter(10);
 	TempPos.Z = GetActorLocation().Z;
 	AvailableGridMesh->AddInstanceWorldSpace(FTransform{TempPos});
 	TempPos = FloorGridManager->GetGridCenter(11);
 	TempPos.Z = GetActorLocation().Z;
-	NotAvailableGridMesh->AddInstanceWorldSpace(FTransform{TempPos});
+	NotAvailableGridMesh->AddInstanceWorldSpace(FTransform{TempPos});*/
 
 	UpdateGridStatesWithTrace();
 }
@@ -150,17 +159,16 @@ void AGridFloor::OnConstruction(const FTransform& Transform)
 		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL MAT");
 	}
 
-	int i = 0;
 	TArray<FVector> LineVertices;
 	TArray<int> LineTriangles;
-	for(i = 0; i <= RowCount; i++)
+	for(int i = 0; i <= RowCount; i++)
 	{
 		float LineStart = i*GridSize;
 		float LineEnd = ColumnCount*GridSize;
 		CreateLine(FVector(LineStart,0,0),FVector(LineStart,LineEnd,0),LineSize,LineVertices, LineTriangles);
 	}
 
-	for(i = 0; i <= ColumnCount; i++)
+	for(int i = 0; i <= ColumnCount; i++)
 	{
 		float LineStart = i*GridSize;
 		float LineEnd = RowCount*GridSize;
@@ -176,91 +184,43 @@ void AGridFloor::OnConstruction(const FTransform& Transform)
 	SelectionMesh->SetVisibility(false);
 
 	UInstancedStaticMeshComponent* ISMPointer;
-	
-	for(i = 0; i < GridFloorTypeCount; i++)
+	FISMDetails* ISMDetails;
+	for(int i = 0; i < ISMMap.Num(); i++ )
 	{
 		switch (i)
 		{
 			case 0:
-				//AvailableGridMesh = NewObject<UInstancedStaticMeshComponent>(this);
-				//AvailableGridMesh->RegisterComponent();
+				ISMDetails = ISMMap.Find(EISMType::Available);
 				ISMPointer = AvailableGridMesh;
 			break;
 				
 			case 1:
-				//NotAvailableGridMesh = NewObject<UInstancedStaticMeshComponent>(this);
-				//NotAvailableGridMesh->RegisterComponent();
+				ISMDetails = ISMMap.Find(EISMType::NotAvailable);
 				ISMPointer = NotAvailableGridMesh;
 			break;
 
 			default:
-				//NotAvailableGridMesh = NewObject<UInstancedStaticMeshComponent>(this);
-				//NotAvailableGridMesh->RegisterComponent();
+				ISMDetails = ISMMap.Find(EISMType::NotAvailable);
 				ISMPointer = NotAvailableGridMesh;
 			break;
 		}
 
-		if(ISMPointer == nullptr)
+		if(ISMPointer == nullptr || ISMDetails == nullptr || ISMDetails->Mesh == nullptr || ISMDetails->Material == nullptr)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL ISM");
+			return;
 		}
 
-		if(GridStaticMesh && ISMPointer)
-		{
-			ISMPointer->SetStaticMesh(GridStaticMesh);
-			ISMPointer->ClearInstances();
-		}
-
+		ISMPointer->SetStaticMesh(ISMDetails->Mesh);
+		ISMPointer->ClearInstances();
+		ISMPointer->SetMaterial(0, ISMDetails->Material);
 		UMaterialInstanceDynamic* InstancedMaterial =ISMPointer->CreateAndSetMaterialInstanceDynamic(0);
-		
-
 		if(InstancedMaterial != nullptr)
 		{
-			switch (i)
-			{
-				case 0:
-					InstancedMaterial->SetVectorParameterValue(FName("Color"), AvailableGridColor);
-				break;
-				
-				case 1:
-					InstancedMaterial->SetVectorParameterValue(FName("Color"), NotAvailableGridColor);
-				break;
-
-				default:
-					InstancedMaterial->SetVectorParameterValue(FName("Color"), NotAvailableGridColor);
-				break;
-			}
-
-			InstancedMaterial->SetScalarParameterValue(FName("Opacity"), 25.f);
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL i MAT");
-		}
-
-		if(ISMPointer && FloorGridManager)
-		{
-			//ISMPointer->AddInstance(FTransform{FloorGridManager->GetGridBottomLeft(i)});
-			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "ADD INSTANCE");		
-		}
-		
-		
+			InstancedMaterial->SetVectorParameterValue(FName("Color"), ISMDetails->Color);
+			InstancedMaterial->SetScalarParameterValue(FName("Opacity"), ISMDetails->Opacity);
+		}		
 	}
-
-	
-
-
-
-	/*AGGPlayerController* PlayerController = Cast<AGGPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
-	if (PlayerController != nullptr)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "setset");
-		PlayerController->SetGridFloor(this);
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "setfail");
-	}*/
 }
 
 void AGridFloor::UpdateSelectedGrid(FVector NewPos, bool IsVisible)

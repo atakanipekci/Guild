@@ -20,16 +20,12 @@ GridManager::GridManager(FVector2D StartPos, float GridSize, int ColumnCount, in
     this->ColumnCount = ColumnCount;
     this->RowCount = RowCount;
 }
-
 GridManager::~GridManager()
 {
 }
 
 bool GridManager::IsGridWalkable(int Index) const
 {
-    int row = Index/ColumnCount;
-    int col = Index%ColumnCount;
-
     if(Index < 0 || Index >= ColumnCount*RowCount || GGGrids[Index].GridState != EGridState::Empty)
     {
         return false;
@@ -92,8 +88,13 @@ FIntPoint GridManager::WorldToGrid_Point(FVector WorldPos) const
 
 FIntPoint GridManager::IndexToPoint(int Index) const
 {
-    int row = Index/ColumnCount;
-    int col = Index%ColumnCount;
+    int row = 0;
+    int col = 0;
+    if(ColumnCount != 0)
+    {
+        row = Index/ColumnCount;
+        col = Index%ColumnCount;
+    }
     return FIntPoint(row,col);
 }
 
@@ -107,10 +108,15 @@ int GridManager::PointToIndex(FIntPoint Point) const
 
 FVector GridManager::GetGridCenter(int Index) const
 {
-    int row = Index/ColumnCount;
-    int col = Index%ColumnCount;
+    int row = 0;
+    int col = 0;
+    if(ColumnCount != 0)
+    {
+        row = Index/ColumnCount;
+        col = Index%ColumnCount;
+    }
 
-    //GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, FString::Printf(TEXT("  row : %d"), row));
+    GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, FString::Printf(TEXT("  row : %d"), row));
 
     return FVector(StartPos.X + row*GridSize + GridSize/2, StartPos.Y + col*GridSize + GridSize/2,0);
 }

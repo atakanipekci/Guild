@@ -41,7 +41,6 @@ void AGGPlayerController::UpdateSelectedGrid()
 		return;
 	}
 	
-	FVector WorldLocation;
 	FHitResult TraceResult(ForceInit);
 	this->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, TraceResult);
 
@@ -74,7 +73,7 @@ void AGGPlayerController::SetGridFloor(AGridFloor* Grid)
 void AGGPlayerController::SelectCharAtMousePos()
 {
 	FHitResult TraceResult(ForceInit);
-	this->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, TraceResult);
+	this->GetHitResultUnderCursor(ECollisionChannel::ECC_GameTraceChannel2, false, TraceResult);
 	if (TraceResult.GetActor() != nullptr)
 	{	
 		AGGCharacter* HitCharacter = Cast<AGGCharacter>(TraceResult.GetActor());			

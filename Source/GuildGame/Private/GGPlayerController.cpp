@@ -59,10 +59,18 @@ void AGGPlayerController::UpdateSelectedGrid()
 		return;
 	}
 	
-	//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, "ok");
-	GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, FString::Printf(TEXT(" %d"), GridIndex));
-	SelectedGridIndex = GridIndex;
-	GridFloor->UpdateSelectedGrid(GridMan->GetGridBottomLeft(GridIndex), true);
+	if(GridIndex!=SelectedGridIndex)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, FString::Printf(TEXT(" %d"), GridIndex));
+		SelectedGridIndex = GridIndex;
+		GridFloor->UpdateSelectedGrid(GridMan->GetGridBottomLeft(GridIndex), true);
+		if(SelectedCharacter)
+		{
+			int start = GridMan->WorldToGrid(SelectedCharacter->GetActorLocation());
+			int end = SelectedGridIndex;
+			GridFloor->DrawPath(start,end);
+		}
+	}
 }
 
 void AGGPlayerController::SetGridFloor(AGridFloor* Grid)

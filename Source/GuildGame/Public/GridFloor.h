@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "ProceduralMeshComponent.h"
 #include "GridManager.h"
+#include "SplineActor.h"
 #include "Engine/DataTable.h"
 #include "GameFramework/Actor.h"
 #include "GridFloor.generated.h"
@@ -25,7 +26,7 @@ struct FISMDetails : public FTableRowBase
 	UStaticMesh* Mesh;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	class UMaterialInterface* Material;
+	UMaterialInterface* Material;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	FLinearColor Color;
@@ -42,6 +43,8 @@ class GUILDGAME_API AGridFloor : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AGridFloor();
+	~AGridFloor();
+	
 
 	UPROPERTY(EditAnywhere)
 	int RowCount;
@@ -69,6 +72,12 @@ public:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	UProceduralMeshComponent* GridMesh;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UMaterialInterface* LineMaterial;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UMaterialInterface* SelectedGridMaterial;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	UInstancedStaticMeshComponent* AvailableGridMesh;
@@ -79,13 +88,16 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TMap<EISMType,FISMDetails> ISMMap;
 
-	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TMap<ESplineMeshType, FSplineMeshDetails> PathSplineMap;
+
 	USceneComponent* RootComponent;
 private:
 	UPROPERTY(EditAnywhere)
 	int GridFloorTypeCount = 2;
 	
 	GridManager* FloorGridManager;
+	ASplineActor* PathActor = nullptr;
 
 	void UpdateGridStatesWithTrace();
 
@@ -109,5 +121,9 @@ public:
 
 	void UpdateSelectedGrid(FVector NewPos, bool IsVisible);
 
+	void DrawPath(int StartIndex, int EndIndex);
+
 	bool UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate) const;
+
+	//void CreatePath(int StartIndex, int EndIndex);
 };

@@ -9,6 +9,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "GGPlayerController.h"
 #include "GridNavigationData.h"
+#include "NavigationSystem.h"
+#include "NavigationPath.h"
+#include "SplineActor.h"
 
 AGridFloor::AGridFloor()
 {
@@ -30,6 +33,11 @@ AGridFloor::AGridFloor()
 	GridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	
+}
+
+AGridFloor::~AGridFloor()
+{
+	delete FloorGridManager;
 }
 
 void AGridFloor::UpdateGridStatesWithTrace()
@@ -93,6 +101,27 @@ void AGridFloor::BeginPlay()
 	NotAvailableGridMesh->AddInstanceWorldSpace(FTransform{TempPos});*/
 
 	UpdateGridStatesWithTrace();
+	
+	UWorld* const World = GetWorld();
+	if (World)
+	{
+		FActorSpawnParameters SpawnParams;
+		PathActor = static_cast<ASplineActor*>(World->SpawnActor<ASplineActor>(FVector{0,0,0},FRotator{},SpawnParams));
+		if(PathActor)
+		{
+			PathActor->ClearNodes();
+
+			PathActor->SplineMeshMap = PathSplineMap;
+			
+			/*for(int i = 0; i < 5; i++)
+			{
+				PathActor->AddNode(FVector{static_cast<float>(i*200),0,0});
+			}*/
+			PathActor->UpdateSpline();
+			PathActor->SetActorScale3D(FVector{0.25,0.25,0.1});
+		}
+	}
+	
 }
 
 // Called every frame
@@ -146,6 +175,16 @@ void AGridFloor::CreateLine(FVector Start, FVector End, float Thickness, TArray<
 
 void AGridFloor::OnConstruction(const FTransform& Transform)
 {
+	if(GridMesh)
+	{
+		GridMesh->SetMaterial(0, LineMaterial);
+	}
+
+	if(SelectedGridMaterial)
+	{
+		SelectionMesh->SetMaterial(0, SelectedGridMaterial);
+	}
+	
 	UMaterialInstanceDynamic* LineMaterialInstance = CreateMaterialInstance(LineColor, LineOpacity);
 	UMaterialInstanceDynamic* GridMaterialInstance =SelectionMesh->CreateAndSetMaterialInstanceDynamic(0);
 
@@ -234,6 +273,35 @@ void AGridFloor::UpdateSelectedGrid(FVector NewPos, bool IsVisible)
 	SelectionMesh->SetWorldLocation(FVector(NewPos.X, NewPos.Y, GetActorLocation().Z));
 	SelectionMesh->SetVisibility(IsVisible);
 	
+}
+
+void AGridFloor::DrawPath(int StartIndex, int EndIndex)
+{
+	if(!FloorGridManager || !PathActor)
+	{
+		return;
+	}
+
+	PathActor->ClearNodes();
+	PathActor->UpdateSpline();
+	if(FloorGridManager->IsGridValid(StartIndex) && FloorGridManager->IsGridValid(EndIndex))
+	{
+		FVector start = FloorGridManager->GetGridCenter(StartIndex);
+		FVector end = FloorGridManager->GetGridCenter(EndIndex);
+		UNavigationPath* path =  UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), start, end, nullptr,nullptr);
+		if(path && path->IsValid())
+		{
+				LOG("path->PathPoints.Num() %d", path->PathPoints.Num());
+			for(int i = 0; i < path->PathPoints.Num(); i++)
+			{
+				FVector aa = path->PathPoints[i];
+				aa.Z = 50;
+				PathActor->AddNode(aa);
+				LOG("i : %d", FloorGridManager->WorldToGrid(path->PathPoints[i]));
+			}
+			PathActor->UpdateSpline();
+		}
+	}
 }
 
 bool AGridFloor::UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate) const

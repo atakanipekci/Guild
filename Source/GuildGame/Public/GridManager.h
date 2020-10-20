@@ -52,6 +52,11 @@ public:
 		this->AttachedFloor = AAttachedFloor;
 	}
 
+	AGridFloor* GetAttachedFloor() const
+	{
+		return AttachedFloor;
+	}
+
 	int GetGridSize() const
 	{
 		return GridSize;

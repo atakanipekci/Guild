@@ -6,7 +6,6 @@
 #include "AIController.h"
 #include "GGCharacter.h"
 #include "GGLogHelper.h"
-#include "GGLogHelper.h"
 
 AGGPlayerController::AGGPlayerController()
 	:Super()
@@ -64,7 +63,7 @@ void AGGPlayerController::UpdateSelectedGrid()
 		GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, FString::Printf(TEXT(" %d"), GridIndex));
 		SelectedGridIndex = GridIndex;
 		GridFloor->UpdateSelectedGrid(GridMan->GetGridBottomLeft(GridIndex), true);
-		if(SelectedCharacter)
+		if(SelectedCharacter && SelectedCharacter->GetStatus() == ECharacterStatus::Idle)
 		{
 			int start = GridMan->WorldToGrid(SelectedCharacter->GetActorLocation());
 			int end = SelectedGridIndex;
@@ -87,14 +86,7 @@ void AGGPlayerController::SelectCharAtMousePos()
 		AGGCharacter* HitCharacter = Cast<AGGCharacter>(TraceResult.GetActor());			
 		if(HitCharacter != nullptr)
 		{
-			SelectedCharacter = HitCharacter;
-			CharacterManager::SetMovableGrids(SelectedCharacter);
-
-			if(GridFloor)
-			{
-				GridFloor->UpdateGridMeshes(*(SelectedCharacter->GetMovableGrids()));
-			}
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "selected");
+			SetSelectedCharacter(HitCharacter);
 		}
 		else
 		{
@@ -110,26 +102,26 @@ void AGGPlayerController::MoveSelectedChar()
 	{
 		return;
 	}
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "moving 1");
 	GridManager* GridMan =  GridFloor->GetGridManager();
 	if(GridMan == nullptr)
 	{
 		return;
 	}
-	//AController* aaaa = SelectedCharacter->GetController();
-	AAIController* AIController = Cast<AAIController>(SelectedCharacter->GetController());
-	if(AIController)
+
+	float Dist = GridFloor->GetPathLength(GridMan->WorldToGrid(SelectedCharacter->GetActorLocation()), SelectedGridIndex);
+	if(Dist <= 0 || Dist > SelectedCharacter->GetDefaultMovementRange())
 	{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "moving 2");
-	LOG("x %d", GridMan->GetGridCenter(SelectedGridIndex).X);
-	LOG("y %d", GridMan->GetGridCenter(SelectedGridIndex).Y);
-	LOG("z %d", GridMan->GetGridCenter(SelectedGridIndex).Z);
-	//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Yellow, FString::Printf(TEXT(" %d"), GridMan->GetGridCenter(SelectedGridIndex).X));
-		AIController->MoveToLocation(GridMan->GetGridCenter(SelectedGridIndex),0,false,true,false,true,0,false);
+		return;
 	}
+
+	SelectedCharacter->MoveTo(GridMan->GetGridCenter(SelectedGridIndex));
 }
 
 void AGGPlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)
 {
 	SelectedCharacter = NewCharacter;
+	if(SelectedCharacter)
+	{
+		SelectedCharacter->SetSelected();
+	}
 }

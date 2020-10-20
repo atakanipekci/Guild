@@ -8,6 +8,12 @@
 #include "GameFramework/Character.h"
 #include "GGCharacter.generated.h"
 
+enum class ECharacterStatus : uint8
+{
+	Idle = 0,
+	Moving = 1
+};
+
 UCLASS()
 class GUILDGAME_API AGGCharacter : public ACharacter
 {
@@ -27,8 +33,15 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	void MoveTo(FVector);
+	void UpdateMovableGrids();
+	void SetSelected();
+	float GetDefaultMovementRange()const;
+	ECharacterStatus GetStatus()const;
+	void SetStatus(ECharacterStatus);
 
-	float MovementRange = 315;
 private:
+	float MovementRange = 850;
 	TArray<GGGrid*> MovableGrids;
+	ECharacterStatus Status = ECharacterStatus::Idle;
 };

@@ -20,5 +20,5 @@ void CharacterManager::SetMovableGrids(ACharacter* Character)
 
     int Index = CharGridManager->WorldToGrid(GGChar->GetActorLocation());
     GGChar->MovableGrids.Empty();
-    CharGridManager->GetGridsInRange(Index,GGChar->MovementRange, &(GGChar->MovableGrids));
+    CharGridManager->GetGridsInRange(Index,GGChar->GetDefaultMovementRange(), &(GGChar->MovableGrids));
 }

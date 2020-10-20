@@ -123,7 +123,13 @@ public:
 
 	void DrawPath(int StartIndex, int EndIndex);
 
+	float GetPathLength(int StartIndex, int EndIndex);
+
 	bool UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate) const;
+
+	void ClearGridMeshes();
+
+	void ClearPath();
 
 	//void CreatePath(int StartIndex, int EndIndex);
 };

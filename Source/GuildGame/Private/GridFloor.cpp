@@ -30,9 +30,7 @@ AGridFloor::AGridFloor()
 	AvailableGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	NotAvailableGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SelectionMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	
+	GridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);	
 }
 
 AGridFloor::~AGridFloor()
@@ -304,6 +302,18 @@ void AGridFloor::DrawPath(int StartIndex, int EndIndex)
 	}
 }
 
+float AGridFloor::GetPathLength(int StartIndex, int EndIndex)
+{
+	FVector start = FloorGridManager->GetGridCenter(StartIndex);
+	FVector end = FloorGridManager->GetGridCenter(EndIndex);
+	UNavigationPath* path =  UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), start, end, nullptr,nullptr);
+	if(path && path->IsValid())
+	{
+		return path->GetPathLength();
+	}
+	return -1;
+}
+
 bool AGridFloor::UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate) const
 {
 
@@ -356,6 +366,29 @@ bool AGridFloor::UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate) const
 	}
 
 	return true;
+}
+
+void AGridFloor::ClearGridMeshes()
+{
+	if(AvailableGridMesh)
+	{
+		AvailableGridMesh->ClearInstances();
+	}
+		
+	if(NotAvailableGridMesh)
+	{
+		NotAvailableGridMesh->ClearInstances();
+	}
+}
+
+void AGridFloor::ClearPath()
+{
+	if(PathActor == nullptr)
+	{
+		return;
+	}
+	PathActor->ClearNodes();
+	PathActor->UpdateSpline();
 }
 
 

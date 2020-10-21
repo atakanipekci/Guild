@@ -121,12 +121,12 @@ FPathFindingResult AGridNavigationData::FindPath(const FNavAgentProperties& Agen
 				NavPath->GetPathPoints().Add(FNavPathPoint(AStar->NavGridManager->GetGridCenter(AStar->NavGridManager->PointToIndex(point))));
 			}
 
-			UE_LOG(LogTemp, Warning, TEXT("WorldGridNav path (%d points):"), Path.Num());
-			for (int i = 0; i < Path.Num(); i++)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("%s (%s)"), *Path[i].ToString(), *NavPath->GetPathPoints()[i].Location.ToString());
-			}
-			UE_LOG(LogTemp, Warning, TEXT("WorldGridNav path end"));
+			//UE_LOG(LogTemp, Warning, TEXT("WorldGridNav path (%d points):"), Path.Num());
+			//for (int i = 0; i < Path.Num(); i++)
+			//{
+			//	UE_LOG(LogTemp, Warning, TEXT("%s (%s)"), *Path[i].ToString(), *NavPath->GetPathPoints()[i].Location.ToString());
+			//}
+			//UE_LOG(LogTemp, Warning, TEXT("WorldGridNav path end"));
 
 			NavPath->MarkReady();
 			Result.Result = ENavigationQueryResult::Success;

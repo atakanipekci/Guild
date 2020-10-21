@@ -2,7 +2,7 @@
 
 
 #include "GGAIController.h"
-
+#include "GGLogHelper.h"
 #include "GGCharacter.h"
 
 void AGGAIController::OnMoveCompleted(FAIRequestID Id, const FPathFollowingResult& Result)

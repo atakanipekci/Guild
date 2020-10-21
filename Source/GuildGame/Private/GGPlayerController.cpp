@@ -60,7 +60,7 @@ void AGGPlayerController::UpdateSelectedGrid()
 	
 	if(GridIndex!=SelectedGridIndex)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, FString::Printf(TEXT(" %d"), GridIndex));
+		//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, FString::Printf(TEXT(" %d"), GridIndex));
 		SelectedGridIndex = GridIndex;
 		GridFloor->UpdateSelectedGrid(GridMan->GetGridBottomLeft(GridIndex), true);
 		if(SelectedCharacter && SelectedCharacter->GetStatus() == ECharacterStatus::Idle)
@@ -113,8 +113,9 @@ void AGGPlayerController::MoveSelectedChar()
 	{
 		return;
 	}
-
-	SelectedCharacter->MoveTo(GridMan->GetGridCenter(SelectedGridIndex));
+	FVector Target = GridMan->GetGridCenter(SelectedGridIndex);
+	Target.Z = SelectedCharacter->GetActorLocation().Z;
+	SelectedCharacter->MoveTo(Target);
 }
 
 void AGGPlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)

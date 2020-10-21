@@ -57,7 +57,7 @@ void ASplineActor::UpdateSpline()
 		return;
 	}
 	//ClearNodes();
-	LOG("%d components destroyed", SplineComponent->GetNumChildrenComponents());
+	//LOG("%d components destroyed", SplineComponent->GetNumChildrenComponents());
 	for(int i = SplineComponent->GetNumChildrenComponents()-1; i >= 0; i--)
 	{
 		USceneComponent* comp = SplineComponent->GetChildComponent(i);
@@ -95,7 +95,7 @@ void ASplineActor::UpdateSpline()
 		const int32 SplinePoints = SplineComponent->GetNumberOfSplinePoints();
 
 
-		LOG("%d components added", SplinePoints - 1 );
+		//LOG("%d components added", SplinePoints - 1 );
 		int ffs = 0;
 		for(int SplineCount = 0; SplineCount < (SplinePoints - 1); SplineCount++)
 		{
@@ -158,7 +158,7 @@ void ASplineActor::UpdateSpline()
 				ffs++;
 			}
 			
-			LOG("%d total child components", SplineComponent->GetNumChildrenComponents());
+			//LOG("%d total child components", SplineComponent->GetNumChildrenComponents());
 			// define the positions of the points and tangents
 			const FVector StartPoint = SplineComponent->GetLocationAtSplinePoint(SplineCount, ESplineCoordinateSpace::Type::Local);
 			const FVector StartTangent = SplineComponent->GetTangentAtSplinePoint(SplineCount, ESplineCoordinateSpace::Type::Local);
@@ -169,7 +169,7 @@ void ASplineActor::UpdateSpline()
 			// query physics
 			SplineMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
-		LOG("%d reee components added", ffs );
+		//LOG("%d reee components added", ffs );
 		
 	}
 	SplineComponent->UpdateSpline();

@@ -40,7 +40,7 @@ AGridFloor::~AGridFloor()
 
 void AGridFloor::UpdateGridStatesWithTrace()
 {
-	FCollisionShape MySphereCollision = FCollisionShape::MakeSphere(GridSize/2);
+	FCollisionShape MySphereCollision = FCollisionShape::MakeSphere(GridSize/2 - GridSize/10);
 	TArray<FHitResult> OutHits;
 	for(int i = 0; i < ColumnCount; i++)
 	{
@@ -84,7 +84,7 @@ void AGridFloor::BeginPlay()
 		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "setfail");
 	}
 
-	LOG("col count %d", ColumnCount);
+	//LOG("col count %d", ColumnCount);
 	FVector2D StartPos = FVector2D(this->GetActorLocation().X,this->GetActorLocation().Y);
 	FloorGridManager = new GridManager(StartPos,this->GridSize,this->ColumnCount, this->RowCount);
 	FloorGridManager->SetAttachedFloor(this);
@@ -289,13 +289,13 @@ void AGridFloor::DrawPath(int StartIndex, int EndIndex)
 		UNavigationPath* path =  UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), start, end, nullptr,nullptr);
 		if(path && path->IsValid())
 		{
-				LOG("path->PathPoints.Num() %d", path->PathPoints.Num());
+				//LOG("path->PathPoints.Num() %d", path->PathPoints.Num());
 			for(int i = 0; i < path->PathPoints.Num(); i++)
 			{
 				FVector aa = path->PathPoints[i];
 				aa.Z = 50;
 				PathActor->AddNode(aa);
-				LOG("i : %d", FloorGridManager->WorldToGrid(path->PathPoints[i]));
+				//LOG("i : %d", FloorGridManager->WorldToGrid(path->PathPoints[i]));
 			}
 			PathActor->UpdateSpline();
 		}

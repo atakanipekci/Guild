@@ -9,7 +9,9 @@
 #include "LevelSequencePlayer.h"
 #include "TownBuildingActorComponent.h"
 #include "TownBuildingWidgetBase.h"
+#include "TownGameModeBase.h"
 #include "TownPlayerController.h"
+#include "TownYesOrNoWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -72,15 +74,21 @@ void ATownDefaultPawn::LeftClickHandler()
 	}
 }
 
-void ATownDefaultPawn::RightClickHandler()
+void ATownDefaultPawn::ZoomOutFromBuilding()
 {
 	ATownPlayerController* PlayerController = Cast<ATownPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this));
 	
 	if (PlayerController != nullptr)
 	{
 		if(bIsBuildingFocused && bEnableInput == true && SequenceAsset != nullptr)
 		{
 			PlaySequenceReverse();
+			if(GameMode)
+			{
+				if(GameMode->YesOrNoWidgetInstance)
+					GameMode->YesOrNoWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
+			}
 		}
 	}
 }
@@ -129,18 +137,19 @@ void ATownDefaultPawn::CreateWidgetViaCode()
 {
 	if(SelectedBuilding)
 	{
-		const FString Key = SelectedBuilding->BuildingDataKey;
+		EBuildingTypes Key = SelectedBuilding->BuildingDataKey;
 		UTownBuildingWidgetBase* BuildingWidgetInstance = GetMappedWidgetInstance(Key);
 		if(BuildingWidgetInstance)
 		{
 			if(IsReversed == true)
 			{
 				IsReversed = false;
-				
+				UE_LOG(LogTemp, Warning, TEXT("FIRST"));
 				FWidgetAnimationDynamicEvent OnFinishEvent;
 				OnFinishEvent.BindDynamic(this, &ATownDefaultPawn::CollapseBuildingWidgetOnAnimationFinish);
 				BuildingWidgetInstance->BindToAnimationFinished(BuildingWidgetInstance->CloseDownAnimation, OnFinishEvent);
 				UUMGSequencePlayer*  AnimPlayer = BuildingWidgetInstance->PlayAnimation(BuildingWidgetInstance->CloseDownAnimation);
+				UE_LOG(LogTemp, Warning, TEXT("SEC"));
 			}
 			else
 			{
@@ -158,7 +167,7 @@ void ATownDefaultPawn::CreateWidgetViaCode()
 			{
 				  UTownBuildingWidgetBase* NewWidget = CreateWidget<UTownBuildingWidgetBase>(this->GetWorld(), BuildingWidgetInstance->GetClass());
 				  SetMappedWidgetInstance(Key, NewWidget);
-				  FInputModeGameAndUI Mode;
+				  //FInputModeGameAndUI Mode;
 				 // Mode.SetLockMouseToViewport(true);
 				 // Mode.SetHideCursorDuringCapture(false);
 				 // SetInputMode(Mode);
@@ -175,8 +184,9 @@ void ATownDefaultPawn::CollapseBuildingWidgetOnAnimationFinish()
 {
 	if(SelectedBuilding)
 	{
-		const FString Key = SelectedBuilding->BuildingDataKey;
+		const EBuildingTypes Key = SelectedBuilding->BuildingDataKey;
 		UTownBuildingWidgetBase* BuildingWidgetInstance = GetMappedWidgetInstance(Key);
+		UE_LOG(LogTemp, Warning, TEXT("1"));
 		if(BuildingWidgetInstance)
 		{
 			BuildingWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
@@ -184,7 +194,7 @@ void ATownDefaultPawn::CollapseBuildingWidgetOnAnimationFinish()
 	}
 }
 
-void ATownDefaultPawn::SetMappedWidgetInstance(FString Key, UTownBuildingWidgetBase* Widget)
+void ATownDefaultPawn::SetMappedWidgetInstance(const EBuildingTypes Key, UTownBuildingWidgetBase* Widget)
 {
 	FBuildingData* Data = BuildingDataMap.Find(Key);
     if(Data)
@@ -193,7 +203,7 @@ void ATownDefaultPawn::SetMappedWidgetInstance(FString Key, UTownBuildingWidgetB
     }
 }
 
-UTownBuildingWidgetBase* ATownDefaultPawn::GetMappedWidget(FString Key)
+UTownBuildingWidgetBase* ATownDefaultPawn::GetMappedWidget(const EBuildingTypes Key)
 {
 	FBuildingData* Data = BuildingDataMap.Find(Key);
 
@@ -205,7 +215,7 @@ UTownBuildingWidgetBase* ATownDefaultPawn::GetMappedWidget(FString Key)
     return  nullptr;
 }
 
-UTownBuildingWidgetBase* ATownDefaultPawn::GetMappedWidgetInstance(FString Key)
+UTownBuildingWidgetBase* ATownDefaultPawn::GetMappedWidgetInstance(const EBuildingTypes Key)
 {
 	FBuildingData* Data = BuildingDataMap.Find(Key);
     if(Data)
@@ -216,7 +226,7 @@ UTownBuildingWidgetBase* ATownDefaultPawn::GetMappedWidgetInstance(FString Key)
     return  nullptr;
 }
 
-ULevelSequence* ATownDefaultPawn::GetMappedSequenceAsset(FString Key)
+ULevelSequence* ATownDefaultPawn::GetMappedSequenceAsset(const EBuildingTypes Key)
 {
 	 FBuildingData* Data = BuildingDataMap.Find(Key);
     if(Data)
@@ -231,16 +241,12 @@ ULevelSequence* ATownDefaultPawn::GetMappedSequenceAsset(FString Key)
 void ATownDefaultPawn::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
-	
 }
 
 // Called every frame
 void ATownDefaultPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 	FHitResult Hit;
 	ATownPlayerController* PlayerController = Cast<ATownPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	PlayerController->GetHitResultUnderCursor(ECC_WorldStatic, false, Hit);
@@ -299,7 +305,7 @@ void ATownDefaultPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("LeftMouseClick", IE_Pressed, this, &ATownDefaultPawn::LeftClickHandler);
 	//PlayerInputComponent->BindAction("LeftMouseClick", IE_Pressed, this, &ATownDefaultPawn::CreateWidgetViaCode);
 	//PlayerInputComponent->BindAction("LeftMouseClick", IE_Released, this, &AMyDefaultPawn::LeftClickReleaseHandler);
-	PlayerInputComponent->BindAction("RightMouseClick", IE_Pressed, this, &ATownDefaultPawn::RightClickHandler);
+	PlayerInputComponent->BindAction("RightMouseClick", IE_Pressed, this, &ATownDefaultPawn::ZoomOutFromBuilding);
 
 	// PlayerInputComponent->BindAction("RightMouseClick", IE_Released, this, &AMyDefaultPawn::RightClickReleaseHandler);
 

@@ -18,9 +18,5 @@ class GUILDGAME_API UTownRecruitWidget : public UTownBuildingWidgetBase
 	virtual void NativeConstruct() override;
 	virtual void OnEnabled() override;
 	
-	UPROPERTY(meta = (BindWidget))
-	class UBorder* ConfirmBorder;
-
-	UPROPERTY(meta = (BindWidget))
-	class UBorder* MainBorder;
+	
 };

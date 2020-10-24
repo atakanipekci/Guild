@@ -3,6 +3,12 @@
 
 #include "TownMenuWidget.h"
 
+
+
+#include "TownBuildingWidgetBase.h"
+#include "TownDefaultPawn.h"
+#include "TownGameInstance.h"
+#include "TownYesOrNoWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
@@ -16,6 +22,17 @@ void UTownMenuWidget::NativeConstruct()
 
     if(TestTextBlock)
         TestTextBlock->SetText(FText::FromString("Load Next Level"));
+
+    UTownGameInstance* GameInstance = Cast<UTownGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+    
+    if(GoldText && GameInstance)
+        GoldText->SetText(FText::AsNumber(GameInstance->Gold));
+
+     if(RecruitGoldTxt)
+        RecruitGoldTxt->SetText(FText::AsNumber(RecruitBuildingPrice));
+
+     if(BuildRecruitBtn)
+        BuildRecruitBtn->OnClicked.AddUniqueDynamic(this, &UTownMenuWidget::OnBuildRecruit);
     
 }
 
@@ -37,4 +54,27 @@ void UTownMenuWidget::OnTestClicked()
      // {
          UGameplayStatics::OpenLevel(GetWorld(), "TestMap");
      // }
+}
+
+void UTownMenuWidget::OnBuildRecruit()
+{
+      ATownDefaultPawn* Pawn = Cast<ATownDefaultPawn>(UGameplayStatics::GetPlayerPawn(this, 0));
+    if(Pawn)
+    {
+        /*FYesNoDelegate NoEvent;
+        NoEvent.BindDynamic(this, &UTownBuildingWidgetBase::ConstrNoEvent);
+        FYesNoDelegate YesEvent;
+        YesEvent.BindDynamic(this, &UTownBuildingWidgetBase::ConstrYesEvent);
+                
+        UTownYesOrNoWidget::CreateYesNoWidget(this
+            , Pawn->YesOrNoWidgetBP ,YesEvent, NoEvent);*/
+    }
+}
+
+void UTownMenuWidget::UpdateUI()
+{
+    UTownGameInstance* GameInstance = Cast<UTownGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+    
+    if(GoldText && GameInstance)
+        GoldText->SetText(FText::AsNumber(GameInstance->Gold));
 }

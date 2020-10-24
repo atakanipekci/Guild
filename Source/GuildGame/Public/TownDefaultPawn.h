@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "TownDefaultPawn.generated.h"
 
+enum class EBuildingTypes : unsigned char;
+
 USTRUCT(BlueprintType)
 	 struct FBuildingData
 	 {
@@ -17,7 +19,7 @@ USTRUCT(BlueprintType)
  		 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 	     class UTownBuildingWidgetBase* UiWidget;
 
-		 UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera)
+		 UPROPERTY(BlueprintReadWrite, Category = Camera)
 	     UTownBuildingWidgetBase* UiWidgetInstance;
 	 };
 
@@ -33,7 +35,7 @@ public:
 	ATownDefaultPawn(const FObjectInitializer& ObjectInitializer);
 
 	void LeftClickHandler();
-	void RightClickHandler();
+	void ZoomOutFromBuilding();
 	void PlaySequence(TWeakObjectPtr<AActor> Actor);
 	void PlaySequenceReverse();
 
@@ -46,16 +48,16 @@ public:
 	void EnablePlayerInputOnSequenceFinish();
 	
 	UFUNCTION(BlueprintCallable)
-	void SetMappedWidgetInstance(FString Key, UTownBuildingWidgetBase* Widget);
+	void SetMappedWidgetInstance(const EBuildingTypes Key, UTownBuildingWidgetBase* Widget);
 	
 	UFUNCTION(BlueprintCallable)
-    UTownBuildingWidgetBase* GetMappedWidget(FString Key);
+    UTownBuildingWidgetBase* GetMappedWidget(const EBuildingTypes Key);
 	
 	UFUNCTION(BlueprintCallable)
-    UTownBuildingWidgetBase* GetMappedWidgetInstance(FString Key);
+    UTownBuildingWidgetBase* GetMappedWidgetInstance(const EBuildingTypes Key);
 	
 	UFUNCTION(BlueprintCallable)
-	ULevelSequence* GetMappedSequenceAsset(FString Key);
+	ULevelSequence* GetMappedSequenceAsset(const EBuildingTypes Key);
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera)
 	class USpringArmComponent* SpringArmComponent;
@@ -70,7 +72,10 @@ public:
 	class UTownBuildingActorComponent* SelectedBuilding;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-    TMap<FString, FBuildingData > BuildingDataMap;
+    TMap<EBuildingTypes, FBuildingData > BuildingDataMap;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	class UTownYesOrNoWidget* YesOrNoWidgetBP;
 
 
 private:

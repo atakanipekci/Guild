@@ -4,8 +4,26 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "UObject/ObjectMacros.h"
+
+
 #include "TownBuildingActorComponent.generated.h"
 
+UENUM(BlueprintType)
+enum class EBuildingConstructionState: uint8
+{
+	NotConstructed,
+	UnderConstruction,
+	Constructed,
+	Preview
+};
+
+UENUM(BlueprintType)
+enum class EBuildingTypes: uint8
+{
+	Tavern,
+	Recruit
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GUILDGAME_API UTownBuildingActorComponent : public UActorComponent
@@ -18,32 +36,44 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	void SetMaterialViaState(bool IsConstructed);
+	void SetMaterialViaState(EBuildingConstructionState State);
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
-    FString BuildingDataKey;
-
+    EBuildingTypes BuildingDataKey;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
+	FString BuildingDataTableKey;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
-	UMaterialInstance* TransparentMatBlueprint;
+	UMaterialInstance* PreviewMatBP;
 	UPROPERTY(BlueprintReadWrite, Category = Building)
-	UMaterialInstanceDynamic* TransparentMatInstance;
+	UMaterialInstanceDynamic* PreviewMatInstance;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
+	UMaterialInstance* ConstructedMatBP;
+	UPROPERTY(BlueprintReadWrite, Category = Building)
+	UMaterialInstanceDynamic* ConstructedMatInstance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
+	UMaterialInstance* NotConstructedMatBP;
+	UPROPERTY(BlueprintReadWrite, Category = Building)
+	UMaterialInstanceDynamic* NotConstructedMatInstance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
+	UMaterialInstance* UnderConstructionMatBP;
+	UPROPERTY(BlueprintReadWrite, Category = Building)
+	UMaterialInstanceDynamic* UnderConstructionMatInstance;
 	
-	UMaterialInstance* DefaultMatBlueprint;
-	UPROPERTY(BlueprintReadWrite, Category = Building)
-	UMaterialInstanceDynamic* DefaultMatInstance;
-
 	class ULevelSequence* GetSequenceAsset() const;
-
-	bool IsConstructed() const;
+	EBuildingConstructionState GetConstructionState() const;
+	void SetConstructionState(EBuildingConstructionState State);
 
 private:
+
 	UPROPERTY(EditAnywhere, Category = Building)
-	bool IsBuildingConstructed = true;
+	EBuildingConstructionState ConstructionState;
 		
 };

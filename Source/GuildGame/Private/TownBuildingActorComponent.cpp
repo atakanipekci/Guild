@@ -24,35 +24,59 @@ void UTownBuildingActorComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(TransparentMatBlueprint && DefaultMatBlueprint)
+	if(PreviewMatBP && ConstructedMatBP && NotConstructedMatBP && UnderConstructionMatBP)
 	{
-		SetMaterialViaState(IsBuildingConstructed);
+		SetMaterialViaState(ConstructionState);
 	}
 }
-void UTownBuildingActorComponent::SetMaterialViaState(bool IsConstructed)
+void UTownBuildingActorComponent::SetMaterialViaState(EBuildingConstructionState State)
 {
-	if(IsConstructed == false)
+	if(State == EBuildingConstructionState::NotConstructed)
 	{
-		if(TransparentMatInstance == nullptr)
-			TransparentMatInstance = UMaterialInstanceDynamic::Create(TransparentMatBlueprint, this);
+		if(NotConstructedMatInstance == nullptr)
+			NotConstructedMatInstance = UMaterialInstanceDynamic::Create(NotConstructedMatBP, this);
 
 		UActorComponent* Building = GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass());
 
-		if(Building != nullptr && TransparentMatInstance != nullptr)
+		if(Building != nullptr && NotConstructedMatInstance != nullptr)
 		{
-			Cast<UStaticMeshComponent>(Building)->SetMaterial(0, TransparentMatInstance);
+			Cast<UStaticMeshComponent>(Building)->SetMaterial(0, NotConstructedMatInstance);
 		}
 	}
-	else
+	else if(State == EBuildingConstructionState::Constructed)
 	{
-		if(DefaultMatInstance == nullptr)
-			DefaultMatInstance = UMaterialInstanceDynamic::Create(DefaultMatBlueprint, this);
+		if(ConstructedMatInstance == nullptr)
+			ConstructedMatInstance = UMaterialInstanceDynamic::Create(ConstructedMatBP, this);
 
 		UActorComponent* Building = GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass());
 
-		if(Building != nullptr && DefaultMatInstance != nullptr)
+		if(Building != nullptr && ConstructedMatInstance != nullptr)
 		{
-			Cast<UStaticMeshComponent>(Building)->SetMaterial(0, DefaultMatInstance);
+			Cast<UStaticMeshComponent>(Building)->SetMaterial(0, ConstructedMatInstance);
+		}
+	}
+	else if(State == EBuildingConstructionState::UnderConstruction)
+	{
+		if(UnderConstructionMatInstance == nullptr)
+			UnderConstructionMatInstance = UMaterialInstanceDynamic::Create(UnderConstructionMatBP, this);
+
+		UActorComponent* Building = GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass());
+
+		if(Building != nullptr && UnderConstructionMatInstance != nullptr)
+		{
+			Cast<UStaticMeshComponent>(Building)->SetMaterial(0, UnderConstructionMatInstance);
+		}
+	}
+	else if(State == EBuildingConstructionState::Preview)
+	{
+		if(PreviewMatInstance == nullptr)
+			PreviewMatInstance = UMaterialInstanceDynamic::Create(PreviewMatBP, this);
+
+		UActorComponent* Building = GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass());
+
+		if(Building != nullptr && PreviewMatInstance != nullptr)
+		{
+			Cast<UStaticMeshComponent>(Building)->SetMaterial(0, PreviewMatInstance);
 		}
 	}
 }
@@ -78,8 +102,14 @@ ULevelSequence* UTownBuildingActorComponent::GetSequenceAsset() const
 	return  nullptr;
 }
 
-bool UTownBuildingActorComponent::IsConstructed() const
+EBuildingConstructionState UTownBuildingActorComponent::GetConstructionState() const
 {
-	return  IsBuildingConstructed;
+	return ConstructionState;
+}
+
+void UTownBuildingActorComponent::SetConstructionState(EBuildingConstructionState State)
+{
+	ConstructionState = State;
+	SetMaterialViaState(State);
 }
 

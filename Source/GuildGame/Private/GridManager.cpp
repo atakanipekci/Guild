@@ -240,7 +240,7 @@ bool GridManager::GetNeighbours(int Index, int ARowCount, int AColumnCount, TArr
     return true;   
 }
 
-bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<GGGrid*>* GridsResult)
+bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<GGGrid*>* GridsResult, bool UsePathfinding)
 {
     int IndexDist = Dist/GridSize;
     int TopLeft = CenterIndex - IndexDist - IndexDist*ColumnCount;
@@ -260,15 +260,26 @@ bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<GGGrid*>* 
                 end = GetGridCenter(result);
                 if(IsGridValid(result))
                 {
-                    UNavigationPath* path =  UNavigationSystemV1::FindPathToLocationSynchronously(AttachedFloor->GetWorld(), start, end, nullptr,nullptr);
-                    if(path)
+                    if(UsePathfinding)
                     {
-                        float PathDist = path->GetPathLength();
-                        if(PathDist<Dist && path->IsValid())
+                        UNavigationPath* path =  UNavigationSystemV1::FindPathToLocationSynchronously(AttachedFloor->GetWorld(), start, end, nullptr,nullptr);
+                        if(path)
+                        {
+                            float PathDist = path->GetPathLength();
+                            if(PathDist<Dist && path->IsValid())
+                            {
+                                GridsResult->Add(&GGGrids[result]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        float EuclidDist = FVector::Dist(start,end);
+                        if(EuclidDist < Dist)
                         {
                             GridsResult->Add(&GGGrids[result]);
                         }
-                    }               
+                    }
                 }
             }
         }

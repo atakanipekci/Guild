@@ -5,6 +5,8 @@
 
 #include "AIController.h"
 #include "GGCharacter.h"
+#include "GGControllerState.h"
+#include "GridFloor.h"
 #include "GGLogHelper.h"
 
 AGGPlayerController::AGGPlayerController()
@@ -14,6 +16,21 @@ AGGPlayerController::AGGPlayerController()
 	bEnableClickEvents = true;
 	bEnableTouchEvents = true;
 	PrimaryActorTick.bCanEverTick = true;
+	States.Add(new ControllerStateDefault(this));
+	States.Add(new ControllerStateBasicAttack(this));
+	if(States.Num() != 0)
+	{
+		ActiveState = States[0];
+	}
+}
+
+AGGPlayerController::~AGGPlayerController()
+{
+	for(int i = 0; i < States.Num(); i++)
+	{
+		delete States[i];
+		States.RemoveAt(i);
+	}
 }
 
 
@@ -24,10 +41,47 @@ void AGGPlayerController::BeginPlay()
 
 void AGGPlayerController::Tick(float DeltaTime)
 {
-	UpdateSelectedGrid();	
+	if(ActiveState)
+	{
+		ActiveState->Update();
+	}
 }
 
-void AGGPlayerController::UpdateSelectedGrid()
+GGControllerState* AGGPlayerController::GetActiveState()
+{
+	return ActiveState;
+}
+
+void AGGPlayerController::SetState(int StateIndex)
+{
+	if(StateIndex >= States.Num())
+	{
+		return;
+	}
+
+	ActiveState = States[StateIndex];
+}
+
+void AGGPlayerController::ChangeStateTo(int StateIndex)
+{
+	if(StateIndex >= States.Num())
+	{
+		return;
+	}
+	if(ActiveState)
+	{
+		ActiveState->ChangeFrom();
+	}
+
+	ActiveState = States[StateIndex];
+
+	if(ActiveState)
+	{
+		ActiveState->ChangeTo();
+	}
+}
+
+void AGGPlayerController::UpdateSelectedGrid(bool DrawPathTo)
 {
 	if(GridFloor == nullptr)
 	{
@@ -63,7 +117,7 @@ void AGGPlayerController::UpdateSelectedGrid()
 		//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, FString::Printf(TEXT(" %d"), GridIndex));
 		SelectedGridIndex = GridIndex;
 		GridFloor->UpdateSelectedGrid(GridMan->GetGridBottomLeft(GridIndex), true);
-		if(SelectedCharacter && SelectedCharacter->GetStatus() == ECharacterStatus::Idle)
+		if(SelectedCharacter && SelectedCharacter->GetStatus() == ECharacterStatus::Idle && DrawPathTo)
 		{
 			int start = GridMan->WorldToGrid(SelectedCharacter->GetActorLocation());
 			int end = SelectedGridIndex;
@@ -72,27 +126,32 @@ void AGGPlayerController::UpdateSelectedGrid()
 	}
 }
 
+void AGGPlayerController::DrawPath(int StartIndex, int EndIndex) const
+{
+	if(StartIndex == EndIndex || GridFloor == nullptr)
+	{
+		return;
+	}
+
+	GridFloor->DrawPath(StartIndex,EndIndex);
+}
+
 void AGGPlayerController::SetGridFloor(AGridFloor* Grid)
 {
 	GridFloor = Grid;
 }
 
+AGridFloor* AGGPlayerController::GetGridFloor() const
+{
+	return GridFloor;
+}
+
 void AGGPlayerController::SelectCharAtMousePos()
 {
-	FHitResult TraceResult(ForceInit);
-	this->GetHitResultUnderCursor(ECollisionChannel::ECC_GameTraceChannel2, false, TraceResult);
-	if (TraceResult.GetActor() != nullptr)
-	{	
-		AGGCharacter* HitCharacter = Cast<AGGCharacter>(TraceResult.GetActor());			
-		if(HitCharacter != nullptr)
-		{
-			SetSelectedCharacter(HitCharacter);
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, "not char");
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TraceResult.GetActor()->GetName());
-		}
+	AGGCharacter* Char = GetCharacterFromMousePos();
+	if(Char)
+	{
+		SetSelectedCharacter(Char);
 	}
 }
 
@@ -125,4 +184,28 @@ void AGGPlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)
 	{
 		SelectedCharacter->SetSelected();
 	}
+}
+
+AGGCharacter* AGGPlayerController::GetSelectedCharacter() const
+{
+	return SelectedCharacter;
+}
+
+AGGCharacter* AGGPlayerController::GetCharacterFromMousePos() const
+{
+	FHitResult TraceResult(ForceInit);
+	this->GetHitResultUnderCursor(ECollisionChannel::ECC_GameTraceChannel2, false, TraceResult);
+	if (TraceResult.GetActor() != nullptr)
+	{	
+		AGGCharacter* HitCharacter = Cast<AGGCharacter>(TraceResult.GetActor());			
+		if(HitCharacter != nullptr)
+		{
+			return HitCharacter;
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+	return nullptr;
 }

@@ -23,8 +23,8 @@ class GUILDGAME_API AGGCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AGGCharacter();
-	void SetActive();
 	TArray<GGGrid*>* GetMovableGrids();
+	TArray<GGGrid*>* GetDamageableGrids();
 
 protected:
 	// Called when the game starts or when spawned
@@ -35,13 +35,21 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void MoveTo(FVector);
 	void UpdateMovableGrids();
+	void UpdateDamageableGrids();
+	void AttackTo(AGGCharacter* Target);
 	void SetSelected();
 	float GetDefaultMovementRange()const;
+	float GetDefaultDamageRange()const;
+	int GetBaseDamage()const;
 	ECharacterStatus GetStatus()const;
 	void SetStatus(ECharacterStatus);
+	float TakeDamage(float DamageAmount,struct FDamageEvent const & DamageEvent,class AController * EventInstigator, AActor * DamageCause) override;
+	float TakeDefaultDamage(float DamageAmount, AActor* Dealer);
+	void ShowDamageableGrids();
 
 private:
-	float MovementRange = 850;
 	TArray<GGGrid*> MovableGrids;
+	TArray<GGGrid*> DamageableGrids;
 	ECharacterStatus Status = ECharacterStatus::Idle;
+	class UCharacterStatsComponent* StatsComponent;
 };

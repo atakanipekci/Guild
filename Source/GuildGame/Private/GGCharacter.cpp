@@ -9,6 +9,8 @@
 #include "GGPlayerController.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "CharacterStatsComponent.h"
+#include "GridFloor.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -19,16 +21,22 @@ AGGCharacter::AGGCharacter()
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
-}
-
-void AGGCharacter::SetActive()
-{
-	return;
+	StatsComponent = CreateDefaultSubobject<UCharacterStatsComponent>("StatsComponent");
+	if(StatsComponent)
+	{
+		StatsComponent->SetMaxHealth(100);
+		StatsComponent->SetCurrentHealth(100);
+	}
 }
 
 TArray<GGGrid*>* AGGCharacter::GetMovableGrids()
 {
 	return &MovableGrids;
+}
+
+TArray<GGGrid*>* AGGCharacter::GetDamageableGrids()
+{
+	return &DamageableGrids;
 }
 
 // Called when the game starts or when spawned
@@ -70,6 +78,21 @@ void AGGCharacter::UpdateMovableGrids()
 	CharacterManager::SetMovableGrids(this);
 }
 
+void AGGCharacter::UpdateDamageableGrids()
+{
+	CharacterManager::SetDamageableGrids(this);
+}
+
+void AGGCharacter::AttackTo(AGGCharacter* Target)
+{
+	if(Target == nullptr)
+	{
+		return;
+	}
+
+	Target->TakeDefaultDamage(GetBaseDamage(),this);
+}
+
 void AGGCharacter::SetSelected()
 {
 	UpdateMovableGrids();
@@ -82,7 +105,32 @@ void AGGCharacter::SetSelected()
 
 float AGGCharacter::GetDefaultMovementRange() const
 {
-	return MovementRange;
+	if(StatsComponent == nullptr)
+	{
+		return 0;
+	}
+	
+	return StatsComponent->GetMovementRange();
+}
+
+float AGGCharacter::GetDefaultDamageRange() const
+{
+	if(StatsComponent == nullptr)
+	{
+		return 0;
+	}
+	
+	return StatsComponent->GetAttackRange();
+}
+
+int AGGCharacter::GetBaseDamage() const
+{
+	if(StatsComponent == nullptr)
+	{
+		return 0;
+	}
+	
+	return StatsComponent->GetBaseDamage();
 }
 
 ECharacterStatus AGGCharacter::GetStatus() const
@@ -102,5 +150,31 @@ void AGGCharacter::SetStatus(ECharacterStatus NewStatus)
 			GridMan->GetAttachedFloor()->UpdateGridMeshes(MovableGrids);
 		}
 	}
+}
+
+float AGGCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCause)
+{
+	if(StatsComponent)
+	{
+		StatsComponent->ChangeHealth(-DamageAmount);
+	}
+	return DamageAmount;
+}
+
+float AGGCharacter::TakeDefaultDamage(float DamageAmount, AActor* Dealer)
+{
+	return TakeDamage(DamageAmount, FDamageEvent(), nullptr,this);
+}
+
+void AGGCharacter::ShowDamageableGrids()
+{
+	UpdateDamageableGrids();
+	GridManager* GridMan = CharacterManager::CharGridManager;
+	if(GridMan && GridMan->GetAttachedFloor())
+	{
+		GridMan->GetAttachedFloor()->UpdateGridMeshes(DamageableGrids, EISMType::Attack);
+	}
+	
 }
 

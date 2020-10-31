@@ -51,9 +51,9 @@ public:
 		return MovementRange;
 	}
 
-	void SetMovementRange(float MovementRange)
+	void SetMovementRange(float NewMovementRange)
 	{
-		this->MovementRange = MovementRange;
+		this->MovementRange = NewMovementRange;
 	}
 
 	float GetAttackRange() const
@@ -61,9 +61,9 @@ public:
 		return AttackRange;
 	}
 
-	void SetAttackRange(float AttackRange)
+	void SetAttackRange(float NewAttackRange)
 	{
-		this->AttackRange = AttackRange;
+		this->AttackRange = NewAttackRange;
 	}
 
 	int GetBaseDamage() const
@@ -71,9 +71,9 @@ public:
 		return BaseDamage;
 	}
 
-	void SetBaseDamage(int BaseDamage)
+	void SetBaseDamage(int NewBaseDamage)
 	{
-		this->BaseDamage = BaseDamage;
+		this->BaseDamage = NewBaseDamage;
 	}
 	
 private:

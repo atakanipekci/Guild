@@ -30,7 +30,7 @@ public:
 	bool IsPlaceable(TArray<GGGrid*>* GridsToPlace, EGridState RequiredState) const;
 	bool GetGridsFromCenter(int Index, int ARowCount, int AColumnCount,  TArray<GGGrid*>* GridsResult);
 	bool GetNeighbours(int Index, int ARowCount, int AColumnCount, TArray<GGGrid*>* GridsResult);
-	bool GetGridsInRange(int CenterIndex, float Dist, TArray<GGGrid*>* GridsResult);
+	bool GetGridsInRange(int CenterIndex, float Dist, TArray<GGGrid*>* GridsResult, bool UsePathfinding = true);
 	FVector GetPositionToPlace(int Index, int RowCount, int ColumnCount) const;
 	bool SetGridStates(TArray<GGGrid*>* GridsToSet, EGridState NewState);
 	void SetStartPos(FVector2D& NewPos)

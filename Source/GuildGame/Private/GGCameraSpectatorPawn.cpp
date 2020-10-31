@@ -8,6 +8,7 @@
 #include "Engine/Classes/Camera/CameraComponent.h"
 #include "Engine/Classes/Components/InputComponent.h"
 #include "Engine/Classes/Engine/Engine.h"
+#include "GGControllerState.h"
 #include "Kismet/GameplayStatics.h"
 
 AGGCameraSpectatorPawn::AGGCameraSpectatorPawn(const FObjectInitializer& ObjectInitializer)
@@ -59,6 +60,11 @@ void AGGCameraSpectatorPawn::LeftClickHandler()
 	{
 		return;
 	}
+
+	if(PlayerController->GetActiveState())
+	{
+		PlayerController->GetActiveState()->LeftClickHandler();
+	}
 }
 
 void AGGCameraSpectatorPawn::LeftClickReleaseHandler()
@@ -69,7 +75,10 @@ void AGGCameraSpectatorPawn::LeftClickReleaseHandler()
 		return;
 	}
 
-	PlayerController->SelectCharAtMousePos();
+	if(PlayerController->GetActiveState())
+	{
+		PlayerController->GetActiveState()->LeftClickReleaseHandler();
+	}
 }
 
 void AGGCameraSpectatorPawn::RightClickHandler()
@@ -78,6 +87,10 @@ void AGGCameraSpectatorPawn::RightClickHandler()
 	if (PlayerController == nullptr)
 	{
 		return;
+	}
+	if(PlayerController->GetActiveState())
+	{
+		PlayerController->GetActiveState()->RightClickHandler();
 	}
 }
 
@@ -89,7 +102,10 @@ void AGGCameraSpectatorPawn::RightClickReleaseHandler()
 		return;
 	}
 
-	PlayerController->MoveSelectedChar();
+	if(PlayerController->GetActiveState())
+	{
+		PlayerController->GetActiveState()->RightClickReleaseHandler();
+	}
 }
 
 
@@ -231,6 +247,17 @@ void AGGCameraSpectatorPawn::RepositionCamera()
 	CameraComponent->SetRelativeLocation(NewLocation);
 	NewRotation = (FVector(0.0f, 0.0f, 0.0f) - NewLocation).Rotation();
 	CameraComponent->SetRelativeRotation(NewRotation);
+}
+
+void AGGCameraSpectatorPawn::No1Clicked()
+{
+	AGGPlayerController* PlayerController = Cast<AGGPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	if (PlayerController == nullptr)
+	{
+		return;
+	}
+
+	PlayerController->ChangeStateTo(1);
 }
 
 float AGGCameraSpectatorPawn::GetLandTerrainSurfaceAtCoord(float XCoord, float YCoord) const
@@ -398,5 +425,5 @@ void AGGCameraSpectatorPawn::SetupPlayerInputComponent(UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("LeftMouseClick", IE_Released, this, &AGGCameraSpectatorPawn::LeftClickReleaseHandler);
 	PlayerInputComponent->BindAction("RightMouseClick", IE_Pressed, this, &AGGCameraSpectatorPawn::RightClickHandler);
 	PlayerInputComponent->BindAction("RightMouseClick", IE_Released, this, &AGGCameraSpectatorPawn::RightClickReleaseHandler);
-
+	PlayerInputComponent->BindAction("No1Click", IE_Pressed, this, &AGGCameraSpectatorPawn::No1Clicked);
 }

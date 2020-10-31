@@ -13,5 +13,6 @@ class GUILDGAME_API CharacterManager
 {
 public:
     static void SetMovableGrids(ACharacter* Character);
+    static void SetDamageableGrids(ACharacter* Character);
     static GridManager* CharGridManager;
 };

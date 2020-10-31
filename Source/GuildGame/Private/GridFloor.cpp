@@ -6,6 +6,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "GGLogHelper.h"
+#include "CharacterManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "GGPlayerController.h"
 #include "GridNavigationData.h"
@@ -23,12 +24,12 @@ AGridFloor::AGridFloor()
 	SelectionMesh->SetupAttachment(RootComponent);
 	GridMesh = CreateDefaultSubobject<UProceduralMeshComponent>("CustomMesh");
 	GridMesh->SetupAttachment(RootComponent);
-	AvailableGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("AvailableGrids");
-	AvailableGridMesh->SetupAttachment(RootComponent);
-	NotAvailableGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("NotAvailableGrids");
-	NotAvailableGridMesh->SetupAttachment(RootComponent);
-	AvailableGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	NotAvailableGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MovementGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("AvailableGrids");
+	MovementGridMesh->SetupAttachment(RootComponent);
+	AttackGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("NotAvailableGrids");
+	AttackGridMesh->SetupAttachment(RootComponent);
+	MovementGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttackGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SelectionMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);	
 }
@@ -41,7 +42,7 @@ AGridFloor::~AGridFloor()
 void AGridFloor::UpdateGridStatesWithTrace()
 {
 	FCollisionShape MySphereCollision = FCollisionShape::MakeSphere(GridSize/2 - GridSize/10);
-	TArray<FHitResult> OutHits;
+	FHitResult OutHit;
 	for(int i = 0; i < ColumnCount; i++)
 	{
 		for(int j = 0; j < RowCount; j++)
@@ -50,7 +51,7 @@ void AGridFloor::UpdateGridStatesWithTrace()
 			pos.Z = GetActorLocation().Z;
 			//DrawDebugSphere(GetWorld(), pos, MySphereCollision.GetSphereRadius(), 1, FColor::Purple, true);
 			//ecc_gametracechannel1 should be gridobstacle channel.
-			bool isHit = GetWorld()->SweepMultiByChannel(OutHits,pos,pos,FQuat::Identity,ECC_GameTraceChannel1,MySphereCollision);
+			bool isHit = GetWorld()->SweepSingleByChannel(OutHit,pos,pos,FQuat::Identity,ECC_GameTraceChannel1,MySphereCollision);
 			if(isHit)
 			{
 				FloorGridManager->SetGridState(i + j*ColumnCount, EGridState::Obstacle);
@@ -96,7 +97,7 @@ void AGridFloor::BeginPlay()
 	AvailableGridMesh->AddInstanceWorldSpace(FTransform{TempPos});
 	TempPos = FloorGridManager->GetGridCenter(11);
 	TempPos.Z = GetActorLocation().Z;
-	NotAvailableGridMesh->AddInstanceWorldSpace(FTransform{TempPos});*/
+	AttackGridMesh->AddInstanceWorldSpace(FTransform{TempPos});*/
 
 	UpdateGridStatesWithTrace();
 	
@@ -227,18 +228,18 @@ void AGridFloor::OnConstruction(const FTransform& Transform)
 		switch (i)
 		{
 			case 0:
-				ISMDetails = ISMMap.Find(EISMType::Available);
-				ISMPointer = AvailableGridMesh;
+				ISMDetails = ISMMap.Find(EISMType::Movement);
+				ISMPointer = MovementGridMesh;
 			break;
 				
 			case 1:
-				ISMDetails = ISMMap.Find(EISMType::NotAvailable);
-				ISMPointer = NotAvailableGridMesh;
+				ISMDetails = ISMMap.Find(EISMType::Attack);
+				ISMPointer = AttackGridMesh;
 			break;
 
 			default:
-				ISMDetails = ISMMap.Find(EISMType::NotAvailable);
-				ISMPointer = NotAvailableGridMesh;
+				ISMDetails = ISMMap.Find(EISMType::Movement);
+				ISMPointer = AttackGridMesh;
 			break;
 		}
 
@@ -314,24 +315,24 @@ float AGridFloor::GetPathLength(int StartIndex, int EndIndex)
 	return -1;
 }
 
-bool AGridFloor::UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate) const
+bool AGridFloor::UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate, EISMType MeshType) const
 {
 
 	for(int i = 0; i < GridFloorTypeCount; i++)
 	{
 		switch (i)
 		{
-			case 0:
-				if(AvailableGridMesh)
+			case EISMType::Movement:
+				if(MovementGridMesh)
 				{
-					AvailableGridMesh->ClearInstances();
+					MovementGridMesh->ClearInstances();
 				}
 			break;
 					
-			case 1:
-				if(NotAvailableGridMesh)
+			case EISMType::Attack:
+				if(AttackGridMesh)
 				{
-					NotAvailableGridMesh->ClearInstances();
+					AttackGridMesh->ClearInstances();
 				}
 			break;
 
@@ -343,24 +344,24 @@ bool AGridFloor::UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate) const
 	for(int i = 0; i < GridsToUpdate.Num(); i++)
 	{
 		Pos.Set(FloorGridManager->GetGridCenter(GridsToUpdate[i]->Index).X,FloorGridManager->GetGridCenter(GridsToUpdate[i]->Index).Y, GetActorLocation().Z - 5);
-		switch(GridsToUpdate[i]->GridState)
+		switch(MeshType)
 		{
-			case EGridState::Empty:
-			if(AvailableGridMesh)
+			case EISMType::Movement:
+			if(MovementGridMesh)
 			{
-				AvailableGridMesh->AddInstanceWorldSpace(FTransform{Pos});
+				MovementGridMesh->AddInstanceWorldSpace(FTransform{Pos});
 			}
 			break;
 
-			case EGridState::Obstacle:
-			if(NotAvailableGridMesh)
+			case EISMType::Attack:
+			if(AttackGridMesh)
 			{
-				NotAvailableGridMesh->AddInstanceWorldSpace(FTransform{Pos});
+				AttackGridMesh->AddInstanceWorldSpace(FTransform{Pos});
 			}
 			break;
 
 			default:
-				NotAvailableGridMesh->AddInstanceWorldSpace(FTransform{Pos});
+				MovementGridMesh->AddInstanceWorldSpace(FTransform{Pos});
 			break;
 		}
 	}
@@ -370,14 +371,14 @@ bool AGridFloor::UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate) const
 
 void AGridFloor::ClearGridMeshes()
 {
-	if(AvailableGridMesh)
+	if(MovementGridMesh)
 	{
-		AvailableGridMesh->ClearInstances();
+		MovementGridMesh->ClearInstances();
 	}
 		
-	if(NotAvailableGridMesh)
+	if(AttackGridMesh)
 	{
-		NotAvailableGridMesh->ClearInstances();
+		AttackGridMesh->ClearInstances();
 	}
 }
 

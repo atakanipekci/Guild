@@ -22,3 +22,20 @@ void CharacterManager::SetMovableGrids(ACharacter* Character)
     GGChar->MovableGrids.Empty();
     CharGridManager->GetGridsInRange(Index,GGChar->GetDefaultMovementRange(), &(GGChar->MovableGrids));
 }
+
+void CharacterManager::SetDamageableGrids(ACharacter* Character)
+{
+    if(Character == nullptr || CharGridManager == nullptr)
+    {
+        return;
+    }
+    AGGCharacter * GGChar = Cast<AGGCharacter>(Character);
+    if(GGChar == nullptr)
+    {
+        return;
+    }
+
+    int Index = CharGridManager->WorldToGrid(GGChar->GetActorLocation());
+    GGChar->DamageableGrids.Empty();
+    CharGridManager->GetGridsInRange(Index,GGChar->GetDefaultDamageRange(), &(GGChar->DamageableGrids), false);
+}

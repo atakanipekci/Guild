@@ -13,9 +13,8 @@
 UENUM(BlueprintType)
 enum class EISMType: uint8
 {
-	Available,
-	NotAvailable,
-	Enemy
+	Movement,
+	Attack
 };
 
 USTRUCT(BlueprintType)
@@ -80,10 +79,10 @@ public:
 	UMaterialInterface* SelectedGridMaterial;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	UInstancedStaticMeshComponent* AvailableGridMesh;
+	UInstancedStaticMeshComponent* MovementGridMesh;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	UInstancedStaticMeshComponent* NotAvailableGridMesh;
+	UInstancedStaticMeshComponent* AttackGridMesh;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TMap<EISMType,FISMDetails> ISMMap;
@@ -125,7 +124,7 @@ public:
 
 	float GetPathLength(int StartIndex, int EndIndex);
 
-	bool UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate) const;
+	bool UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate, EISMType = EISMType::Movement) const;
 
 	void ClearGridMeshes();
 

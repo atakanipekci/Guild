@@ -4,7 +4,6 @@
 #include "GGControllerState.h"
 #include "GGPlayerController.h"
 #include "GGCharacter.h"
-#include "GGLogHelper.h"
 #include "GridFloor.h"
 
 ControllerStateDefault::ControllerStateDefault(AGGPlayerController* Controller)
@@ -79,6 +78,11 @@ void ControllerStateDefault::ChangeFrom()
 		PlayerController->GetGridFloor()->ClearGridMeshes();
 		PlayerController->GetGridFloor()->ClearPath();
 	}
+}
+
+bool ControllerStateDefault::CanChangeTo()
+{
+	return true;
 }
 
 ControllerStateBasicAttack::ControllerStateBasicAttack(AGGPlayerController* Controller)
@@ -162,4 +166,20 @@ void ControllerStateBasicAttack::ChangeFrom()
 	{
 		PlayerController->GetGridFloor()->ClearGridMeshes();
 	}
+}
+
+bool ControllerStateBasicAttack::CanChangeTo()
+{
+	if (PlayerController == nullptr)
+	{
+		return false;
+	}
+
+	if (PlayerController->GetSelectedCharacter() == nullptr || PlayerController->GetSelectedCharacter()->GetStatus() != ECharacterStatus::Idle)
+	{
+		return false;
+	}
+
+	return true;
+	
 }

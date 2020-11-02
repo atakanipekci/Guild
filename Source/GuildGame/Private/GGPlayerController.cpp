@@ -47,7 +47,7 @@ void AGGPlayerController::Tick(float DeltaTime)
 	}
 }
 
-GGControllerState* AGGPlayerController::GetActiveState()
+GGControllerState* AGGPlayerController::GetActiveState() const
 {
 	return ActiveState;
 }
@@ -68,17 +68,22 @@ void AGGPlayerController::ChangeStateTo(int StateIndex)
 	{
 		return;
 	}
+
+	if(States[StateIndex])
+	{
+		if(!States[StateIndex]->CanChangeTo())
+		{
+			return;
+		}
+	}
+	
 	if(ActiveState)
 	{
 		ActiveState->ChangeFrom();
 	}
 
 	ActiveState = States[StateIndex];
-
-	if(ActiveState)
-	{
-		ActiveState->ChangeTo();
-	}
+	ActiveState->ChangeTo();
 }
 
 void AGGPlayerController::UpdateSelectedGrid(bool DrawPathTo)

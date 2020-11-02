@@ -116,8 +116,6 @@ FVector GridManager::GetGridCenter(int Index) const
         col = Index%ColumnCount;
     }
 
-    GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, FString::Printf(TEXT("  row : %d"), row));
-
     return FVector(StartPos.X + row*GridSize + GridSize/2, StartPos.Y + col*GridSize + GridSize/2,0);
 }
 

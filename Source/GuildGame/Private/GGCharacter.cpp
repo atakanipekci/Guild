@@ -90,6 +90,11 @@ void AGGCharacter::AttackTo(AGGCharacter* Target)
 		return;
 	}
 
+	if(!CharacterManager::CanAttackTo(this,Target))
+	{
+		return;
+	}
+
 	Target->TakeDefaultDamage(GetBaseDamage(),this);
 }
 

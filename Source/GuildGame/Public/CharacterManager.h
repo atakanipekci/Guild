@@ -3,8 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GGCharacter.h"
-#include "GridManager.h"
 
 /**
  * 
@@ -12,7 +10,8 @@
 class GUILDGAME_API CharacterManager
 {
 public:
-    static void SetMovableGrids(ACharacter* Character);
-    static void SetDamageableGrids(ACharacter* Character);
-    static GridManager* CharGridManager;
+    static void SetMovableGrids(class AGGCharacter* Character);
+    static void SetDamageableGrids(class AGGCharacter* Character);
+    static bool CanAttackTo(const class AGGCharacter*, const class AGGCharacter* );
+    static class GridManager* CharGridManager;
 };

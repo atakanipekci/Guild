@@ -2,40 +2,52 @@
 
 
 #include "CharacterManager.h"
+
+#include "GGCharacter.h"
 #include "GGLogHelper.h"
+#include "GridManager.h"
 
 GridManager* CharacterManager::CharGridManager = nullptr;
 
-void CharacterManager::SetMovableGrids(ACharacter* Character)
+void CharacterManager::SetMovableGrids(AGGCharacter* Character)
 {
     if(Character == nullptr || CharGridManager == nullptr)
     {
         return;
     }
-    AGGCharacter * GGChar = Cast<AGGCharacter>(Character);
-    if(GGChar == nullptr)
-    {
-        return;
-    }
 
-    int Index = CharGridManager->WorldToGrid(GGChar->GetActorLocation());
-    GGChar->MovableGrids.Empty();
-    CharGridManager->GetGridsInRange(Index,GGChar->GetDefaultMovementRange(), &(GGChar->MovableGrids));
+    int Index = CharGridManager->WorldToGrid(Character->GetActorLocation());
+    Character->MovableGrids.Empty();
+    CharGridManager->GetGridsInRange(Index,Character->GetDefaultMovementRange(), &(Character->MovableGrids));
 }
 
-void CharacterManager::SetDamageableGrids(ACharacter* Character)
+void CharacterManager::SetDamageableGrids(AGGCharacter* Character)
 {
     if(Character == nullptr || CharGridManager == nullptr)
     {
         return;
     }
-    AGGCharacter * GGChar = Cast<AGGCharacter>(Character);
-    if(GGChar == nullptr)
+    
+
+    int Index = CharGridManager->WorldToGrid(Character->GetActorLocation());
+    Character->DamageableGrids.Empty();
+    CharGridManager->GetGridsInRange(Index,Character->GetDefaultDamageRange(), &(Character->DamageableGrids), false);
+}
+
+bool CharacterManager::CanAttackTo(const AGGCharacter* Dealer, const AGGCharacter* Target)
+{
+    if(Dealer == nullptr || Target == nullptr)
     {
-        return;
+        return false;
     }
 
-    int Index = CharGridManager->WorldToGrid(GGChar->GetActorLocation());
-    GGChar->DamageableGrids.Empty();
-    CharGridManager->GetGridsInRange(Index,GGChar->GetDefaultDamageRange(), &(GGChar->DamageableGrids), false);
+    const FVector2D StartPos (CharGridManager->GetGridCenter(CharGridManager->WorldToGrid(Dealer->GetActorLocation())));
+    const FVector2D EndPos (CharGridManager->GetGridCenter(CharGridManager->WorldToGrid(Target->GetActorLocation()))); 
+
+    if(FVector2D::Distance(StartPos,EndPos) > Dealer->GetDefaultDamageRange())
+    {
+        return false;
+    }
+
+    return true;
 }

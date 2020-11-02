@@ -18,7 +18,7 @@ public:
 	
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-	class GGControllerState* GetActiveState();
+	class GGControllerState* GetActiveState() const;
 	void SetState(int StateIndex);
 	void ChangeStateTo(int StateIndex);
 	void UpdateSelectedGrid(bool DrawPathTo = true);

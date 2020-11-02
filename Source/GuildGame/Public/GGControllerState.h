@@ -19,6 +19,7 @@ class GUILDGAME_API GGControllerState
 
     virtual void ChangeTo() = 0;
     virtual void ChangeFrom() = 0;
+    virtual bool CanChangeTo() = 0;
     virtual ~GGControllerState() = default;
 };
 
@@ -35,6 +36,7 @@ class GUILDGAME_API ControllerStateDefault: public GGControllerState
     void ESCHandler() override;
     void ChangeTo() override;
     void ChangeFrom() override;
+    bool CanChangeTo() override;
 
     private:
     class AGGPlayerController* PlayerController;
@@ -53,6 +55,7 @@ class GUILDGAME_API ControllerStateBasicAttack: public GGControllerState
     void ESCHandler() override;
     void ChangeTo() override;
     void ChangeFrom() override;
+     bool CanChangeTo() override;
 
     private:
     class AGGPlayerController* PlayerController;

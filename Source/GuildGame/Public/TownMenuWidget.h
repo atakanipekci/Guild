@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+
 #include "TownMenuWidget.generated.h"
 
 /**
@@ -22,26 +23,12 @@ class GUILDGAME_API UTownMenuWidget : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* GoldText;
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* RecruitGoldTxt;
-	UPROPERTY(meta = (BindWidget))
-	UButton* BuildRecruitBtn;
-
-	UPROPERTY(EditAnywhere, Category = "UI")
-	int RecruitBuildingPrice = 250;
-
 	virtual void NativeConstruct() override;
 
 	UFUNCTION()
 	void OnTestClicked();
-	UFUNCTION()
-	void OnBuildRecruit();
 
 	public:
 	UFUNCTION()
 	void UpdateUI();
-	/*UFUNCTION()
-	void OnBuildYes();
-	UFUNCTION()
-	void OnBuildNo();*/
 };

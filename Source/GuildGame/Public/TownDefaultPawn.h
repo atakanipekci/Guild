@@ -3,6 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+
+
+#include "TownScrollBoxItem.h"
 #include "GameFramework/Pawn.h"
 #include "TownDefaultPawn.generated.h"
 
@@ -23,6 +27,14 @@ USTRUCT(BlueprintType)
 	     UTownBuildingWidgetBase* UiWidgetInstance;
 	 };
 
+USTRUCT(BlueprintType)
+	 struct FScrollItem
+	 {
+	     GENERATED_USTRUCT_BODY()
+
+		 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+		 class UTownScrollBoxItem* ScrollItem;
+	 };
 UCLASS()
 class GUILDGAME_API ATownDefaultPawn : public APawn
 {
@@ -74,8 +86,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
     TMap<EBuildingTypes, FBuildingData > BuildingDataMap;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+    TMap<EScrollBoxType, FScrollItem > ScrollItemsMap;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 	class UTownYesOrNoWidget* YesOrNoWidgetBP;
+
+	
 
 
 private:

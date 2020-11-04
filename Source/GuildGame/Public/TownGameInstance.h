@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "Engine/GameInstance.h"
 #include "TownGameInstance.generated.h"
 
@@ -16,7 +17,8 @@ class GUILDGAME_API UTownGameInstance : public UGameInstance
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game")
 	int Gold;
-
+	TArray<struct FCharacterStats*> SquadCharacters;
+	
 	UFUNCTION()
 	bool TryToPurchase(int Amount);
 };

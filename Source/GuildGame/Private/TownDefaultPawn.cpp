@@ -14,6 +14,7 @@
 #include "TownYesOrNoWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
+#include "Components/Overlay.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -144,12 +145,11 @@ void ATownDefaultPawn::CreateWidgetViaCode()
 			if(IsReversed == true)
 			{
 				IsReversed = false;
-				UE_LOG(LogTemp, Warning, TEXT("FIRST"));
+				UE_LOG(LogTemp, Warning, TEXT("Set existing widget visible"));
 				FWidgetAnimationDynamicEvent OnFinishEvent;
 				OnFinishEvent.BindDynamic(this, &ATownDefaultPawn::CollapseBuildingWidgetOnAnimationFinish);
 				BuildingWidgetInstance->BindToAnimationFinished(BuildingWidgetInstance->CloseDownAnimation, OnFinishEvent);
 				UUMGSequencePlayer*  AnimPlayer = BuildingWidgetInstance->PlayAnimation(BuildingWidgetInstance->CloseDownAnimation);
-				UE_LOG(LogTemp, Warning, TEXT("SEC"));
 			}
 			else
 			{
@@ -157,6 +157,7 @@ void ATownDefaultPawn::CreateWidgetViaCode()
 				BuildingWidgetInstance->OnEnabled();
 				BuildingWidgetInstance->SetVisibility(ESlateVisibility::Visible);
 				BuildingWidgetInstance->PlayAnimation(BuildingWidgetInstance->OpenUpAnimation);
+				UE_LOG(LogTemp, Warning, TEXT("Set widget collapsed"));
 			}
 		}
 		else
@@ -165,13 +166,19 @@ void ATownDefaultPawn::CreateWidgetViaCode()
 			BuildingWidgetInstance = GetMappedWidget(Key);
 			if(BuildingWidgetInstance != nullptr)
 			{
+				ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this));
 				  UTownBuildingWidgetBase* NewWidget = CreateWidget<UTownBuildingWidgetBase>(this->GetWorld(), BuildingWidgetInstance->GetClass());
 				  SetMappedWidgetInstance(Key, NewWidget);
+
+				if(GameMode->MenuUiContainerOverlay)
+				{
+					GameMode->MenuUiContainerOverlay->AddChildToOverlay(NewWidget);
+				}
 				  //FInputModeGameAndUI Mode;
 				 // Mode.SetLockMouseToViewport(true);
 				 // Mode.SetHideCursorDuringCapture(false);
 				 // SetInputMode(Mode);
-				  NewWidget->AddToViewport(9999); // Z-order, this just makes it render on the very top.
+				  //NewWidget->AddToViewport(9999); // Z-order, this just makes it render on the very top.
 				  IsReversed = true;
 				return;
 			}

@@ -4,6 +4,7 @@
 #include "TownGameInstance.h"
 
 #include "TownGameModeBase.h"
+#include "WidgetManager.h"
 
 bool UTownGameInstance::TryToPurchase(int Amount)
 {
@@ -17,5 +18,15 @@ bool UTownGameInstance::TryToPurchase(int Amount)
     else
     {
         return false;
+    }
+}
+
+void UTownGameInstance::Init()
+{
+    if(WidgetsTable)
+    {
+            WidgetManager::SetWidgetTable(WidgetsTable);
+        UE_LOG(LogTemp, Warning, TEXT("Cosntructor Table Not Null"));
+        
     }
 }

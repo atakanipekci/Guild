@@ -10,13 +10,11 @@
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 
+UTownYesOrNoWidget* UTownYesOrNoWidget::YesOrNoWidgetInstance = nullptr;
+
 void UTownYesOrNoWidget::NativeConstruct()
 {
     Super::NativeConstruct();
-
-	
-	
-
     if(YesButton)
         YesButton->OnClicked.AddUniqueDynamic(this, &UTownYesOrNoWidget::OnYesButtonClicked);
      if(NoButton)
@@ -56,45 +54,39 @@ void UTownYesOrNoWidget::OnNoButtonClicked()
     this->SetVisibility(ESlateVisibility::Collapsed);
 }
 
-void UTownYesOrNoWidget::CreateYesNoWidget(UUserWidget* Owner, UTownYesOrNoWidget* Widget, FText& Title, FText& Content,
+void UTownYesOrNoWidget::CreateYesNoWidget(UUserWidget* Owner, TSubclassOf<UUserWidget> Widget, FText& Title, FText& Content,
     FYesNoDelegate YesDelegate, FYesNoDelegate NoDelegate)
 {
-
     if(Widget == nullptr)
         return;
     
-    ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(Owner->GetWorld()));
-    ATownPlayerController* PlayerController = Cast<ATownPlayerController>(UGameplayStatics::GetPlayerController(Owner->GetWorld(), 0));
-
-    if(GameMode == nullptr)
-        return;
-
-   if(GameMode->YesOrNoWidgetInstance == nullptr)
+   if(YesOrNoWidgetInstance == nullptr)
     {
-
-        UE_LOG(LogTemp, Warning, TEXT("CREATE is called"));
-        UTownYesOrNoWidget* NewWidget = CreateWidget<UTownYesOrNoWidget>(PlayerController, Widget->GetClass());
-	    NewWidget->AddToViewport(9999);
-        GameMode->YesOrNoWidgetInstance = NewWidget;
+        UTownYesOrNoWidget* NewWidget = CreateWidget<UTownYesOrNoWidget>(Owner->GetWorld(), Widget);
+       if(NewWidget)
+       {
+	        NewWidget->AddToViewport(9999);
+            YesOrNoWidgetInstance = NewWidget;
+       }
     }
     else
     {
-        GameMode->YesOrNoWidgetInstance->RemoveFromViewport();
-        GameMode->YesOrNoWidgetInstance->AddToViewport(9999);
+        YesOrNoWidgetInstance->YesOrNoWidgetInstance->RemoveFromViewport();
+        YesOrNoWidgetInstance->YesOrNoWidgetInstance->AddToViewport(9999);
     }
 
-   /* FInputModeGameAndUI Mode;
-	Mode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
-	PlayerController->SetInputMode(Mode);*/
-    
-    GameMode->YesOrNoWidgetInstance->NoEvent = NoDelegate;
-    GameMode->YesOrNoWidgetInstance->YesEvent = YesDelegate;
-    if(GameMode->YesOrNoWidgetInstance->TitleTextBlock)
-        GameMode->YesOrNoWidgetInstance->TitleTextBlock->SetText(Title);
+    if(YesOrNoWidgetInstance)
+    {
+        YesOrNoWidgetInstance->NoEvent = NoDelegate;
+        YesOrNoWidgetInstance->YesEvent = YesDelegate;
 
-    if(GameMode->YesOrNoWidgetInstance->ContentTextBlock)
-        GameMode->YesOrNoWidgetInstance->ContentTextBlock->SetText(Content);
-    
-    GameMode->YesOrNoWidgetInstance->SetVisibility(ESlateVisibility::Visible);
+        if(YesOrNoWidgetInstance->TitleTextBlock)
+           YesOrNoWidgetInstance->TitleTextBlock->SetText(Title);
+
+        if(YesOrNoWidgetInstance->ContentTextBlock)
+           YesOrNoWidgetInstance->ContentTextBlock->SetText(Content);
+        
+        YesOrNoWidgetInstance->SetVisibility(ESlateVisibility::Visible);
+    }
     
 }

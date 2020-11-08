@@ -15,10 +15,17 @@ class GUILDGAME_API UTownGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 public:
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game")
 	int Gold;
+	
 	TArray<struct FCharacterStats*> SquadCharacters;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	class UDataTable* WidgetsTable;
 	
 	UFUNCTION()
 	bool TryToPurchase(int Amount);
+
+	virtual void Init() override;
 };

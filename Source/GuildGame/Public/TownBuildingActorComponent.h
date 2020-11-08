@@ -42,6 +42,10 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	class ULevelSequence* GetSequenceAsset() const;
+	EBuildingConstructionState GetConstructionState() const;
+	void SetConstructionState(EBuildingConstructionState State);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
     EBuildingTypes BuildingDataKey;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
@@ -66,10 +70,7 @@ public:
 	UMaterialInstance* UnderConstructionMatBP;
 	UPROPERTY(BlueprintReadWrite, Category = Building)
 	UMaterialInstanceDynamic* UnderConstructionMatInstance;
-	
-	class ULevelSequence* GetSequenceAsset() const;
-	EBuildingConstructionState GetConstructionState() const;
-	void SetConstructionState(EBuildingConstructionState State);
+
 
 private:
 

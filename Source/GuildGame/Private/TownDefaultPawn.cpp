@@ -23,7 +23,6 @@ ATownDefaultPawn::ATownDefaultPawn()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
 }
 
 ATownDefaultPawn::ATownDefaultPawn(const FObjectInitializer& ObjectInitializer)
@@ -35,19 +34,15 @@ ATownDefaultPawn::ATownDefaultPawn(const FObjectInitializer& ObjectInitializer)
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
 	if(SpringArmComponent)
-	{
 		SpringArmComponent->SetupAttachment(RootComponent);
-	}
-
 	if(Camera)
 		Camera->SetupAttachment(SpringArmComponent);
+
+	
 }
 
 void ATownDefaultPawn::LeftClickHandler()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Left Mouse Clicked"));
-	ATownPlayerController* PlayerController = Cast<ATownPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
-	
 	if (PlayerController != nullptr)
 	{
 		FHitResult Hit;
@@ -63,9 +58,6 @@ void ATownDefaultPawn::LeftClickHandler()
 					{
 						SelectedBuilding = Cast<UTownBuildingActorComponent>(Building);
 						SequenceAsset = SelectedBuilding->GetSequenceAsset();
-						if(SequenceAsset)
-							UE_LOG(LogTemp, Warning, TEXT("Play asset On , %s"),*(SequenceAsset->GetName()));
-
 						PlaySequence((Hit.Actor));
 					}
 				}
@@ -77,19 +69,14 @@ void ATownDefaultPawn::LeftClickHandler()
 
 void ATownDefaultPawn::ZoomOutFromBuilding()
 {
-	ATownPlayerController* PlayerController = Cast<ATownPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
-	ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this));
-	
 	if (PlayerController != nullptr)
 	{
 		if(bIsBuildingFocused && bEnableInput == true && SequenceAsset != nullptr)
 		{
 			PlaySequenceReverse();
-			if(GameMode)
-			{
-				if(GameMode->YesOrNoWidgetInstance)
-					GameMode->YesOrNoWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
-			}
+			
+			if(UTownYesOrNoWidget::YesOrNoWidgetInstance)
+				UTownYesOrNoWidget::YesOrNoWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
 }
@@ -138,14 +125,13 @@ void ATownDefaultPawn::CreateWidgetViaCode()
 {
 	if(SelectedBuilding)
 	{
-		EBuildingTypes Key = SelectedBuilding->BuildingDataKey;
+		const EBuildingTypes Key = SelectedBuilding->BuildingDataKey;
 		UTownBuildingWidgetBase* BuildingWidgetInstance = GetMappedWidgetInstance(Key);
 		if(BuildingWidgetInstance)
 		{
 			if(IsReversed == true)
 			{
 				IsReversed = false;
-				UE_LOG(LogTemp, Warning, TEXT("Set existing widget visible"));
 				FWidgetAnimationDynamicEvent OnFinishEvent;
 				OnFinishEvent.BindDynamic(this, &ATownDefaultPawn::CollapseBuildingWidgetOnAnimationFinish);
 				BuildingWidgetInstance->BindToAnimationFinished(BuildingWidgetInstance->CloseDownAnimation, OnFinishEvent);
@@ -157,12 +143,10 @@ void ATownDefaultPawn::CreateWidgetViaCode()
 				BuildingWidgetInstance->OnEnabled();
 				BuildingWidgetInstance->SetVisibility(ESlateVisibility::Visible);
 				BuildingWidgetInstance->PlayAnimation(BuildingWidgetInstance->OpenUpAnimation);
-				UE_LOG(LogTemp, Warning, TEXT("Set widget collapsed"));
 			}
 		}
 		else
 		{
-
 			BuildingWidgetInstance = GetMappedWidget(Key);
 			if(BuildingWidgetInstance != nullptr)
 			{
@@ -174,13 +158,7 @@ void ATownDefaultPawn::CreateWidgetViaCode()
 				{
 					GameMode->MenuUiContainerOverlay->AddChildToOverlay(NewWidget);
 				}
-				  //FInputModeGameAndUI Mode;
-				 // Mode.SetLockMouseToViewport(true);
-				 // Mode.SetHideCursorDuringCapture(false);
-				 // SetInputMode(Mode);
-				  //NewWidget->AddToViewport(9999); // Z-order, this just makes it render on the very top.
-				  IsReversed = true;
-				return;
+				IsReversed = true;
 			}
 		}
 	}
@@ -193,7 +171,6 @@ void ATownDefaultPawn::CollapseBuildingWidgetOnAnimationFinish()
 	{
 		const EBuildingTypes Key = SelectedBuilding->BuildingDataKey;
 		UTownBuildingWidgetBase* BuildingWidgetInstance = GetMappedWidgetInstance(Key);
-		UE_LOG(LogTemp, Warning, TEXT("1"));
 		if(BuildingWidgetInstance)
 		{
 			BuildingWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
@@ -248,14 +225,19 @@ ULevelSequence* ATownDefaultPawn::GetMappedSequenceAsset(const EBuildingTypes Ke
 void ATownDefaultPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	PlayerController = Cast<ATownPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 }
 
 // Called every frame
 void ATownDefaultPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if(PlayerController == nullptr)
+		return;
+	
 	FHitResult Hit;
-	ATownPlayerController* PlayerController = Cast<ATownPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	PlayerController->GetHitResultUnderCursor(ECC_WorldStatic, false, Hit);
 	if (Hit.bBlockingHit)
 	{
@@ -279,7 +261,6 @@ void ATownDefaultPawn::Tick(float DeltaTime)
 			}
 		}
 	}
-
 	
 	if(HoveredBuildingStaticMeshComp)
 	{

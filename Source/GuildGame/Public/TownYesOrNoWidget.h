@@ -29,6 +29,8 @@ class GUILDGAME_API UTownYesOrNoWidget : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* ContentTextBlock;
 
+	static UTownYesOrNoWidget* YesOrNoWidgetInstance;
+
 	virtual void NativeConstruct() override;
 	
 	UFUNCTION()
@@ -40,5 +42,5 @@ class GUILDGAME_API UTownYesOrNoWidget : public UUserWidget
 	FYesNoDelegate YesEvent;
 	FYesNoDelegate NoEvent;
 	
-	static void CreateYesNoWidget(UUserWidget* Owner, UTownYesOrNoWidget* Widget , FText& Title, FText& Content, FYesNoDelegate YesDelegate, FYesNoDelegate NoDelegate);
+	static void CreateYesNoWidget(UUserWidget* Owner, TSubclassOf<UUserWidget> Widget , FText& Title, FText& Content, FYesNoDelegate YesDelegate, FYesNoDelegate NoDelegate);
 };

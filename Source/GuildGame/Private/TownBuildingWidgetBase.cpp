@@ -9,7 +9,7 @@
 #include "TownGameInstance.h"
 #include "TownGameModeBase.h"
 #include "TownYesOrNoWidget.h"
-#include "Components/Border.h"
+#include "WidgetManager.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
 #include "Kismet/GameplayStatics.h"
@@ -79,20 +79,15 @@ void UTownBuildingWidgetBase::OnExitClicked()
 
 void UTownBuildingWidgetBase::OnConstructClicked()
 {
-     ATownDefaultPawn* Pawn = Cast<ATownDefaultPawn>(UGameplayStatics::GetPlayerPawn(this, 0));
-    if(Pawn)
-    {
-        FYesNoDelegate NoEvent;
-        NoEvent.BindDynamic(this, &UTownBuildingWidgetBase::ConstrNoEvent);
-        FYesNoDelegate YesEvent;
-        YesEvent.BindDynamic(this, &UTownBuildingWidgetBase::ConstrYesEvent);
+    FYesNoDelegate NoEvent;
+    NoEvent.BindDynamic(this, &UTownBuildingWidgetBase::ConstrNoEvent);
+    FYesNoDelegate YesEvent;
+    YesEvent.BindDynamic(this, &UTownBuildingWidgetBase::ConstrYesEvent);
 
-        FText Title = FText::FromString("Construct Building");
-        FText Content = FText::FromString("Are you sure about purchasing this building?");
+    FText Title = FText::FromString("Construct Building");
+    FText Content = FText::FromString("Are you sure about purchasing this building?");
 
-        UTownYesOrNoWidget::CreateYesNoWidget(this
-            , Pawn->YesOrNoWidgetBP, Title, Content ,YesEvent, NoEvent);
-    }
+    UTownYesOrNoWidget::CreateYesNoWidget(this, WidgetManager::GetWidget(EWidgetKeys::YesOrNo), Title, Content ,YesEvent, NoEvent);
 }
 
 bool UTownBuildingWidgetBase::ConstrNoEvent()

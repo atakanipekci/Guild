@@ -73,6 +73,7 @@ bool USquadWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
     		{
     			if(ContentScaleBox && DraggedWidget)
     			{
+    				DraggedWidget->RemoveFromParent();
     				if(ContentScaleBox->GetChildAt(0) != nullptr)
 					{
 						UDraggedCharacterWidget* PrevItem = Cast<UDraggedCharacterWidget>(ContentScaleBox->GetChildAt(0));
@@ -82,9 +83,10 @@ bool USquadWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
 							DraggedWidget->OwnerDroppableArea->DropTo(PrevItem);
 						}
 					}
-    				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("DROPPPED To Squad from Squad"));
-    				DraggedWidget->RemoveFromParent();
+    				
     				ContentScaleBox->AddChild(DraggedWidget);
+    				DraggedWidget->SetOwnerAreaWidget(this);
+
     				DraggedWidget->SetVisibility(ESlateVisibility::Visible);
     			}
     			return true;

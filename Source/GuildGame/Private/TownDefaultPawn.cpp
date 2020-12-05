@@ -12,6 +12,7 @@
 #include "TownGameModeBase.h"
 #include "TownPlayerController.h"
 #include "TownYesOrNoWidget.h"
+#include "WidgetManager.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "Components/Overlay.h"
@@ -40,7 +41,7 @@ ATownDefaultPawn::ATownDefaultPawn(const FObjectInitializer& ObjectInitializer)
 
 	
 }
-
+/*
 void ATownDefaultPawn::LeftClickHandler()
 {
 	if (PlayerController != nullptr)
@@ -57,7 +58,8 @@ void ATownDefaultPawn::LeftClickHandler()
 					if(bIsBuildingFocused == false && bEnableInput == true)
 					{
 						SelectedBuilding = Cast<UTownBuildingActorComponent>(Building);
-						SequenceAsset = SelectedBuilding->GetSequenceAsset();
+						//SequenceAsset = SelectedBuilding->GetSequenceAsset();
+						SequenceAsset = WidgetManager::GetSequence(SelectedBuilding->SequenceKey);
 						PlaySequence((Hit.Actor));
 					}
 				}
@@ -125,8 +127,7 @@ void ATownDefaultPawn::CreateWidgetViaCode()
 {
 	if(SelectedBuilding)
 	{
-		const EBuildingTypes Key = SelectedBuilding->BuildingDataKey;
-		UTownBuildingWidgetBase* BuildingWidgetInstance = GetMappedWidgetInstance(Key);
+		UTownBuildingWidgetBase* BuildingWidgetInstance = Cast<UTownBuildingWidgetBase>(WidgetManager::GetWidgetInstance(SelectedBuilding->WidgetKey));
 		if(BuildingWidgetInstance)
 		{
 			if(IsReversed == true)
@@ -147,19 +148,18 @@ void ATownDefaultPawn::CreateWidgetViaCode()
 		}
 		else
 		{
-			BuildingWidgetInstance = GetMappedWidget(Key);
-			if(BuildingWidgetInstance != nullptr)
-			{
+			//if(BuildingWidgetInstance != nullptr)
+			//{
 				ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this));
-				  UTownBuildingWidgetBase* NewWidget = CreateWidget<UTownBuildingWidgetBase>(this->GetWorld(), BuildingWidgetInstance->GetClass());
-				  SetMappedWidgetInstance(Key, NewWidget);
-
+				UTownBuildingWidgetBase* NewWidget = CreateWidget<UTownBuildingWidgetBase>(this->GetWorld(), WidgetManager::GetWidget(SelectedBuilding->WidgetKey));
+				//SetMappedWidgetInstance(Key, NewWidget);
+				WidgetManager::SetWidgetInstance(SelectedBuilding->WidgetKey, NewWidget);
 				if(GameMode->MenuUiContainerOverlay)
 				{
 					GameMode->MenuUiContainerOverlay->AddChildToOverlay(NewWidget);
 				}
 				IsReversed = true;
-			}
+			//}
 		}
 	}
 }
@@ -169,56 +169,12 @@ void ATownDefaultPawn::CollapseBuildingWidgetOnAnimationFinish()
 {
 	if(SelectedBuilding)
 	{
-		const EBuildingTypes Key = SelectedBuilding->BuildingDataKey;
-		UTownBuildingWidgetBase* BuildingWidgetInstance = GetMappedWidgetInstance(Key);
+		UTownBuildingWidgetBase* BuildingWidgetInstance = Cast<UTownBuildingWidgetBase>(WidgetManager::GetWidgetInstance(SelectedBuilding->WidgetKey));
 		if(BuildingWidgetInstance)
 		{
 			BuildingWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
-}
-
-void ATownDefaultPawn::SetMappedWidgetInstance(const EBuildingTypes Key, UTownBuildingWidgetBase* Widget)
-{
-	FBuildingData* Data = BuildingDataMap.Find(Key);
-    if(Data)
-    {
-       Data->UiWidgetInstance = Widget;
-    }
-}
-
-UTownBuildingWidgetBase* ATownDefaultPawn::GetMappedWidget(const EBuildingTypes Key)
-{
-	FBuildingData* Data = BuildingDataMap.Find(Key);
-
-    if(Data)
-    {
-        return  Data->UiWidget;
-    }
-
-    return  nullptr;
-}
-
-UTownBuildingWidgetBase* ATownDefaultPawn::GetMappedWidgetInstance(const EBuildingTypes Key)
-{
-	FBuildingData* Data = BuildingDataMap.Find(Key);
-    if(Data)
-    {
-        return  Data->UiWidgetInstance;
-    }
-
-    return  nullptr;
-}
-
-ULevelSequence* ATownDefaultPawn::GetMappedSequenceAsset(const EBuildingTypes Key)
-{
-	 FBuildingData* Data = BuildingDataMap.Find(Key);
-    if(Data)
-    {
-        return  Data->SequenceAsset;
-    }
-
-    return  nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -234,6 +190,8 @@ void ATownDefaultPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	return;
+	
 	if(PlayerController == nullptr)
 		return;
 	
@@ -273,6 +231,7 @@ void ATownDefaultPawn::Tick(float DeltaTime)
 // Called to bind functionality to input
 void ATownDefaultPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+	return;
 	if (!PlayerInputComponent)
 	{
 		return;
@@ -298,4 +257,4 @@ void ATownDefaultPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// PlayerInputComponent->BindAction("RightMouseClick", IE_Released, this, &AMyDefaultPawn::RightClickReleaseHandler);
 
 }
-
+*/

@@ -11,8 +11,7 @@ bool UTownGameInstance::TryToPurchase(int Amount)
     if(Gold >= Amount)
     {
         Gold -= Amount;
-        UE_LOG(LogTemp, Warning, TEXT("Yes %d"), Gold);
-        ATownGameModeBase::UpdateUI(this);
+        ATownGameModeBase::UpdateUI(this);//TODO
         return true;
     }
     else
@@ -25,8 +24,13 @@ void UTownGameInstance::Init()
 {
     if(WidgetsTable)
     {
-            WidgetManager::SetWidgetTable(WidgetsTable);
-        UE_LOG(LogTemp, Warning, TEXT("Cosntructor Table Not Null"));
-        
+        WidgetManager::SetWidgetTable(WidgetsTable);
     }
+
+    if(SequenceTable)
+    {
+        WidgetManager::SetSequenceTable(SequenceTable);
+    }
+
+    
 }

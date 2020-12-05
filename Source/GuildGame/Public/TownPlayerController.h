@@ -13,5 +13,13 @@ UCLASS()
 class GUILDGAME_API ATownPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
+	public:
+		ATownPlayerController();
+		virtual void Tick(float DeltaSeconds) override;
+		virtual void SetupInputComponent() override;
+
+		UFUNCTION(BlueprintCallable)
+		void InteractionControllerWidgetToggle();
+
+		class UTownInteractionController* InteractionController;
 };

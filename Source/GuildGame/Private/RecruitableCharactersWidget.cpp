@@ -14,6 +14,7 @@ void URecruitableCharactersWidget::NativeConstruct()
     AreaType = EDroppableAreaType::RecruitableCharacters;
     WidgetType = EDroppableWidgetType::Scroller;
 	ContentPanel = ScrollBox;
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("CONSTRUCTOR %d"), 4));
 
 	if(ScrollBox)
 	{

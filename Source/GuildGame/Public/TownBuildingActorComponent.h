@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "WidgetManager.h"
 #include "Components/ActorComponent.h"
 #include "UObject/ObjectMacros.h"
 
@@ -16,13 +18,6 @@ enum class EBuildingConstructionState: uint8
 	UnderConstruction,
 	Constructed,
 	Preview
-};
-
-UENUM(BlueprintType)
-enum class EBuildingTypes: uint8
-{
-	Tavern,
-	Recruit
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -42,14 +37,17 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	class ULevelSequence* GetSequenceAsset() const;
 	EBuildingConstructionState GetConstructionState() const;
 	void SetConstructionState(EBuildingConstructionState State);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
-    EBuildingTypes BuildingDataKey;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
 	FString BuildingDataTableKey;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
+	ESequenceKeys SequenceKey;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
+	EWidgetKeys WidgetKey;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Building)
 	UMaterialInstance* PreviewMatBP;

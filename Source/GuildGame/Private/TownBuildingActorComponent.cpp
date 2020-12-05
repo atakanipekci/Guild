@@ -90,18 +90,6 @@ void UTownBuildingActorComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	// ...
 }
 
-ULevelSequence* UTownBuildingActorComponent::GetSequenceAsset() const
-{
-	ATownDefaultPawn* DefaultPawn = Cast<ATownDefaultPawn>(UGameplayStatics::GetPlayerPawn(this->GetWorld(), 0));
-	//UMyGameInstance* GameInstance = GetWorld()->GetGameInstance();
-	if(DefaultPawn)
-	{
-		return DefaultPawn->GetMappedSequenceAsset(BuildingDataKey);
-	}
-	
-	return  nullptr;
-}
-
 EBuildingConstructionState UTownBuildingActorComponent::GetConstructionState() const
 {
 	return ConstructionState;

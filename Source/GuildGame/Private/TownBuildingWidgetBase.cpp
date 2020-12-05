@@ -8,6 +8,8 @@
 #include "TownDefaultPawn.h"
 #include "TownGameInstance.h"
 #include "TownGameModeBase.h"
+#include "TownInteractionController.h"
+#include "TownPlayerController.h"
 #include "TownYesOrNoWidget.h"
 #include "WidgetManager.h"
 #include "Components/Button.h"
@@ -21,44 +23,48 @@ void UTownBuildingWidgetBase::NativeConstruct()
      if(ConstructButton)
         ConstructButton->OnClicked.AddUniqueDynamic(this, &UTownBuildingWidgetBase::OnConstructClicked);
 
+     PlayerController = Cast<ATownPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+
+
     OnEnabled();
 }
 
 void UTownBuildingWidgetBase::OnEnabled()
 {
-    ATownDefaultPawn* Pawn = Cast<ATownDefaultPawn>(UGameplayStatics::GetPlayerPawn(this, 0));
-    if(Pawn)
+    if(PlayerController)
     {
-        if(Pawn->SelectedBuilding)
+        if(PlayerController->InteractionController)
         {
-            if(Pawn->SelectedBuilding->GetConstructionState() == EBuildingConstructionState::Constructed)
+            if(PlayerController->InteractionController->SelectedBuilding)
             {
-                if(MainCanvasPanel)
-                    MainCanvasPanel->SetVisibility(ESlateVisibility::Visible);
+                if(PlayerController->InteractionController->SelectedBuilding->GetConstructionState() == EBuildingConstructionState::Constructed)
+                {
+                    if(MainCanvasPanel)
+                        MainCanvasPanel->SetVisibility(ESlateVisibility::Visible);
+                }
+                else if(PlayerController->InteractionController->SelectedBuilding->GetConstructionState() == EBuildingConstructionState::NotConstructed)
+                {
+                    if(MainCanvasPanel)
+                        MainCanvasPanel->SetVisibility(ESlateVisibility::Collapsed);
+                    //this->SetVisibility(ESlateVisibility::Collapsed);
+                    if(PreviewCanvasPanel)
+                        PreviewCanvasPanel->SetVisibility(ESlateVisibility::Visible);
+
+                    PlayerController->InteractionController->SelectedBuilding->SetConstructionState(EBuildingConstructionState::Preview);
+                }
+                else if(PlayerController->InteractionController->SelectedBuilding->GetConstructionState() == EBuildingConstructionState::UnderConstruction)
+                {
+                    if(MainCanvasPanel)
+                        MainCanvasPanel->SetVisibility(ESlateVisibility::Collapsed);
+                    //this->SetVisibility(ESlateVisibility::Collapsed);
+                    if(PreviewCanvasPanel)
+                        PreviewCanvasPanel->SetVisibility(ESlateVisibility::Collapsed);
+
+                    if(UnderConstructionCanvasPanel)
+                        UnderConstructionCanvasPanel->SetVisibility(ESlateVisibility::Visible);
+                }
             }
-            else if(Pawn->SelectedBuilding->GetConstructionState() == EBuildingConstructionState::NotConstructed)
-            {
-                if(MainCanvasPanel)
-                    MainCanvasPanel->SetVisibility(ESlateVisibility::Collapsed);
-                //this->SetVisibility(ESlateVisibility::Collapsed);
-                if(PreviewCanvasPanel)
-                    PreviewCanvasPanel->SetVisibility(ESlateVisibility::Visible);
-
-                Pawn->SelectedBuilding->SetConstructionState(EBuildingConstructionState::Preview);
-            }
-            else if(Pawn->SelectedBuilding->GetConstructionState() == EBuildingConstructionState::UnderConstruction)
-            {
-                if(MainCanvasPanel)
-                    MainCanvasPanel->SetVisibility(ESlateVisibility::Collapsed);
-                //this->SetVisibility(ESlateVisibility::Collapsed);
-                if(PreviewCanvasPanel)
-                    PreviewCanvasPanel->SetVisibility(ESlateVisibility::Collapsed);
-
-                if(UnderConstructionCanvasPanel)
-                    UnderConstructionCanvasPanel->SetVisibility(ESlateVisibility::Visible);
-
-            }
-
+            
         }
         
     }
@@ -66,14 +72,10 @@ void UTownBuildingWidgetBase::OnEnabled()
 
 void UTownBuildingWidgetBase::OnExitClicked()
 {
-     ATownDefaultPawn* Pawn = Cast<ATownDefaultPawn>(UGameplayStatics::GetPlayerPawn(this, 0));
-    if(Pawn)
+    if(PlayerController)
     {
-        Pawn->ZoomOutFromBuilding();
-        if(Pawn->SelectedBuilding->GetConstructionState() == EBuildingConstructionState::Preview)
-        {
-            Pawn->SelectedBuilding->SetConstructionState(EBuildingConstructionState::NotConstructed);
-        }
+        if(PlayerController->InteractionController)
+            PlayerController->InteractionController->ZoomOutFromBuilding();
     }
 }
 
@@ -103,32 +105,35 @@ bool UTownBuildingWidgetBase::ConstrNoEvent()
 bool UTownBuildingWidgetBase::ConstrYesEvent()
 {
 
-    ATownDefaultPawn* Pawn = Cast<ATownDefaultPawn>(UGameplayStatics::GetPlayerPawn(this, 0));
+
     ATownGameModeBase* Mode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this));
     UTownGameInstance* Instance = Cast<UTownGameInstance>(UGameplayStatics::GetGameInstance(this));
-    if(Pawn && Mode && Instance)
+    if(PlayerController && Mode && Instance)
     {
-        if(Pawn->SelectedBuilding)
+        if(PlayerController->InteractionController)
         {
-            if(Mode->BuildingDataTable)
+            if(PlayerController->InteractionController->SelectedBuilding)
             {
-                const FString Context(TEXT("CONTEXT DATATABLE TEXT"));
-                const FName Row = *(Pawn->SelectedBuilding->BuildingDataTableKey);
-                FBuildingDataTable* BuildingData = Mode->BuildingDataTable->FindRow<FBuildingDataTable>(Row, Context, true);
-
-                if(BuildingData)
+                if(Mode->BuildingDataTable)
                 {
-                    const bool Response = Instance->TryToPurchase(BuildingData->ConstructionPrice);
-                    if(Response == true)
+                    const FString Context(TEXT("CONTEXT DATATABLE TEXT"));
+                    const FName Row = *(PlayerController->InteractionController->SelectedBuilding->BuildingDataTableKey);
+                    FBuildingDataTable* BuildingData = Mode->BuildingDataTable->FindRow<FBuildingDataTable>(Row, Context, true);
+
+                    if(BuildingData)
                     {
-                        Pawn->SelectedBuilding->SetConstructionState(EBuildingConstructionState::UnderConstruction);
-                        /*Pawn->ZoomOutFromBuilding();*/
-                        OnEnabled();
-                        return  true;
-                    }
-                    else
-                    {
-                        return  false;
+                        const bool Response = Instance->TryToPurchase(BuildingData->ConstructionPrice);
+                        if(Response == true)
+                        {
+                            PlayerController->InteractionController->SelectedBuilding->SetConstructionState(EBuildingConstructionState::UnderConstruction);
+                            /*Pawn->ZoomOutFromBuilding();*/
+                            OnEnabled();
+                            return  true;
+                        }
+                        else
+                        {
+                            return  false;
+                        }
                     }
                 }
             }

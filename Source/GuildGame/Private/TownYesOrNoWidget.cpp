@@ -71,8 +71,8 @@ void UTownYesOrNoWidget::CreateYesNoWidget(UUserWidget* Owner, TSubclassOf<UUser
     }
     else
     {
-        YesOrNoWidgetInstance->YesOrNoWidgetInstance->RemoveFromViewport();
-        YesOrNoWidgetInstance->YesOrNoWidgetInstance->AddToViewport(9999);
+        YesOrNoWidgetInstance->RemoveFromViewport();
+        YesOrNoWidgetInstance->AddToViewport(9999);
     }
 
     if(YesOrNoWidgetInstance)

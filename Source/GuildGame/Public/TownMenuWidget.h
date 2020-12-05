@@ -10,11 +10,21 @@
 /**
  * 
  */
+
+UENUM(BlueprintType)
+enum class EMenuWidgetType : uint8
+{
+	WarCanvas,
+	TeamCanvas
+};
 UCLASS()
 class GUILDGAME_API UTownMenuWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	protected:
+
+
+	class ATownPlayerController* PlayerController;
 
 	UPROPERTY(meta = (BindWidget))
 	class UButton* TestButton;
@@ -23,10 +33,22 @@ class GUILDGAME_API UTownMenuWidget : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* GoldText;
 
+	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
+	class UCanvasPanel* WarCanvas;
+
+	UPROPERTY(meta = (BindWidget))
+	class UCanvasPanel* TeamCanvas;
+
 	virtual void NativeConstruct() override;
 
 	UFUNCTION()
 	void OnTestClicked();
+
+	UFUNCTION(BlueprintCallable)
+	void ExitCanvas(EMenuWidgetType CanvasType);
+
+	UFUNCTION(BlueprintCallable)
+	void EnterCanvas(EMenuWidgetType CanvasType);
 
 	public:
 	UFUNCTION()

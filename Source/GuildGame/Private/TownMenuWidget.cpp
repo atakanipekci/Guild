@@ -7,6 +7,7 @@
 
 #include "TownBuildingWidgetBase.h"
 #include "TownGameInstance.h"
+#include "TownInteractionController.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
 #include "Components/TextBlock.h"
@@ -27,10 +28,8 @@ void UTownMenuWidget::NativeConstruct()
     if(GoldText && GameInstance)
         GoldText->SetText(FText::AsNumber(GameInstance->Gold));
 
-     
+    PlayerController = Cast<ATownPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 
-    
-    
 }
 
 
@@ -53,6 +52,40 @@ void UTownMenuWidget::OnTestClicked()
      // {
          //UGameplayStatics::OpenLevel(GetWorld(), "TestMap");
      // }
+}
+
+void UTownMenuWidget::ExitCanvas(EMenuWidgetType CanvasType)
+{
+     if(PlayerController)
+    {
+        if(PlayerController->InteractionController)
+            PlayerController->InteractionController->ToPrevStateState();
+    }
+    if(CanvasType == EMenuWidgetType::TeamCanvas)
+    {
+        TeamCanvas->SetVisibility(ESlateVisibility::Collapsed);
+    }
+    else if(CanvasType == EMenuWidgetType::WarCanvas)
+    {
+        WarCanvas->SetVisibility(ESlateVisibility::Collapsed);
+    }
+}
+
+void UTownMenuWidget::EnterCanvas(EMenuWidgetType CanvasType)
+{
+    if(PlayerController)
+    {
+        if(PlayerController->InteractionController)
+            PlayerController->InteractionController->ChangeState(PlayerController->InteractionController->State, EInteractionStatee::MenuWidget);
+    }
+    if(CanvasType == EMenuWidgetType::TeamCanvas)
+    {
+        TeamCanvas->SetVisibility(ESlateVisibility::Visible);
+    }
+    else if(CanvasType == EMenuWidgetType::WarCanvas)
+    {
+        WarCanvas->SetVisibility(ESlateVisibility::Visible);
+    }
 }
 
 

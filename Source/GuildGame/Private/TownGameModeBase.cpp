@@ -16,9 +16,13 @@ ATownGameModeBase::ATownGameModeBase()
 void ATownGameModeBase::UpdateUI(UObject* Caller)
 {
     ATownGameModeBase* Mode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(Caller));
-    if(Mode->MenuWidget)
+
+    if(Mode)
     {
-        Mode->MenuWidget->UpdateUI();
+        if(Mode->MenuWidget)
+        {
+            Mode->MenuWidget->UpdateUI();
+        }
     }
 }
 

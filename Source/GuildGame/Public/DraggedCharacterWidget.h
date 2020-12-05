@@ -18,9 +18,22 @@ class GUILDGAME_API UDraggedCharacterWidget : public UUserWidget
 	virtual void NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 	virtual void NativeOnDragEnter(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
+
+	int DraggedIndex = 0;
+
 	public:
+		void OnDragLeaveFromArea();
+
+	
+		int LatestChildIndex = 0;
+
+	
 		class UDroppableAreaWidget* OwnerDroppableArea;
+
 		struct FCharacterStats* Stat;
+
+		UPROPERTY(meta = (BindWidget))
+		class UTextBlock* CharacterNameText;
 
 		UFUNCTION(BlueprintCallable)
 		void SetOwnerAreaWidget(UDroppableAreaWidget* Owner);

@@ -6,23 +6,6 @@
 #include "GameFramework/Pawn.h"
 #include "TownDefaultPawn.generated.h"
 
-enum class EBuildingTypes : unsigned char;
-
-USTRUCT(BlueprintType)
-	 struct FBuildingData
-	 {
-	     GENERATED_USTRUCT_BODY()
-	 
-	     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	     class ULevelSequence* SequenceAsset;
-
- 		 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	     class UTownBuildingWidgetBase* UiWidget;
-
-		 UPROPERTY(BlueprintReadWrite, Category = Camera)
-	     UTownBuildingWidgetBase* UiWidgetInstance;
-	 };
-
 UCLASS()
 class GUILDGAME_API ATownDefaultPawn : public APawn
 {
@@ -34,7 +17,13 @@ public:
 
 	ATownDefaultPawn(const FObjectInitializer& ObjectInitializer);
 
-	void LeftClickHandler();
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera)
+	class USpringArmComponent* SpringArmComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera)
+	class UCameraComponent* Camera;
+	
+	/*void LeftClickHandler();
 	void ZoomOutFromBuilding();
 	void PlaySequence(TWeakObjectPtr<AActor> Actor);
 	void PlaySequenceReverse();
@@ -47,34 +36,13 @@ public:
 	UFUNCTION()
 	void EnablePlayerInputOnSequenceFinish();
 	
-	UFUNCTION(BlueprintCallable)
-	void SetMappedWidgetInstance(const EBuildingTypes Key, UTownBuildingWidgetBase* Widget);
 	
-	UFUNCTION(BlueprintCallable)
-    UTownBuildingWidgetBase* GetMappedWidget(const EBuildingTypes Key);
-	
-	UFUNCTION(BlueprintCallable)
-    UTownBuildingWidgetBase* GetMappedWidgetInstance(const EBuildingTypes Key);
-	
-	UFUNCTION(BlueprintCallable)
-	ULevelSequence* GetMappedSequenceAsset(const EBuildingTypes Key);
-
-	
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera)
-	class USpringArmComponent* SpringArmComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera)
-	class UCameraComponent* Camera;
 
 	UPROPERTY(BlueprintReadWrite, Category = Camera)
     bool IsReversed;
 
 	UPROPERTY(BlueprintReadWrite, Category = Camera)
 	class UTownBuildingActorComponent* SelectedBuilding;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-    TMap<EBuildingTypes, FBuildingData > BuildingDataMap;
 
 	class ATownPlayerController* PlayerController;
 	
@@ -83,7 +51,7 @@ public:
 private:
 
 	UPROPERTY()
-    ULevelSequence* SequenceAsset;
+    class ULevelSequence* SequenceAsset;
 
 	UPROPERTY()
 	class ALevelSequenceActor* SequenceActor;
@@ -96,7 +64,7 @@ private:
 	bool bIsBuildingFocused = false;
 
 	bool bEnableInput = true;
-
+	
 
 protected:
 	// Called when the game starts or when spawned
@@ -108,6 +76,6 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	*/
 
 };

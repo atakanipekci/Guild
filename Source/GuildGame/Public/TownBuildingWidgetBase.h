@@ -6,6 +6,8 @@
 
 #include <list>
 
+
+#include "TownPlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "TownBuildingWidgetBase.generated.h"
 
@@ -21,13 +23,15 @@ public:
 	
 	void virtual OnEnabled();
 	
+	
 	UPROPERTY(meta = (BindWidgetAnim), EditAnywhere, BlueprintReadWrite, Category = Animations)
 	class UWidgetAnimation* OpenUpAnimation;
 
 	UPROPERTY(meta = (BindWidgetAnim), EditAnywhere, BlueprintReadWrite, Category = Animations)
 	class UWidgetAnimation* CloseDownAnimation;
 
-	
+	ATownPlayerController* PlayerController;
+
 
 	//UPROPERTY(meta = (BindWidget))
 	//class UBorder* ConfirmBorder;

@@ -3,6 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "Animation/WidgetAnimation.h"
+
 #include "TownInteractionController.generated.h"
 
 
@@ -28,6 +31,7 @@ public:
 	void Tick();
 	void LeftClickHandler();
 	
+	
 	void RaycastUnderCursor();
 	void PlaySequence();
 	void PlaySequenceReverse();
@@ -49,20 +53,29 @@ public:
 
 	EInteractionStatee State;
 	EInteractionStatee PrevState;
+	
+	UPROPERTY()
 	ATownPlayerController* PlayerController;
 
-	
+	UPROPERTY()
 	class ULevelSequence* SequenceAsset;
 
+	UPROPERTY()
 	class ALevelSequenceActor* SequenceActor;
 
+	UPROPERTY()
 	class ULevelSequencePlayer* SequencePlayer;
 
+	UPROPERTY()
 	class UTownBuildingActorComponent* SelectedBuilding;
 
+	UPROPERTY()
 	class UTownBuildingActorComponent* HoveredBuilding;
 	
 	bool bEnableInput = true;
 
 	bool bIsSequenceReversed;
+
+	FWidgetAnimationDynamicEvent OnFinishEvent;
+
 };

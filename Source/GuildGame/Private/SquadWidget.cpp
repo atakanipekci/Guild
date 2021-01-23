@@ -105,7 +105,7 @@ UDraggedCharacterWidget* USquadWidget::CreateChildWidget(UDraggedCharacterWidget
 	{
 		ContentScaleBox->AddChild(NewWidget);
 		NewWidget->SetOwnerAreaWidget(this);
-		NewWidget->Stat = DraggedWidget->Stat;
+		NewWidget->SetStat(DraggedWidget->Stat);
 	}
 
 	return NewWidget;

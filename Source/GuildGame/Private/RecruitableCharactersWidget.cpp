@@ -4,9 +4,14 @@
 #include "RecruitableCharactersWidget.h"
 
 
+
+#include "CharacterStats.h"
 #include "DraggedCharacterWidget.h"
+#include "TownGameModeBase.h"
 #include "WidgetManager.h"
+#include "TownNpcCharacter.h"
 #include "Components/ScrollBox.h"
+#include "Kismet/GameplayStatics.h"
 
 void URecruitableCharactersWidget::NativeConstruct()
 {
@@ -25,6 +30,29 @@ void URecruitableCharactersWidget::NativeConstruct()
 			{
 				ScrollBox->AddChild(NewWidget);
 				NewWidget->SetOwnerAreaWidget(this);
+
+				ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this));
+
+				 if(GameMode->CharactersTable && NewWidget->Stat == nullptr)
+			    {
+			        const FString Context(TEXT("CONTEXT DATATABLE TEXT"));
+			        const FName Row = *(FString(TEXT("Knight")));
+
+			        FCharacterStats* CharacterData = GameMode->CharactersTable->FindRow<FCharacterStats>(Row, Context, true);
+
+			        if(CharacterData)
+			        {
+			        	int UniqueID = WidgetManager::GetAndSetDraggableSpawnCount();
+			            FCharacterStats* CopyStruct = new FCharacterStats(*CharacterData);
+			            CopyStruct->Price = 50;
+			        	CopyStruct->UniqueID = UniqueID;
+			        	CopyStruct->TownNpcBehaviourState = ENpcBehaviourStates::WalkingAround;
+
+			        	NewWidget->SetStat(CopyStruct);
+
+			            //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("DRAGGABLE NAME %s"), *this->GetName()));
+			        }
+			    }
 			}
 		}
 	}

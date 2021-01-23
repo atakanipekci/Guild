@@ -3,6 +3,8 @@
 
 #include "TownGameInstance.h"
 
+
+#include "DayTaskManager.h"
 #include "TownGameModeBase.h"
 #include "WidgetManager.h"
 
@@ -19,6 +21,12 @@ bool UTownGameInstance::TryToPurchase(int Amount)
         return false;
     }
 }
+
+void UTownGameInstance::IncreaseDay(int Amount)
+{
+    Day += Amount;
+}
+
 
 void UTownGameInstance::Init()
 {

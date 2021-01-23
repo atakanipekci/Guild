@@ -18,7 +18,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game")
 	int Gold;
-	
+
+	int Day;
+
 	TArray<struct FCharacterStats*> SquadCharacters;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
@@ -29,6 +31,8 @@ public:
 	
 	UFUNCTION()
 	bool TryToPurchase(int Amount);
+
+	void IncreaseDay(int Amount);
 
 	virtual void Init() override;
 };

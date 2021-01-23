@@ -4,12 +4,17 @@
 #include "OwnedCharactersWidget.h"
 
 
+
+#include "CharacterStats.h"
 #include "DraggedCharacterWidget.h"
 #include "TownGameInstance.h"
 #include "TownGameModeBase.h"
+#include "TownNpcCharacter.h"
+
 #include "WidgetManager.h"
 #include "Components/ScrollBox.h"
 #include "Kismet/GameplayStatics.h"
+
 
 void UOwnedCharactersWidget::NativeConstruct()
 {
@@ -41,10 +46,19 @@ bool UOwnedCharactersWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
 						DraggedWidget->RemoveFromRoot();
 
 						ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this->GetWorld()));
-						if(GameMode->OwnedCharacters.Find(NewWidget->Stat) == INDEX_NONE)
+
+						if(GameMode)
 						{
-							GameMode->OwnedCharacters.Add(NewWidget->Stat);
-							//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Team array count  %d"), GameMode->OwnedCharacters.Num()));
+							if(GameMode->OwnedCharacters.Find(NewWidget->Stat) == INDEX_NONE)
+							{
+								GameMode->OwnedCharacters.Add(NewWidget->Stat);
+								//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Team array count  %d"), GameMode->OwnedCharacters.Num()));
+							}
+
+							if(GameMode->NpcManager)
+							{
+								GameMode->SetNpcBehaviourState(NewWidget->Stat->UniqueID, ENpcBehaviourStates::WalkingAround, NewWidget->Stat->ClassType);
+							}
 						}
 						
 						return true;
@@ -114,7 +128,8 @@ UDraggedCharacterWidget* UOwnedCharactersWidget::CreateChildWidget(UDraggedChara
 			ScrollBox->AddChild(NewWidget);
 		}
 		NewWidget->SetOwnerAreaWidget(this);
-		NewWidget->Stat = DraggedWidget->Stat;
+
+		NewWidget->SetStat(DraggedWidget->Stat);
 		NewWidget->LatestChildIndex = ScrollBox->GetChildIndex(NewWidget);
 
 		DraggedWidget->RemoveFromParent();

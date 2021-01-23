@@ -148,8 +148,12 @@ void UTownInteractionController::SetRenderCustomDepth(UActorComponent* Building,
 
 void UTownInteractionController::LeftClickHandler()
 {
+	 UE_LOG(LogTemp, Warning, TEXT("PLAYER CONTROLLER 1"));
+
 	if(State == EInteractionStatee::BuildingSelection)
 	{
+			 UE_LOG(LogTemp, Warning, TEXT("PLAYER CONTROLLER 2"));
+
 		ZoomInToBuilding();
 	}
 }
@@ -172,7 +176,6 @@ void UTownInteractionController::ZoomInToBuilding()
 		PlaySequence();
 
 	}
-		//UE_LOG(LogTemp, Warning, TEXT("RAYCAST ITEM, %s"),*(Hit.Actor->GetName()));
 }
 
 
@@ -208,6 +211,7 @@ void UTownInteractionController::ToggleWidget()
 
 		if(WidgetInstance != nullptr)
 		{
+
 			UTownBuildingWidgetBase* BuildingWidgetInstance = Cast<UTownBuildingWidgetBase>(WidgetInstance);
 			if(BuildingWidgetInstance)
 			{
@@ -229,7 +233,7 @@ void UTownInteractionController::ToggleWidget()
 				else
 				{
 					bIsSequenceReversed = true;
-					BuildingWidgetInstance->OnEnabled();
+					BuildingWidgetInstance->Refresh();
 					BuildingWidgetInstance->SetVisibility(ESlateVisibility::Visible);
 					BuildingWidgetInstance->PlayAnimation(BuildingWidgetInstance->OpenUpAnimation);
 				}
@@ -239,7 +243,7 @@ void UTownInteractionController::ToggleWidget()
 		{
 			UTownBuildingWidgetBase* NewWidget = CreateWidget<UTownBuildingWidgetBase>(PlayerController->GetWorld(), WidgetManager::GetWidget(SelectedBuilding->WidgetKey));
 			WidgetManager::SetWidgetInstance(SelectedBuilding->WidgetKey, NewWidget);
-
+			
 			ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(PlayerController));
 			if(GameMode->MenuUiContainerOverlay)
 			{
@@ -247,9 +251,9 @@ void UTownInteractionController::ToggleWidget()
 			}
 
 			bIsSequenceReversed = true;
-			FWidgetAnimationDynamicEvent OnFinishEvent;
+			OnFinishEvent.Clear();
 			OnFinishEvent.BindDynamic(this, &UTownInteractionController::OnWidgetAnimationFinish);
-			NewWidget->OnEnabled();
+			NewWidget->Refresh();
 			NewWidget->BindToAnimationFinished(NewWidget->OpenUpAnimation, OnFinishEvent);
 			NewWidget->PlayAnimation(NewWidget->OpenUpAnimation);
 			
@@ -264,7 +268,7 @@ void UTownInteractionController::OnSequenceFinish()
 
 void UTownInteractionController::OnWidgetAnimationFinish()
 {
-		UE_LOG(LogTemp, Warning, TEXT("ONANIMFINISH"));
+
 	if(SelectedBuilding && State == EInteractionStatee::BuildingSelection)
 	{
 		UUserWidget* BuildingWidgetInstance = WidgetManager::GetWidgetInstance(SelectedBuilding->WidgetKey);

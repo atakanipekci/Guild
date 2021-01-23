@@ -37,4 +37,7 @@ class GUILDGAME_API UDraggedCharacterWidget : public UUserWidget
 
 		UFUNCTION(BlueprintCallable)
 		void SetOwnerAreaWidget(UDroppableAreaWidget* Owner);
+
+		void SetCharacterNameText(FText Text);
+		void SetStat(FCharacterStats* NewStat);
 };

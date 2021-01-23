@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "Engine/DataTable.h"
 #include "GameFramework/GameModeBase.h"
 #include "TownGameModeBase.generated.h"
@@ -11,6 +12,8 @@
  * 
  */
 
+enum class ECharacterClassType : unsigned char;
+enum class ENpcBehaviourStates : unsigned char;
 USTRUCT()
 struct FBuildingDataTable : public FTableRowBase
 {
@@ -29,13 +32,33 @@ class GUILDGAME_API ATownGameModeBase : public AGameModeBase
 	public:
 	ATownGameModeBase();
 
+	virtual void BeginPlay() override;
+	virtual void BeginDestroy() override;
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnOnClick();
+
+	void SetNpcBehaviourState(int UniqueID,  ENpcBehaviourStates State, ECharacterClassType CharacterType);
+	
+
 	UPROPERTY(EditAnywhere, Category = Building)
 	UDataTable* BuildingDataTable;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	UDataTable* CharactersTable;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	UDataTable* NpcTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	TSubclassOf<class ATownNpcCharacter> NpcCharacterBlueprint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	TSubclassOf<class ATownNpcPawn> NpcPawnBlueprint;
 
 	UPROPERTY(BlueprintReadWrite)
 	class UTownMenuWidget* MenuWidget;
+
+	UPROPERTY()
+	class UTownNpcManager* NpcManager;
 
 	UPROPERTY(BlueprintReadWrite)
 	class UOverlay* MenuUiContainerOverlay;

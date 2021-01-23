@@ -19,9 +19,9 @@ void UTownRecruitWidget::NativeConstruct()
     //OnEnabled();
 }
 
-void UTownRecruitWidget::OnEnabled()
+void UTownRecruitWidget::Refresh()
 {
-    Super::OnEnabled();
+    Super::Refresh();
 
     // ATownDefaultPawn* Pawn = Cast<ATownDefaultPawn>(UGameplayStatics::GetPlayerPawn(this, 0));
     // if(Pawn && ConfirmBorder && MainBorder)

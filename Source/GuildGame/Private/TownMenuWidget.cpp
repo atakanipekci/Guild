@@ -50,7 +50,14 @@ void UTownMenuWidget::OnTestClicked()
      // }
      // else
      // {
-         //UGameplayStatics::OpenLevel(GetWorld(), "TestMap");
+         UGameplayStatics::OpenLevel(GetWorld(), "TownBase");
+
+        UTownGameInstance* GameInstance = Cast<UTownGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+        if(GameInstance)
+        {
+            GameInstance->IncreaseDay(1);
+        }
+    
      // }
 }
 

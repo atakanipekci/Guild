@@ -20,8 +20,7 @@ class GUILDGAME_API UTownBuildingWidgetBase : public UUserWidget
 	GENERATED_BODY()
 public:
 	virtual void NativeConstruct() override;
-	
-	void virtual OnEnabled();
+	void virtual Refresh();
 	
 	
 	UPROPERTY(meta = (BindWidgetAnim), EditAnywhere, BlueprintReadWrite, Category = Animations)
@@ -31,6 +30,9 @@ public:
 	class UWidgetAnimation* CloseDownAnimation;
 
 	ATownPlayerController* PlayerController;
+
+	UFUNCTION()
+	void OnBuildingConstructionFinish();
 
 
 	//UPROPERTY(meta = (BindWidget))

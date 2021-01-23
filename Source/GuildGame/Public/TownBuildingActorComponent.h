@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 
+
+#include "DayTaskManager.h"
 #include "WidgetManager.h"
 #include "Components/ActorComponent.h"
 #include "UObject/ObjectMacros.h"
@@ -21,7 +23,7 @@ enum class EBuildingConstructionState: uint8
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class GUILDGAME_API UTownBuildingActorComponent : public UActorComponent
+class GUILDGAME_API UTownBuildingActorComponent : public UActorComponent, public ITaskCaller
 {
 	GENERATED_BODY()
 public:	
@@ -36,6 +38,10 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	virtual void OnTaskStart() override;
+	virtual void OnTaskFinish() override;
+	virtual void OnTaskUpdate() override;
 
 	EBuildingConstructionState GetConstructionState() const;
 	void SetConstructionState(EBuildingConstructionState State);

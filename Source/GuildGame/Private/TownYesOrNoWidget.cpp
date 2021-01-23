@@ -55,7 +55,7 @@ void UTownYesOrNoWidget::OnNoButtonClicked()
 }
 
 void UTownYesOrNoWidget::CreateYesNoWidget(UUserWidget* Owner, TSubclassOf<UUserWidget> Widget, FText& Title, FText& Content,
-    FYesNoDelegate YesDelegate, FYesNoDelegate NoDelegate)
+    FYesNoDelegate& YesDelegate, FYesNoDelegate& NoDelegate)
 {
     if(Widget == nullptr)
         return;

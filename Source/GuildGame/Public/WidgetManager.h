@@ -61,14 +61,16 @@ class GUILDGAME_API WidgetManager
 		static void SetSequenceTable(UDataTable* Table);
 		static FString GetSequenceRowName(ESequenceKeys Key);
 		static ULevelSequence* GetSequence(ESequenceKeys Key);
+		static void ResetWidgetInstances();
+		
+		static int GetAndSetDraggableSpawnCount();
 
-
+		
 		static UDataTable* WidgetsDataTable;
 		static UDataTable* SequenceDataTable;
 		static TMap<EWidgetKeys, UUserWidget* > WidgetInstanceMap;
 
 
-		static int GetAndSetDraggableSpawnCount();
 		static int SpawnedDraggableWidgetCount;
 	
 

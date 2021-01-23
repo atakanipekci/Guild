@@ -7,7 +7,12 @@
 
 ATownPlayerController::ATownPlayerController()
 {
-    InteractionController = NewObject<UTownInteractionController>();
+}
+
+void ATownPlayerController::BeginPlay()
+{
+
+	InteractionController = NewObject<UTownInteractionController>();
 	if(InteractionController)
 		InteractionController->ManuelConstructor(EInteractionStatee::BuildingSelection, this);
 }
@@ -15,7 +20,7 @@ ATownPlayerController::ATownPlayerController()
 void ATownPlayerController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
-
+	
     if(InteractionController)
     {
         InteractionController->Tick();
@@ -47,9 +52,28 @@ void ATownPlayerController::SetupInputComponent()
 	//PlayerInputComponent->BindAction("LeftMouseClick", IE_Released, this, &AMyDefaultPawn::LeftClickReleaseHandler);
 	// PlayerInputComponent->BindAction("RightMouseClick", IE_Released, this, &AMyDefaultPawn::RightClickReleaseHandler);
 
-	 InputComponent->BindAction("LeftMouseClick", IE_Pressed, InteractionController, &UTownInteractionController::LeftClickHandler);
+	 InputComponent->BindAction("LeftMouseClick", IE_Pressed, this, &ATownPlayerController::LeftClickHandler);
 	 //InputComponent->BindAction("RightMouseClick", IE_Pressed, InteractionController, &UTownInteractionController::ZoomOutFromBuilding);
 
 }
+
+void ATownPlayerController::LeftClickHandler()
+{
+		if(InteractionController)
+		{
+			InteractionController->LeftClickHandler();
+		}
+}
+
+void ATownPlayerController::BeginDestroy()
+{
+	Super::BeginDestroy();
+	if(InteractionController)
+	{
+		InteractionController->ConditionalBeginDestroy();
+	}
+}
+
+
 
 

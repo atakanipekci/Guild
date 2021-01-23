@@ -39,8 +39,9 @@ class GUILDGAME_API UTownYesOrNoWidget : public UUserWidget
 	UFUNCTION()
 	void OnNoButtonClicked();
 
+	
 	FYesNoDelegate YesEvent;
 	FYesNoDelegate NoEvent;
 	
-	static void CreateYesNoWidget(UUserWidget* Owner, TSubclassOf<UUserWidget> Widget , FText& Title, FText& Content, FYesNoDelegate YesDelegate, FYesNoDelegate NoDelegate);
+	static void CreateYesNoWidget(UUserWidget* Owner, TSubclassOf<UUserWidget> Widget , FText& Title, FText& Content, FYesNoDelegate& YesDelegate, FYesNoDelegate& NoDelegate);
 };

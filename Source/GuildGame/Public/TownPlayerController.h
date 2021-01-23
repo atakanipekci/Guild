@@ -15,11 +15,17 @@ class GUILDGAME_API ATownPlayerController : public APlayerController
 	GENERATED_BODY()
 	public:
 		ATownPlayerController();
+		virtual void BeginPlay() override;
 		virtual void Tick(float DeltaSeconds) override;
 		virtual void SetupInputComponent() override;
+		virtual void BeginDestroy() override;
+
+		void LeftClickHandler();
+	
 
 		UFUNCTION(BlueprintCallable)
 		void InteractionControllerWidgetToggle();
 
+		UPROPERTY()
 		class UTownInteractionController* InteractionController;
 };

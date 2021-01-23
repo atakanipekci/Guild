@@ -16,7 +16,7 @@ class GUILDGAME_API UTownRecruitWidget : public UTownBuildingWidgetBase
 	GENERATED_BODY()
 
 	virtual void NativeConstruct() override;
-	virtual void OnEnabled() override;
+	virtual void Refresh() override;
 	
 	
 };

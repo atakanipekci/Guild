@@ -16,6 +16,7 @@ UTownBuildingActorComponent::UTownBuildingActorComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 
 	// ...
+	
 }
 
 
@@ -24,6 +25,9 @@ void UTownBuildingActorComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UE_LOG(LogTemp, Warning, TEXT("BUILDING BEGINPLAY"));
+	DayTaskManager::AddBuildingCaller(BuildingDataTableKey, this);
+	
 	if(PreviewMatBP && ConstructedMatBP && NotConstructedMatBP && UnderConstructionMatBP)
 	{
 		SetMaterialViaState(ConstructionState);
@@ -88,6 +92,19 @@ void UTownBuildingActorComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void UTownBuildingActorComponent::OnTaskStart()
+{
+}
+
+void UTownBuildingActorComponent::OnTaskFinish()
+{
+	 SetConstructionState(EBuildingConstructionState::Constructed);
+}
+
+void UTownBuildingActorComponent::OnTaskUpdate()
+{
 }
 
 EBuildingConstructionState UTownBuildingActorComponent::GetConstructionState() const

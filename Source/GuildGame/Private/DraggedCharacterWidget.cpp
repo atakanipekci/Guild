@@ -21,23 +21,23 @@ void UDraggedCharacterWidget::NativeConstruct()
    // GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("CONSTRUCTOR Name %s"), *CharacterNameText->Text.ToString()));
 
 
-    if(GameMode->CharactersTable && Stat == nullptr)
-    {
-        const FString Context(TEXT("CONTEXT DATATABLE TEXT"));
-        const FName Row = *(FString(TEXT("Knight")));
-        FCharacterStats* CharacterData = GameMode->CharactersTable->FindRow<FCharacterStats>(Row, Context, true);
-
-        if(CharacterData)
-        {
-            CharacterNameText->SetText(FText::FromString(FString::FromInt(WidgetManager::GetAndSetDraggableSpawnCount())));
-            FCharacterStats* CopyStruct = new FCharacterStats(*CharacterData);
-            CopyStruct->Price = 50;
-            Stat = CopyStruct;
-
-            //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("DRAGGABLE NAME %s"), *this->GetName()));
-
-        }
-    }
+    // if(GameMode->CharactersTable && Stat == nullptr)
+    // {
+    //     const FString Context(TEXT("CONTEXT DATATABLE TEXT"));
+    //     const FName Row = *(FString(TEXT("Knight")));
+    //
+    //     FCharacterStats* CharacterData = GameMode->CharactersTable->FindRow<FCharacterStats>(Row, Context, true);
+    //
+    //     if(CharacterData)
+    //     {
+    //         CharacterNameText->SetText(FText::FromString(FString::FromInt(WidgetManager::GetAndSetDraggableSpawnCount())));
+    //         FCharacterStats* CopyStruct = new FCharacterStats(*CharacterData);
+    //         CopyStruct->Price = 50;
+    //         Stat = CopyStruct;
+    //
+    //         //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("DRAGGABLE NAME %s"), *this->GetName()));
+    //     }
+    // }
 }
 
 void UDraggedCharacterWidget::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent,
@@ -149,4 +149,21 @@ void UDraggedCharacterWidget::OnDragLeaveFromArea()
 void UDraggedCharacterWidget::SetOwnerAreaWidget(UDroppableAreaWidget* Owner)
 {
     OwnerDroppableArea = Owner;
+}
+
+void UDraggedCharacterWidget::SetCharacterNameText(FText Text)
+{
+    if(CharacterNameText)
+    {
+        CharacterNameText->SetText(Text);
+    }
+}
+
+void UDraggedCharacterWidget::SetStat(FCharacterStats* NewStat)
+{
+    Stat = NewStat;
+    if(Stat)
+    {
+        SetCharacterNameText(FText::FromString(FString::FromInt(Stat->UniqueID)));
+    }
 }

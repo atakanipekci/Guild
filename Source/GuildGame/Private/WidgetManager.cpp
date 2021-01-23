@@ -73,10 +73,10 @@ FString WidgetManager::GetWidgetRowName(const EWidgetKeys Key)
 
 void WidgetManager::SetWidgetInstance(const EWidgetKeys Key, UUserWidget* Widget)
 {
-    if(WidgetInstanceMap.Contains(Key))
+    /*if(WidgetInstanceMap.Contains(Key))
     {
         WidgetInstanceMap.Remove(Key);
-    }
+    }*/
     WidgetInstanceMap.Add(Key, Widget);
 }
 
@@ -119,6 +119,11 @@ ULevelSequence* WidgetManager::GetSequence(const ESequenceKeys Key)
     }
 
     return nullptr;
+}
+
+void WidgetManager::ResetWidgetInstances()
+{
+    WidgetInstanceMap.Empty();
 }
 
 int WidgetManager::GetAndSetDraggableSpawnCount()

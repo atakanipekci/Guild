@@ -4,6 +4,8 @@
 #include "TownBuildingWidgetBase.h"
 
 
+
+#include "DayTaskManager.h"
 #include "TownBuildingActorComponent.h"
 #include "TownDefaultPawn.h"
 #include "TownGameInstance.h"
@@ -25,11 +27,10 @@ void UTownBuildingWidgetBase::NativeConstruct()
 
      PlayerController = Cast<ATownPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 
-
-    OnEnabled();
+     Refresh();
 }
 
-void UTownBuildingWidgetBase::OnEnabled()
+void UTownBuildingWidgetBase::Refresh()
 {
     if(PlayerController)
     {
@@ -69,6 +70,8 @@ void UTownBuildingWidgetBase::OnEnabled()
         
     }
 }
+
+
 
 void UTownBuildingWidgetBase::OnExitClicked()
 {
@@ -127,7 +130,15 @@ bool UTownBuildingWidgetBase::ConstrYesEvent()
                         {
                             PlayerController->InteractionController->SelectedBuilding->SetConstructionState(EBuildingConstructionState::UnderConstruction);
                             /*Pawn->ZoomOutFromBuilding();*/
-                            OnEnabled();
+                            Refresh();
+
+                             FTaskStart OnStart;
+                             FTaskUpdate OnUpdate;
+                             FTaskFinish OnFinish;
+                             OnFinish.BindUObject(this, &UTownBuildingWidgetBase::OnBuildingConstructionFinish);
+                            
+                             //DayTaskManager::AddTask(PlayerController->InteractionController->SelectedBuilding->BuildingDataTableKey, 0, 0 ,OnStart, OnFinish, OnUpdate);
+                            DayTaskManager::AddTask(PlayerController->InteractionController->SelectedBuilding->BuildingDataTableKey, Instance->Day, 2, ETaskType::ConstructionBuilding);
                             return  true;
                         }
                         else
@@ -140,6 +151,9 @@ bool UTownBuildingWidgetBase::ConstrYesEvent()
         }
     }
     return  false;
+}
 
-    
+void UTownBuildingWidgetBase::OnBuildingConstructionFinish()
+{
+     UE_LOG(LogTemp, Warning, TEXT("TEST"));
 }

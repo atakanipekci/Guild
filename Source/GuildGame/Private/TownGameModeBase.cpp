@@ -13,15 +13,20 @@
 ATownGameModeBase::ATownGameModeBase()
 {
     PlayerControllerClass = ATownPlayerController::StaticClass();
-    NpcManager = NewObject<UTownNpcManager>();
+}
 
+void ATownGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+    Super::InitGame(MapName, Options, ErrorMessage);
+
+    NpcManager = NewObject<UTownNpcManager>();
 }
 
 void ATownGameModeBase::BeginPlay()
 {
     Super::BeginPlay();
     UE_LOG(LogTemp, Warning, TEXT("GameMode BEGINPLAY "));
-
+    
     DayTaskManager::UpdateTasks(this);
 
 
@@ -45,6 +50,8 @@ void ATownGameModeBase::BeginDestroy()
     
 }
 
+
+
 void ATownGameModeBase::SpawnOnClick()
 {
     if(NpcManager)
@@ -55,8 +62,10 @@ void ATownGameModeBase::SpawnOnClick()
 
 void ATownGameModeBase::SetNpcBehaviourState(int UniqueID, ENpcBehaviourStates State, ECharacterClassType CharacterType)
 {
+    UE_LOG(LogTemp, Warning, TEXT("SetNpcBehaviourState 1 "));
     if(NpcManager)
     {
+        UE_LOG(LogTemp, Warning, TEXT("SetNpcBehaviourState 2 "));
         NpcManager->SetNpcBehaviourState( UniqueID, State, CharacterType);
     }
 }

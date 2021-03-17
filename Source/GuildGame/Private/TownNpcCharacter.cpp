@@ -53,10 +53,12 @@ void ATownNpcCharacter::MoveToLocation(FVector TargetLocation)
 
 void ATownNpcCharacter::MoveToRandomLocation()
 {
+	UE_LOG(LogTemp, Warning, TEXT("MoveToRandomLocation"));
 	if(DestinationNode)
 	{
 		if(DestinationNode->AvailableNodes.Num() > 0)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("GETRANDOMNODE"));
 			const int RandIndex = FMath::RandRange(0, DestinationNode->AvailableNodes.Num() - 1);
 			DestinationNode = DestinationNode->AvailableNodes[RandIndex];
 

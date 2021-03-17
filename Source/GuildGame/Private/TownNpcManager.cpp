@@ -7,7 +7,6 @@
 #include "TownGameModeBase.h"
 #include "TownNavNodeActor.h"
 #include "TownNpcCharacter.h"
-#include "TownNpcPawn.h"
 
 
 class ATownNpcAIController;
@@ -48,6 +47,7 @@ void UTownNpcManager::SetNpcBehaviourState(int UniqueID, ENpcBehaviourStates Sta
 {
     if(SpawnedNpCs.Contains(UniqueID))
     {
+        UE_LOG(LogTemp, Warning, TEXT("Spawn CONTAINS "));
         ATownNpcCharacter** Character =  SpawnedNpCs.Find(UniqueID);
 
         if(Character)
@@ -60,6 +60,7 @@ void UTownNpcManager::SetNpcBehaviourState(int UniqueID, ENpcBehaviourStates Sta
     }
     else
     {
+        UE_LOG(LogTemp, Warning, TEXT("Spawn Not CONTAINS "));
         ATownNpcCharacter* SpawnedCharacter = SpawnCharacter(CharacterType,  State);
         if(SpawnedCharacter)
         {
@@ -88,15 +89,17 @@ ATownNpcCharacter* UTownNpcManager::SpawnCharacter(ECharacterClassType Character
 			}
 		}
          //FActorSpawnParameters SpawnInfo;
-        if(TownGameMode->NpcPawnBlueprint)
+        if(TownGameMode->NpcCharacterBlueprint)
         {
             //ATownNpcPawn* SpawnedActor = TownGameMode->GetWorld()->SpawnActor<ATownNpcPawn>(TownGameMode->NpcPawnBlueprint, Location, Rotation);
 
             ATownNpcCharacter* SpawnedActor = TownGameMode->GetWorld()->SpawnActor<ATownNpcCharacter>(TownGameMode->NpcCharacterBlueprint, Location, Rotation);
             if(SpawnedActor)
             {
+                UE_LOG(LogTemp, Warning, TEXT("BEFORE NAV NODES"));
                 if(NavigationNodes.Num() > 0)
 		        {
+                    UE_LOG(LogTemp, Warning, TEXT("NAVNODES NOT 0"));
                     SpawnedActor->DestinationNode = NavigationNodes[RandIndex];
                     SpawnedActor->MoveToRandomLocation();
 		        }

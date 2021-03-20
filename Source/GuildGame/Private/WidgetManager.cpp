@@ -65,6 +65,10 @@ FString WidgetManager::GetWidgetRowName(const EWidgetKeys Key)
     {
         return  FString(TEXT("RecruitWidget"));
     }
+    else if(Key == EWidgetKeys::CharacterDetail)
+    {
+        return  FString(TEXT("CharacterDetail"));
+    }
 
     return FString(TEXT("EMPTY"));
 }

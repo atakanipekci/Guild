@@ -8,7 +8,7 @@ public class GuildGame : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ProceduralMeshComponent", "AIModule", "NavigationSystem", "LevelSequence", "MovieScene" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ProceduralMeshComponent", "AIModule", "NavigationSystem", "LevelSequence", "MovieScene", "SlateCore" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "ProceduralMeshComponent", "NavigationSystem"});
 

@@ -18,8 +18,8 @@ ATownGameModeBase::ATownGameModeBase()
 void ATownGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
     Super::InitGame(MapName, Options, ErrorMessage);
-
     NpcManager = NewObject<UTownNpcManager>();
+
 }
 
 void ATownGameModeBase::BeginPlay()
@@ -28,7 +28,6 @@ void ATownGameModeBase::BeginPlay()
     UE_LOG(LogTemp, Warning, TEXT("GameMode BEGINPLAY "));
     
     DayTaskManager::UpdateTasks(this);
-
 
     if(NpcManager)
 	{

@@ -98,6 +98,8 @@ bool USquadWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
 }
 
 
+
+
 UDraggedCharacterWidget* USquadWidget::CreateChildWidget(UDraggedCharacterWidget* DraggedWidget)
 {
 	UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), WidgetManager::GetWidget(EWidgetKeys::DraggedSquadWidget));

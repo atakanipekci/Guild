@@ -38,12 +38,15 @@ void UTownBuildingWidgetBase::Refresh()
         {
             if(PlayerController->InteractionController->SelectedBuilding)
             {
-                if(PlayerController->InteractionController->SelectedBuilding->GetConstructionState() == EBuildingConstructionState::Constructed)
+                UTownBuildingActorComponent* Building = PlayerController->InteractionController->SelectedBuilding;
+                const EBuildingConstructionState ConstructionState = Building->GetConstructionState();
+                
+                if(ConstructionState == EBuildingConstructionState::Constructed)
                 {
                     if(MainCanvasPanel)
                         MainCanvasPanel->SetVisibility(ESlateVisibility::Visible);
                 }
-                else if(PlayerController->InteractionController->SelectedBuilding->GetConstructionState() == EBuildingConstructionState::NotConstructed)
+                else if(ConstructionState == EBuildingConstructionState::NotConstructed)
                 {
                     if(MainCanvasPanel)
                         MainCanvasPanel->SetVisibility(ESlateVisibility::Collapsed);
@@ -51,9 +54,9 @@ void UTownBuildingWidgetBase::Refresh()
                     if(PreviewCanvasPanel)
                         PreviewCanvasPanel->SetVisibility(ESlateVisibility::Visible);
 
-                    PlayerController->InteractionController->SelectedBuilding->SetConstructionState(EBuildingConstructionState::Preview);
+                    Building->SetConstructionState(EBuildingConstructionState::Preview);
                 }
-                else if(PlayerController->InteractionController->SelectedBuilding->GetConstructionState() == EBuildingConstructionState::UnderConstruction)
+                else if(ConstructionState == EBuildingConstructionState::UnderConstruction)
                 {
                     if(MainCanvasPanel)
                         MainCanvasPanel->SetVisibility(ESlateVisibility::Collapsed);
@@ -65,13 +68,9 @@ void UTownBuildingWidgetBase::Refresh()
                         UnderConstructionCanvasPanel->SetVisibility(ESlateVisibility::Visible);
                 }
             }
-            
         }
-        
     }
 }
-
-
 
 void UTownBuildingWidgetBase::OnExitClicked()
 {
@@ -107,8 +106,6 @@ bool UTownBuildingWidgetBase::ConstrNoEvent()
 
 bool UTownBuildingWidgetBase::ConstrYesEvent()
 {
-
-
     ATownGameModeBase* Mode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this));
     UTownGameInstance* Instance = Cast<UTownGameInstance>(UGameplayStatics::GetGameInstance(this));
     if(PlayerController && Mode && Instance)

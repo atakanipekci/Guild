@@ -20,7 +20,8 @@ enum class EWidgetKeys: uint8
 	DraggedOwnedWidget,
 	DraggedSquadWidget,
 	TavernMenuWidget,
-	RecruitMenuWidget
+	RecruitMenuWidget,
+	CharacterDetail
 };
 
 UENUM()

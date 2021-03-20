@@ -5,11 +5,13 @@
 
 
 
+#include "CharacterDetailWidget.h"
 #include "CharacterStats.h"
 #include "DroppableAreaWidget.h"
 #include "TownGameModeBase.h"
 #include "WidgetManager.h"
 #include "Blueprint/DragDropOperation.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/PanelWidget.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
@@ -134,6 +136,46 @@ void UDraggedCharacterWidget::NativeOnDragEnter(const FGeometry& InGeometry, con
             }
          }
     }
+}
+
+void UDraggedCharacterWidget::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent,
+    UDragDropOperation*& OutOperation)
+{
+    SetVisibility(ESlateVisibility::Hidden);
+    if(DraggedVisualInstance == nullptr)
+    {
+        DraggedVisualInstance = CreateWidget<UUserWidget>(GetWorld(), DraggedVisualBp);
+    }
+
+    OutOperation = UWidgetBlueprintLibrary::CreateDragDropOperation(DragDropOperation);
+    OutOperation->Payload = this;
+    OutOperation->DefaultDragVisual = DraggedVisualInstance;
+}
+
+FReply UDraggedCharacterWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+    if(InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
+	{
+		 GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Right Mouse Button Down"));
+
+        UUserWidget* NewWidget = WidgetManager::GetWidgetInstance(EWidgetKeys::CharacterDetail);
+        
+        if(NewWidget == nullptr)
+        {
+            NewWidget = CreateWidget<UUserWidget>(this->GetWorld(), WidgetManager::GetWidget(EWidgetKeys::CharacterDetail));
+            WidgetManager::SetWidgetInstance(EWidgetKeys::CharacterDetail, NewWidget);
+        }
+        else
+        {
+            NewWidget->RemoveFromViewport();
+        }
+
+        NewWidget->SetVisibility(ESlateVisibility::Visible);
+        NewWidget->AddToViewport();
+	}
+
+    const FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, EKeys::LeftMouseButton);
+    return Reply.NativeReply;
 }
 
 void UDraggedCharacterWidget::OnDragLeaveFromArea()

@@ -17,23 +17,32 @@ class GUILDGAME_API UDraggedCharacterWidget : public UUserWidget
 	virtual void NativeConstruct() override;
 	virtual void NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 	virtual void NativeOnDragEnter(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
-
-
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
 	int DraggedIndex = 0;
 
 	public:
 		void OnDragLeaveFromArea();
 
-	
+		
 		int LatestChildIndex = 0;
 
-	
+		UPROPERTY()
 		class UDroppableAreaWidget* OwnerDroppableArea;
 
 		struct FCharacterStats* Stat;
 
 		UPROPERTY(meta = (BindWidget))
 		class UTextBlock* CharacterNameText;
+
+		UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		TSubclassOf<UUserWidget> DraggedVisualBp;
+
+		UPROPERTY()
+		UUserWidget* DraggedVisualInstance;
+
+		UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		TSubclassOf<UDragDropOperation> DragDropOperation;
 
 		UFUNCTION(BlueprintCallable)
 		void SetOwnerAreaWidget(UDroppableAreaWidget* Owner);

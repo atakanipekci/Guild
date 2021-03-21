@@ -14,6 +14,7 @@ class GUILDGAME_API UCharacterDetailWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+	public:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* CharacterNameText;
 };

@@ -43,20 +43,21 @@ void UTownMenuWidget::OnTestClicked()
      UWorld* TheWorld = GetWorld();
  
      FString CurrentLevel = TheWorld->GetMapName();
-     
+     UGameplayStatics::OpenLevel(GetWorld(), "TestMap");
+    
      // if (CurrentLevel == "ThirdPersonExampleMap")
      // {
      //     UGameplayStatics::OpenLevel(GetWorld(), "Level2");
      // }
      // else
      // {
-         UGameplayStatics::OpenLevel(GetWorld(), "TownBase");
-
-        UTownGameInstance* GameInstance = Cast<UTownGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-        if(GameInstance)
-        {
-            GameInstance->IncreaseDay(1);
-        }
+        //  UGameplayStatics::OpenLevel(GetWorld(), "TownBase");
+        //
+        // UTownGameInstance* GameInstance = Cast<UTownGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+        // if(GameInstance)
+        // {
+        //     GameInstance->IncreaseDay(1);
+        // }
     
      // }
 }

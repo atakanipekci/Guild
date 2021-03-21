@@ -172,6 +172,16 @@ FReply UDraggedCharacterWidget::NativeOnMouseButtonDown(const FGeometry& InGeome
 
         NewWidget->SetVisibility(ESlateVisibility::Visible);
         NewWidget->AddToViewport();
+        UCharacterDetailWidget* ChrDetail =  Cast<UCharacterDetailWidget>(NewWidget);
+        if(ChrDetail)
+        {
+            UTextBlock* NameTextField = ChrDetail->CharacterNameText;
+
+            if(NameTextField && Stat)
+            {
+                NameTextField->SetText(FText::FromString(Stat->ClassName));
+            }
+        }
 	}
 
     const FEventReply Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, EKeys::LeftMouseButton);
@@ -206,6 +216,6 @@ void UDraggedCharacterWidget::SetStat(FCharacterStats* NewStat)
     Stat = NewStat;
     if(Stat)
     {
-        SetCharacterNameText(FText::FromString(FString::FromInt(Stat->UniqueID)));
+        SetCharacterNameText(FText::FromString(FString::FromInt(Stat->UniqueID)+ " " + Stat->ClassName));
     }
 }

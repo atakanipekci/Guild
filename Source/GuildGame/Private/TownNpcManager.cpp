@@ -113,15 +113,17 @@ ATownNpcCharacter* UTownNpcManager::SpawnCharacter(ECharacterClassType Character
             
                     FNpcDataTable* NpcDataTable = NpcTable->FindRow<FNpcDataTable>(Row, Context, true);
                     
-            
-                    if(NpcDataTable->SkeletalMesh)
+                    if(NpcDataTable)
                     {
-                        SkeletalMesh->SetSkeletalMesh(NpcDataTable->SkeletalMesh);
-            
-                        if(NpcDataTable->AnimationBP)
+                        if(NpcDataTable->SkeletalMesh)
                         {
-                            SkeletalMesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-                            SkeletalMesh->SetAnimInstanceClass(NpcDataTable->AnimationBP);
+                            SkeletalMesh->SetSkeletalMesh(NpcDataTable->SkeletalMesh);
+                
+                            if(NpcDataTable->AnimationBP)
+                            {
+                                SkeletalMesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+                                SkeletalMesh->SetAnimInstanceClass(NpcDataTable->AnimationBP);
+                            }
                         }
                     }
                 }

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "Blueprint/UserWidget.h"
+
 #include "DraggedCharacterWidget.generated.h"
 
 /**
@@ -34,6 +35,9 @@ class GUILDGAME_API UDraggedCharacterWidget : public UUserWidget
 
 		UPROPERTY(meta = (BindWidget))
 		class UTextBlock* CharacterNameText;
+
+		UPROPERTY(meta = (BindWidget))
+		class UImage* Portrait;
 
 		UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TSubclassOf<UUserWidget> DraggedVisualBp;

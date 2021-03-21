@@ -36,7 +36,13 @@ void URecruitableCharactersWidget::NativeConstruct()
 				 if(GameMode->CharactersTable && NewWidget->Stat == nullptr)
 			    {
 			        const FString Context(TEXT("CONTEXT DATATABLE TEXT"));
-			        const FName Row = *(FString(TEXT("Knight")));
+				 	FString CharacterType = "Knight";
+
+				 	if(i >=2)
+				 	{
+				 		CharacterType = "Mage";
+				 	}
+			        const FName Row = *(CharacterType);
 
 			        FCharacterStats* CharacterData = GameMode->CharactersTable->FindRow<FCharacterStats>(Row, Context, true);
 

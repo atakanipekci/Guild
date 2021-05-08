@@ -23,10 +23,10 @@ public:
 	void virtual Refresh();
 	
 	
-	UPROPERTY(meta = (BindWidgetAnim), EditAnywhere, BlueprintReadWrite, Category = Animations)
+	UPROPERTY(Transient , meta = (BindWidgetAnim))
 	class UWidgetAnimation* OpenUpAnimation;
 
-	UPROPERTY(meta = (BindWidgetAnim), EditAnywhere, BlueprintReadWrite, Category = Animations)
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	class UWidgetAnimation* CloseDownAnimation;
 
 	ATownPlayerController* PlayerController;

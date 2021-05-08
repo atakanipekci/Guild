@@ -7,6 +7,7 @@
 
 #include "CharacterStats.h"
 #include "DraggedCharacterWidget.h"
+#include "ImageManager.h"
 #include "TownGameInstance.h"
 #include "TownGameModeBase.h"
 #include "TownNpcCharacter.h"
@@ -132,6 +133,9 @@ UDraggedCharacterWidget* UOwnedCharactersWidget::CreateChildWidget(UDraggedChara
 
 		NewWidget->SetStat(DraggedWidget->Stat);
 		NewWidget->LatestChildIndex = ScrollBox->GetChildIndex(NewWidget);
+
+		if(DraggedWidget->Stat)
+			ImageManager::SetPortraitTextureByClass(DraggedWidget->Stat->ClassType, NewWidget->Portrait);
 
 		DraggedWidget->RemoveFromParent();
 

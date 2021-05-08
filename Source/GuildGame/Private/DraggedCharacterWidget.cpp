@@ -150,6 +150,7 @@ void UDraggedCharacterWidget::NativeOnDragDetected(const FGeometry& InGeometry, 
     OutOperation = UWidgetBlueprintLibrary::CreateDragDropOperation(DragDropOperation);
     OutOperation->Payload = this;
     OutOperation->DefaultDragVisual = DraggedVisualInstance;
+    //OutOperation->event
 }
 
 FReply UDraggedCharacterWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

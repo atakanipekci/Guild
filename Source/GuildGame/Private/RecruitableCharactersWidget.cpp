@@ -7,9 +7,11 @@
 
 #include "CharacterStats.h"
 #include "DraggedCharacterWidget.h"
+#include "ImageManager.h"
 #include "TownGameModeBase.h"
 #include "WidgetManager.h"
 #include "TownNpcCharacter.h"
+#include "Components/Image.h"
 #include "Components/ScrollBox.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -41,6 +43,7 @@ void URecruitableCharactersWidget::NativeConstruct()
 				 	if(i >=2)
 				 	{
 				 		CharacterType = "Mage";
+					
 				 	}
 			        const FName Row = *(CharacterType);
 
@@ -56,8 +59,10 @@ void URecruitableCharactersWidget::NativeConstruct()
 
 			        	NewWidget->SetStat(CopyStruct);
 
+			        	ImageManager::SetPortraitTextureByClass(CopyStruct->ClassType, NewWidget->Portrait);
 			            //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("DRAGGABLE NAME %s"), *this->GetName()));
 			        }
+
 			    }
 			}
 		}

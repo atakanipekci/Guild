@@ -5,6 +5,7 @@
 
 
 #include "DraggedCharacterWidget.h"
+#include "ImageManager.h"
 #include "TownGameInstance.h"
 #include "TownGameModeBase.h"
 #include "WidgetManager.h"
@@ -108,6 +109,9 @@ UDraggedCharacterWidget* USquadWidget::CreateChildWidget(UDraggedCharacterWidget
 		ContentScaleBox->AddChild(NewWidget);
 		NewWidget->SetOwnerAreaWidget(this);
 		NewWidget->SetStat(DraggedWidget->Stat);
+
+		if(DraggedWidget->Stat)
+			ImageManager::SetPortraitTextureByClass(DraggedWidget->Stat->ClassType, NewWidget->Portrait);
 	}
 
 	return NewWidget;

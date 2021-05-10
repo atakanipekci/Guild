@@ -3,11 +3,11 @@
 
 #include "TownGameModeBase.h"
 
-#include "DayTaskManager.h"
-#include "TownMenuWidget.h"
-#include "TownNpcManager.h"
+#include "GuildGame/Managers/DayTaskManager.h"
+#include "GuildGame/Widgets/TownMenuWidget.h"
+#include "GuildGame/Town/Navigation/TownNpcManager.h"
 #include "TownPlayerController.h"
-#include "WidgetManager.h"
+#include "GuildGame/Managers/WidgetManager.h"
 #include "Kismet/GameplayStatics.h"
 
 ATownGameModeBase::ATownGameModeBase()

@@ -2,10 +2,7 @@
 
 
 #include "TownYesOrNoWidget.h"
-
-
-#include "TownGameModeBase.h"
-#include "TownPlayerController.h"
+#include "GuildGame/Town/TownGameModeBase.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"

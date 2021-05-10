@@ -11,7 +11,7 @@ UTexture* ImageManager::GetPortraitTextureByClass(ECharacterClassType ClassType)
 
 		return Texture;
 	}
-	else if(ClassType == ECharacterClassType::Mage)
+	else 
 	{
 		FString Path = FString("/Game/Town/UI/Icons/skill_icon_03");
 		UTexture2D* Texture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));

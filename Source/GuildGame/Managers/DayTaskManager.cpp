@@ -4,7 +4,7 @@
 #include "DayTaskManager.h"
 
 
-#include "TownGameInstance.h"
+#include "GuildGame/Town/TownGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 
 TMap<FString, FDayTask* > DayTaskManager::Tasks;

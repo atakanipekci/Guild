@@ -5,10 +5,10 @@
 
 
 #include "DraggedCharacterWidget.h"
-#include "ImageManager.h"
-#include "TownGameInstance.h"
-#include "TownGameModeBase.h"
-#include "WidgetManager.h"
+#include "GuildGame/Managers/ImageManager.h"
+#include "GuildGame/Town/TownGameInstance.h"
+#include "GuildGame/Town/TownGameModeBase.h"
+#include "GuildGame/Managers/WidgetManager.h"
 #include "Components/ScaleBox.h"
 #include "Kismet/GameplayStatics.h"
 

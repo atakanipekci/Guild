@@ -2,18 +2,14 @@
 
 
 #include "TownBuildingWidgetBase.h"
-
-
-
-#include "DayTaskManager.h"
-#include "TownBuildingActorComponent.h"
-#include "TownDefaultPawn.h"
-#include "TownGameInstance.h"
-#include "TownGameModeBase.h"
-#include "TownInteractionController.h"
-#include "TownPlayerController.h"
+#include "GuildGame/Managers/DayTaskManager.h"
+#include "GuildGame/Town/TownBuildingActorComponent.h"
+#include "GuildGame/Town/TownGameInstance.h"
+#include "GuildGame/Town/TownGameModeBase.h"
+#include "GuildGame/Town/TownInteractionController.h"
+#include "GuildGame/Town/TownPlayerController.h"
 #include "TownYesOrNoWidget.h"
-#include "WidgetManager.h"
+#include "GuildGame/Managers/WidgetManager.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
 #include "Kismet/GameplayStatics.h"

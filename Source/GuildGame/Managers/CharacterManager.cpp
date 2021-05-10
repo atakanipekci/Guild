@@ -3,7 +3,7 @@
 
 #include "CharacterManager.h"
 
-#include "GGCharacter.h"
+#include "GuildGame/Characters/GGCharacter.h"
 #include "GGLogHelper.h"
 #include "GridManager.h"
 

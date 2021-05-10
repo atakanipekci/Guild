@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GridManager.h"
+#include "GuildGame/Managers/GridManager.h"
 
 /**
  * 

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 
 
-#include "CharacterStats.h"
+#include "GuildGame/Characters/CharacterStats.h"
 #include "Engine/DataTable.h"
 #include "UObject/NoExportTypes.h"
 #include "TownNpcManager.generated.h"

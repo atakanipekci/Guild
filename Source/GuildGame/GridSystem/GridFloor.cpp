@@ -6,13 +6,13 @@
 
 #include "DrawDebugHelpers.h"
 #include "GGLogHelper.h"
-#include "CharacterManager.h"
+#include "GuildGame/Managers/CharacterManager.h"
 #include "Kismet/GameplayStatics.h"
-#include "GGPlayerController.h"
-#include "GridNavigationData.h"
+#include "GuildGame/Battle/GGPlayerController.h"
+#include "GuildGame/GridSystem/Navigation/GridNavigationData.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
-#include "SplineActor.h"
+#include "GuildGame/Battle/SplineActor.h"
 
 AGridFloor::AGridFloor()
 {

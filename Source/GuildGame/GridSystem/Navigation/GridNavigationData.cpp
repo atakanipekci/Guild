@@ -5,7 +5,7 @@
 #include "AI/Navigation/NavigationTypes.h"
 #include "EngineUtils.h"
 #include "GGLogHelper.h"
-#include "GridFloor.h"
+#include "GuildGame/GridSystem/GridFloor.h"
 #include "GridGraphQueryFilter.h"
 
 AGridNavigationData::AGridNavigationData(const FObjectInitializer&)

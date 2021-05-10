@@ -5,12 +5,12 @@
 
 
 #include "AIController.h"
-#include "GGAIController.h"
-#include "GGPlayerController.h"
+#include "GuildGame/Battle/GGAIController.h"
+#include "GuildGame/Battle/GGPlayerController.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CharacterStatsComponent.h"
-#include "GridFloor.h"
+#include "GuildGame/GridSystem/GridFloor.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -59,7 +59,7 @@ void AGGCharacter::Tick(float DeltaTime)
 
 void AGGCharacter::MoveTo(FVector TargetPos)
 {
-	AGGAIController* AIController = Cast<AGGAIController>(GetController());
+	AGGBasicAIController* AIController = Cast<AGGBasicAIController>(GetController());
 	if(AIController && Status == ECharacterStatus::Idle)
 	{
 		SetStatus(ECharacterStatus::Moving);

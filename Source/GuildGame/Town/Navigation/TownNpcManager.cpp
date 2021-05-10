@@ -3,7 +3,7 @@
 
 #include "TownNpcManager.h"
 
-#include "CharacterStats.h"
+#include "GuildGame/Characters/CharacterStats.h"
 #include "GuildGame/Town/TownGameModeBase.h"
 #include "TownNavNodeActor.h"
 #include "TownNpcCharacter.h"

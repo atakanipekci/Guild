@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 
-#include "CharacterStats.h"
+#include "GuildGame/Characters/CharacterStats.h"
 #include "CoreMinimal.h"
 
 GUILDGAME_API class ImageManager

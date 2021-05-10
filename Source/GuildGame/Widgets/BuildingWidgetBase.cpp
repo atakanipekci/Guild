@@ -4,7 +4,7 @@
 #include "BuildingWidgetBase.h"
 #include "GuildGame/Managers/DayTaskManager.h"
 #include "GuildGame/Town/BuildingActorComponent.h"
-#include "GuildGame/Town/GuildGameInstance.h"
+#include "GuildGameInstance.h"
 #include "GuildGame/Town/TownGameModeBase.h"
 #include "GuildGame/Town/TownInteractionController.h"
 #include "GuildGame/Town/TownPlayerController.h"

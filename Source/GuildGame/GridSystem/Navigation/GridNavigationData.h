@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GraphAStar.h"
 #include "GridGraph.h"
-#include "GridManager.h"
+#include "GuildGame/Managers/GridManager.h"
 #include "NavigationData.h"
 #include "GridNavigationData.generated.h"
 

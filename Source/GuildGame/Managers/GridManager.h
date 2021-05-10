@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GGGrid.h"
+#include "GuildGame/GridSystem/GGGrid.h"
 
 /**
  * 

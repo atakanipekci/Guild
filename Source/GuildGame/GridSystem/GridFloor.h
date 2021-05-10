@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "ProceduralMeshComponent.h"
-#include "GridManager.h"
-#include "SplineActor.h"
+#include "GuildGame/Managers/GridManager.h"
+#include "GuildGame/Battle/SplineActor.h"
 #include "Engine/DataTable.h"
 #include "GameFramework/Actor.h"
 #include "GridFloor.generated.h"

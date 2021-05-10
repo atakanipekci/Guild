@@ -3,9 +3,9 @@
 
 #include "GGAIController.h"
 #include "GGLogHelper.h"
-#include "GGCharacter.h"
+#include "GuildGame/Characters/GGCharacter.h"
 
-void AGGAIController::OnMoveCompleted(FAIRequestID Id, const FPathFollowingResult& Result)
+void AGGBasicAIController::OnMoveCompleted(FAIRequestID Id, const FPathFollowingResult& Result)
 {
     Super::OnMoveCompleted(Id, Result);
     AGGCharacter* Char = Cast<AGGCharacter>(GetCharacter());

@@ -4,9 +4,9 @@
 #include "GGPlayerController.h"
 
 #include "AIController.h"
-#include "GGCharacter.h"
+#include "GuildGame/Characters/GGCharacter.h"
 #include "GGControllerState.h"
-#include "GridFloor.h"
+#include "GuildGame/GridSystem/GridFloor.h"
 #include "GGLogHelper.h"
 
 AGGPlayerController::AGGPlayerController()

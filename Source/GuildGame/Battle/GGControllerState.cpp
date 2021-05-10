@@ -3,8 +3,8 @@
 
 #include "GGControllerState.h"
 #include "GGPlayerController.h"
-#include "GGCharacter.h"
-#include "GridFloor.h"
+#include "GuildGame/Characters/GGCharacter.h"
+#include "GuildGame/GridSystem/GridFloor.h"
 
 ControllerStateDefault::ControllerStateDefault(AGGPlayerController* Controller)
 {

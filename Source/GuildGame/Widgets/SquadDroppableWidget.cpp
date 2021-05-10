@@ -6,7 +6,7 @@
 
 #include "DraggedCharacterWidget.h"
 #include "GuildGame/Managers/ImageManager.h"
-#include "GuildGame/Town/GuildGameInstance.h"
+#include "GuildGameInstance.h"
 #include "GuildGame/Town/TownGameModeBase.h"
 #include "GuildGame/Managers/WidgetManager.h"
 #include "Components/ScaleBox.h"

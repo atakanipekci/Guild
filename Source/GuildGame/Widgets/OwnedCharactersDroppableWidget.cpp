@@ -2,10 +2,10 @@
 
 
 #include "OwnedCharactersDroppableWidget.h"
-#include "CharacterStats.h"
+#include "GuildGame/Characters/CharacterStats.h"
 #include "DraggedCharacterWidget.h"
 #include "GuildGame/Managers/ImageManager.h"
-#include "GuildGame/Town/GuildGameInstance.h"
+#include "GuildGameInstance.h"
 #include "GuildGame/Town/TownGameModeBase.h"
 #include "GuildGame/Town/Navigation/TownNpcCharacter.h"
 #include "GuildGame/Managers/WidgetManager.h"

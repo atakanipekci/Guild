@@ -6,7 +6,7 @@
 #include "GGLogHelper.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
-#include "GridFloor.h"
+#include "GuildGame/GridSystem/GridFloor.h"
 
 GridManager::GridManager(FVector2D StartPos, float GridSize, int ColumnCount, int RowCount)
 {

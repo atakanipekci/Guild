@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class GUILDGAME_API AGGAIController : public AAIController
+class GUILDGAME_API AGGBasicAIController : public AAIController
 {
 	GENERATED_BODY()
 

@@ -3,7 +3,7 @@
 
 #include "TownMenuWidget.h"
 #include "BuildingWidgetBase.h"
-#include "GuildGame/Town/GuildGameInstance.h"
+#include "GuildGameInstance.h"
 #include "GuildGame/Town/TownInteractionController.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"

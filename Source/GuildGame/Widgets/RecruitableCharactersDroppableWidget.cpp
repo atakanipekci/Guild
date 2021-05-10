@@ -5,7 +5,7 @@
 
 
 
-#include "CharacterStats.h"
+#include "GuildGame/Characters/CharacterStats.h"
 #include "DraggedCharacterWidget.h"
 #include "GuildGame/Managers/ImageManager.h"
 #include "GuildGame/Town/TownGameModeBase.h"

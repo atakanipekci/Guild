@@ -6,7 +6,7 @@
 
 
 #include "CharacterDetailWidget.h"
-#include "CharacterStats.h"
+#include "GuildGame/Characters/CharacterStats.h"
 #include "DroppableAreaWidget.h"
 #include "GuildGame/Town/TownGameModeBase.h"
 #include "GuildGame/Managers/WidgetManager.h"

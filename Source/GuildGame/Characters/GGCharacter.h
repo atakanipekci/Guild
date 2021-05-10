@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "CharacterManager.h"
+#include "GuildGame/Managers/CharacterManager.h"
 #include "CoreMinimal.h"
-#include "GGGrid.h"
+#include "GuildGame/GridSystem/GGGrid.h"
 #include "GameFramework/Character.h"
 #include "GGCharacter.generated.h"
 

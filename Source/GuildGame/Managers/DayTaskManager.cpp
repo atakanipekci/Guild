@@ -4,7 +4,7 @@
 #include "DayTaskManager.h"
 
 
-#include "GuildGame/Town/TownGameInstance.h"
+#include "GuildGame/Town/GuildGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 
 TMap<FString, FDayTask* > DayTaskManager::Tasks;
@@ -117,7 +117,7 @@ void DayTaskManager::UpdateTasks(UObject* UObj)
 
               if(UObj)
               {
-                   UTownGameInstance* GameInstance = Cast<UTownGameInstance>(UGameplayStatics::GetGameInstance(UObj->GetWorld()));
+                   UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(UObj->GetWorld()));
 
                   if(GameInstance)
                   {

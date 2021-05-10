@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GuildGame/Town/TownGameInstance.h"
+#include "GuildGame/Town/GuildGameInstance.h"
 #include "TownGameModeBase.h"
 #include "GuildGame/Managers/WidgetManager.h"
 
-bool UTownGameInstance::TryToPurchase(int Amount)
+bool UGuildGameInstance::TryToPurchase(int Amount)
 {
     if(Gold >= Amount)
     {
@@ -19,13 +19,13 @@ bool UTownGameInstance::TryToPurchase(int Amount)
     }
 }
 
-void UTownGameInstance::IncreaseDay(int Amount)
+void UGuildGameInstance::IncreaseDay(int Amount)
 {
     Day += Amount;
 }
 
 
-void UTownGameInstance::Init()
+void UGuildGameInstance::Init()
 {
     if(WidgetsTable)
     {

@@ -1,18 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SquadWidget.h"
+#include "SquadDroppableWidget.h"
 
 
 #include "DraggedCharacterWidget.h"
 #include "GuildGame/Managers/ImageManager.h"
-#include "GuildGame/Town/TownGameInstance.h"
+#include "GuildGame/Town/GuildGameInstance.h"
 #include "GuildGame/Town/TownGameModeBase.h"
 #include "GuildGame/Managers/WidgetManager.h"
 #include "Components/ScaleBox.h"
 #include "Kismet/GameplayStatics.h"
 
-void USquadWidget::NativeConstruct()
+void USquadDroppableWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     AreaType = EDroppableAreaType::SquadCharacters;
@@ -21,12 +21,12 @@ void USquadWidget::NativeConstruct()
 	
 }
 
-void USquadWidget::DropFrom(UDraggedCharacterWidget* DraggedWidget)
+void USquadDroppableWidget::DropFrom(UDraggedCharacterWidget* DraggedWidget)
 {
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("DROPPPED FROM SQUAD"));
 }
 
-bool USquadWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
+bool USquadDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
 {
     if(DraggedWidget)
     {
@@ -57,7 +57,7 @@ bool USquadWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
 						{
 							GameMode->OwnedCharacters.Remove(NewWidget->Stat);
 
-							UTownGameInstance* GameInstance = Cast<UTownGameInstance>(UGameplayStatics::GetGameInstance(this->GetWorld()));
+							UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(this->GetWorld()));
 							if(GameInstance->SquadCharacters.Find(NewWidget->Stat) == INDEX_NONE)
 							{
 								GameInstance->SquadCharacters.Add(NewWidget->Stat);
@@ -101,7 +101,7 @@ bool USquadWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
 
 
 
-UDraggedCharacterWidget* USquadWidget::CreateChildWidget(UDraggedCharacterWidget* DraggedWidget)
+UDraggedCharacterWidget* USquadDroppableWidget::CreateChildWidget(UDraggedCharacterWidget* DraggedWidget)
 {
 	UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), WidgetManager::GetWidget(EWidgetKeys::DraggedSquadWidget));
 	if(NewWidget && ContentScaleBox)

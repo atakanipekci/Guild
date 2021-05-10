@@ -67,10 +67,10 @@ public:
 	class ULevelSequencePlayer* SequencePlayer;
 
 	UPROPERTY()
-	class UTownBuildingActorComponent* SelectedBuilding;
+	class UBuildingActorComponent* SelectedBuilding;
 
 	UPROPERTY()
-	class UTownBuildingActorComponent* HoveredBuilding;
+	class UBuildingActorComponent* HoveredBuilding;
 	
 	bool bEnableInput = true;
 

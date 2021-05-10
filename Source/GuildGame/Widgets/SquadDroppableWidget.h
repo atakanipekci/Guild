@@ -4,23 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "DroppableAreaWidget.h"
-#include "OwnedCharactersWidget.generated.h"
+#include "SquadDroppableWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GUILDGAME_API UOwnedCharactersWidget : public UDroppableAreaWidget
+class GUILDGAME_API USquadDroppableWidget : public UDroppableAreaWidget
 {
 	GENERATED_BODY()
-
 	public:
 		virtual void NativeConstruct() override;
 		virtual void DropFrom(UDraggedCharacterWidget* DraggedWidget) override;
 		virtual bool DropTo(UDraggedCharacterWidget* DraggedWidget) override;
 		UDraggedCharacterWidget* CreateChildWidget(UDraggedCharacterWidget* DraggedWidget);
-	
+
+
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UScrollBox* ScrollBox;
-	
+	class UScaleBox* ContentScaleBox;
 };

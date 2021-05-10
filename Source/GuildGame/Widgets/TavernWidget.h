@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "TownBuildingWidgetBase.h"
-#include "TownTavernWidget.generated.h"
+#include "BuildingWidgetBase.h"
+#include "TavernWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GUILDGAME_API UTownTavernWidget : public UTownBuildingWidgetBase
+class GUILDGAME_API UTavernWidget : public UBuildingWidgetBase
 {
 	GENERATED_BODY()
 	virtual void NativeConstruct() override;

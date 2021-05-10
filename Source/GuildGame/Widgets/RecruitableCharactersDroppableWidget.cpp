@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "RecruitableCharactersWidget.h"
+#include "RecruitableCharactersDroppableWidget.h"
 
 
 
@@ -15,7 +15,7 @@
 #include "Components/ScrollBox.h"
 #include "Kismet/GameplayStatics.h"
 
-void URecruitableCharactersWidget::NativeConstruct()
+void URecruitableCharactersDroppableWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     AreaType = EDroppableAreaType::RecruitableCharacters;
@@ -70,12 +70,12 @@ void URecruitableCharactersWidget::NativeConstruct()
 	
 }
 
-void URecruitableCharactersWidget::DropFrom(UDraggedCharacterWidget* DraggedWidget)
+void URecruitableCharactersDroppableWidget::DropFrom(UDraggedCharacterWidget* DraggedWidget)
 {
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("DROPPPED FROM RECRUIT"));
 }
 
-bool URecruitableCharactersWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
+bool URecruitableCharactersDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
 {
    
 

@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TownTavernWidget.h"
+#include "TavernWidget.h"
 
-void UTownTavernWidget::NativeConstruct()
+void UTavernWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     Refresh();
 }
 
-void UTownTavernWidget::Refresh()
+void UTavernWidget::Refresh()
 {
     Super::Refresh();
 

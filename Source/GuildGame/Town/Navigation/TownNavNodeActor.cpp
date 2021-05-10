@@ -3,7 +3,7 @@
 
 #include "TownNavNodeActor.h"
 
-#include "TownGameModeBase.h"
+#include "GuildGame/Town/TownGameModeBase.h"
 #include "TownNpcManager.h"
 #include "Kismet/GameplayStatics.h"
 

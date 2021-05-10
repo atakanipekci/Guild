@@ -2,17 +2,13 @@
 
 
 #include "OwnedCharactersWidget.h"
-
-
-
 #include "CharacterStats.h"
 #include "DraggedCharacterWidget.h"
-#include "ImageManager.h"
-#include "TownGameInstance.h"
-#include "TownGameModeBase.h"
-#include "TownNpcCharacter.h"
-
-#include "WidgetManager.h"
+#include "GuildGame/Managers/ImageManager.h"
+#include "GuildGame/Town/TownGameInstance.h"
+#include "GuildGame/Town/TownGameModeBase.h"
+#include "GuildGame/Town/Navigation/TownNpcCharacter.h"
+#include "GuildGame/Managers/WidgetManager.h"
 #include "Components/ScrollBox.h"
 #include "Kismet/GameplayStatics.h"
 

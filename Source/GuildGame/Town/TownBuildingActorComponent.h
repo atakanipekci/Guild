@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 
 
-#include "DayTaskManager.h"
-#include "WidgetManager.h"
+#include "GuildGame/Managers/DayTaskManager.h"
+#include "GuildGame/Managers/WidgetManager.h"
 #include "Components/ActorComponent.h"
 #include "UObject/ObjectMacros.h"
 

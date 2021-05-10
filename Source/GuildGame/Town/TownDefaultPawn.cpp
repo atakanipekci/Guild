@@ -6,18 +6,9 @@
 
 
 #include "LevelSequenceActor.h"
-#include "LevelSequencePlayer.h"
-#include "TownBuildingActorComponent.h"
-#include "TownBuildingWidgetBase.h"
-#include "TownGameModeBase.h"
-#include "TownPlayerController.h"
-#include "TownYesOrNoWidget.h"
-#include "WidgetManager.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
-#include "Components/Overlay.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ATownDefaultPawn::ATownDefaultPawn()

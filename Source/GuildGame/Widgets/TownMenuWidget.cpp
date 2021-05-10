@@ -2,12 +2,9 @@
 
 
 #include "TownMenuWidget.h"
-
-
-
 #include "TownBuildingWidgetBase.h"
-#include "TownGameInstance.h"
-#include "TownInteractionController.h"
+#include "GuildGame/Town/TownGameInstance.h"
+#include "GuildGame/Town/TownInteractionController.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
 #include "Components/TextBlock.h"

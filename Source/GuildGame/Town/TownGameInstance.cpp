@@ -1,12 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TownGameInstance.h"
-
-
-#include "DayTaskManager.h"
+#include "GuildGame/Town/TownGameInstance.h"
 #include "TownGameModeBase.h"
-#include "WidgetManager.h"
+#include "GuildGame/Managers/WidgetManager.h"
 
 bool UTownGameInstance::TryToPurchase(int Amount)
 {

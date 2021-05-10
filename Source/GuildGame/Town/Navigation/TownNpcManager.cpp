@@ -4,7 +4,7 @@
 #include "TownNpcManager.h"
 
 #include "CharacterStats.h"
-#include "TownGameModeBase.h"
+#include "GuildGame/Town/TownGameModeBase.h"
 #include "TownNavNodeActor.h"
 #include "TownNpcCharacter.h"
 

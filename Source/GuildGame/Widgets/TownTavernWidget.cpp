@@ -3,9 +3,6 @@
 
 #include "TownTavernWidget.h"
 
-#include "TownDefaultPawn.h"
-#include "Kismet/GameplayStatics.h"
-
 void UTownTavernWidget::NativeConstruct()
 {
     Super::NativeConstruct();

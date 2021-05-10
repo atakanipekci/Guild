@@ -2,14 +2,11 @@
 
 
 #include "TownRecruitWidget.h"
-
-
-
-#include "TownBuildingActorComponent.h"
-#include "TownDefaultPawn.h"
-#include "Components/Border.h"
-#include "Kismet/GameplayStatics.h"
-#include "Misc/MessageDialog.h"
+// #include "GuildGame/Town/TownBuildingActorComponent.h"
+// #include "TownDefaultPawn.h"
+// #include "Components/Border.h"
+// #include "Kismet/GameplayStatics.h"
+// #include "Misc/MessageDialog.h"
 
 class ATownDefaultPawn;
 

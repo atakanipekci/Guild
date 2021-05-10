@@ -11,7 +11,7 @@
 #include "UObject/ObjectMacros.h"
 
 
-#include "TownBuildingActorComponent.generated.h"
+#include "BuildingActorComponent.generated.h"
 
 UENUM(BlueprintType)
 enum class EBuildingConstructionState: uint8
@@ -23,12 +23,12 @@ enum class EBuildingConstructionState: uint8
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class GUILDGAME_API UTownBuildingActorComponent : public UActorComponent, public ITaskCaller
+class GUILDGAME_API UBuildingActorComponent : public UActorComponent, public ITaskCaller
 {
 	GENERATED_BODY()
 public:	
 	// Sets default values for this component's properties
-	UTownBuildingActorComponent();
+	UBuildingActorComponent();
 
 protected:
 	// Called when the game starts

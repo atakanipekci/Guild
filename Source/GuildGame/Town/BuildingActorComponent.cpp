@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TownBuildingActorComponent.h"
+#include "BuildingActorComponent.h"
 
 
 #include "TownDefaultPawn.h"
@@ -9,7 +9,7 @@
 
 class ATownDefaultPawn;
 // Sets default values for this component's properties
-UTownBuildingActorComponent::UTownBuildingActorComponent()
+UBuildingActorComponent::UBuildingActorComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -21,7 +21,7 @@ UTownBuildingActorComponent::UTownBuildingActorComponent()
 
 
 // Called when the game starts
-void UTownBuildingActorComponent::BeginPlay()
+void UBuildingActorComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -33,7 +33,7 @@ void UTownBuildingActorComponent::BeginPlay()
 		SetMaterialViaState(ConstructionState);
 	}
 }
-void UTownBuildingActorComponent::SetMaterialViaState(EBuildingConstructionState State)
+void UBuildingActorComponent::SetMaterialViaState(EBuildingConstructionState State)
 {
 	if(State == EBuildingConstructionState::NotConstructed)
 	{
@@ -87,32 +87,32 @@ void UTownBuildingActorComponent::SetMaterialViaState(EBuildingConstructionState
 
 
 // Called every frame
-void UTownBuildingActorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UBuildingActorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
 }
 
-void UTownBuildingActorComponent::OnTaskStart()
+void UBuildingActorComponent::OnTaskStart()
 {
 }
 
-void UTownBuildingActorComponent::OnTaskFinish()
+void UBuildingActorComponent::OnTaskFinish()
 {
 	 SetConstructionState(EBuildingConstructionState::Constructed);
 }
 
-void UTownBuildingActorComponent::OnTaskUpdate()
+void UBuildingActorComponent::OnTaskUpdate()
 {
 }
 
-EBuildingConstructionState UTownBuildingActorComponent::GetConstructionState() const
+EBuildingConstructionState UBuildingActorComponent::GetConstructionState() const
 {
 	return ConstructionState;
 }
 
-void UTownBuildingActorComponent::SetConstructionState(EBuildingConstructionState State)
+void UBuildingActorComponent::SetConstructionState(EBuildingConstructionState State)
 {
 	ConstructionState = State;
 	SetMaterialViaState(State);

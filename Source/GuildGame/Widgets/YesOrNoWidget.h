@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "TownYesOrNoWidget.generated.h"
+#include "YesOrNoWidget.generated.h"
 
 DECLARE_DYNAMIC_DELEGATE_RetVal(bool, FYesNoDelegate);
 /**
  * 
  */
 UCLASS()
-class GUILDGAME_API UTownYesOrNoWidget : public UUserWidget
+class GUILDGAME_API UYesOrNoWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
@@ -29,7 +29,7 @@ class GUILDGAME_API UTownYesOrNoWidget : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* ContentTextBlock;
 
-	static UTownYesOrNoWidget* YesOrNoWidgetInstance;
+	static UYesOrNoWidget* YesOrNoWidgetInstance;
 
 	virtual void NativeConstruct() override;
 	

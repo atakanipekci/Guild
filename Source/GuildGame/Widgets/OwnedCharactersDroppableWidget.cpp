@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "OwnedCharactersWidget.h"
+#include "OwnedCharactersDroppableWidget.h"
 #include "CharacterStats.h"
 #include "DraggedCharacterWidget.h"
 #include "GuildGame/Managers/ImageManager.h"
-#include "GuildGame/Town/TownGameInstance.h"
+#include "GuildGame/Town/GuildGameInstance.h"
 #include "GuildGame/Town/TownGameModeBase.h"
 #include "GuildGame/Town/Navigation/TownNpcCharacter.h"
 #include "GuildGame/Managers/WidgetManager.h"
@@ -13,7 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 
 
-void UOwnedCharactersWidget::NativeConstruct()
+void UOwnedCharactersDroppableWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     AreaType = EDroppableAreaType::OwnedCharacters;
@@ -21,13 +21,13 @@ void UOwnedCharactersWidget::NativeConstruct()
 	ContentPanel = ScrollBox;
 }
 
-void UOwnedCharactersWidget::DropFrom(UDraggedCharacterWidget* DraggedWidget)
+void UOwnedCharactersDroppableWidget::DropFrom(UDraggedCharacterWidget* DraggedWidget)
 {
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("DROPPPED FROM OWNED"));
 
 }
 
-bool UOwnedCharactersWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
+bool UOwnedCharactersDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
 {
     if(DraggedWidget)
     {
@@ -78,7 +78,7 @@ bool UOwnedCharactersWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
 						{
 							GameMode->OwnedCharacters.Add(NewWidget->Stat);
 							
-							UTownGameInstance* GameInstance = Cast<UTownGameInstance>(UGameplayStatics::GetGameInstance(this->GetWorld()));
+							UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(this->GetWorld()));
 
 							if(GameInstance->SquadCharacters.Find(NewWidget->Stat) != INDEX_NONE)
 							{
@@ -97,7 +97,7 @@ bool UOwnedCharactersWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
 	return false;
 }
 
-UDraggedCharacterWidget* UOwnedCharactersWidget::CreateChildWidget(UDraggedCharacterWidget* DraggedWidget)
+UDraggedCharacterWidget* UOwnedCharactersDroppableWidget::CreateChildWidget(UDraggedCharacterWidget* DraggedWidget)
 {
 	UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), WidgetManager::GetWidget(EWidgetKeys::DraggedOwnedWidget));
 	if(NewWidget && ScrollBox)

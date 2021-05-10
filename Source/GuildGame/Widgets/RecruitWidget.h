@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "TownBuildingWidgetBase.h"
+#include "BuildingWidgetBase.h"
 
-#include "TownRecruitWidget.generated.h"
+#include "RecruitWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GUILDGAME_API UTownRecruitWidget : public UTownBuildingWidgetBase
+class GUILDGAME_API URecruitWidget : public UBuildingWidgetBase
 {
 	GENERATED_BODY()
 

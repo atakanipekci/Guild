@@ -2,8 +2,8 @@
 
 
 #include "TownMenuWidget.h"
-#include "TownBuildingWidgetBase.h"
-#include "GuildGame/Town/TownGameInstance.h"
+#include "BuildingWidgetBase.h"
+#include "GuildGame/Town/GuildGameInstance.h"
 #include "GuildGame/Town/TownInteractionController.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
@@ -20,7 +20,7 @@ void UTownMenuWidget::NativeConstruct()
     if(TestTextBlock)
         TestTextBlock->SetText(FText::FromString("Load Next Level"));
 
-    UTownGameInstance* GameInstance = Cast<UTownGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+    UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
     
     if(GoldText && GameInstance)
         GoldText->SetText(FText::AsNumber(GameInstance->Gold));
@@ -96,7 +96,7 @@ void UTownMenuWidget::EnterCanvas(EMenuWidgetType CanvasType)
 
 void UTownMenuWidget::UpdateUI()
 {
-    UTownGameInstance* GameInstance = Cast<UTownGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+    UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
     
     if(GoldText && GameInstance)
         GoldText->SetText(FText::AsNumber(GameInstance->Gold));

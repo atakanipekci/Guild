@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 
 #include "Engine/GameInstance.h"
-#include "TownGameInstance.generated.h"
+#include "GuildGameInstance.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GUILDGAME_API UTownGameInstance : public UGameInstance
+class GUILDGAME_API UGuildGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 public:

@@ -9,13 +9,13 @@
 
 #include "GuildGame/Town/TownPlayerController.h"
 #include "Blueprint/UserWidget.h"
-#include "TownBuildingWidgetBase.generated.h"
+#include "BuildingWidgetBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GUILDGAME_API UTownBuildingWidgetBase : public UUserWidget
+class GUILDGAME_API UBuildingWidgetBase : public UUserWidget
 {
 	GENERATED_BODY()
 public:

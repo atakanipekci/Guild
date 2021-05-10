@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TownRecruitWidget.h"
+#include "RecruitWidget.h"
 // #include "GuildGame/Town/TownBuildingActorComponent.h"
 // #include "TownDefaultPawn.h"
 // #include "Components/Border.h"
@@ -10,13 +10,13 @@
 
 class ATownDefaultPawn;
 
-void UTownRecruitWidget::NativeConstruct()
+void URecruitWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     //OnEnabled();
 }
 
-void UTownRecruitWidget::Refresh()
+void URecruitWidget::Refresh()
 {
     Super::Refresh();
 

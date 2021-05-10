@@ -1,21 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TownYesOrNoWidget.h"
+#include "YesOrNoWidget.h"
 #include "GuildGame/Town/TownGameModeBase.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 
-UTownYesOrNoWidget* UTownYesOrNoWidget::YesOrNoWidgetInstance = nullptr;
+UYesOrNoWidget* UYesOrNoWidget::YesOrNoWidgetInstance = nullptr;
 
-void UTownYesOrNoWidget::NativeConstruct()
+void UYesOrNoWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     if(YesButton)
-        YesButton->OnClicked.AddUniqueDynamic(this, &UTownYesOrNoWidget::OnYesButtonClicked);
+        YesButton->OnClicked.AddUniqueDynamic(this, &UYesOrNoWidget::OnYesButtonClicked);
      if(NoButton)
-        NoButton->OnClicked.AddUniqueDynamic(this, &UTownYesOrNoWidget::OnNoButtonClicked);
+        NoButton->OnClicked.AddUniqueDynamic(this, &UYesOrNoWidget::OnNoButtonClicked);
 
     if(TitleTextBlock)
         TitleTextBlock->SetText(FText::FromString("Title"));
@@ -24,7 +24,7 @@ void UTownYesOrNoWidget::NativeConstruct()
         ContentTextBlock->SetText(FText::FromString("Context"));
 }
 
-void UTownYesOrNoWidget::OnYesButtonClicked()
+void UYesOrNoWidget::OnYesButtonClicked()
 {
     if(YesEvent.IsBound())
    {
@@ -41,7 +41,7 @@ void UTownYesOrNoWidget::OnYesButtonClicked()
     //this->RemoveFromParent();
 }
 
-void UTownYesOrNoWidget::OnNoButtonClicked()
+void UYesOrNoWidget::OnNoButtonClicked()
 {
    if(NoEvent.IsBound())
    {
@@ -51,7 +51,7 @@ void UTownYesOrNoWidget::OnNoButtonClicked()
     this->SetVisibility(ESlateVisibility::Collapsed);
 }
 
-void UTownYesOrNoWidget::CreateYesNoWidget(UUserWidget* Owner, TSubclassOf<UUserWidget> Widget, FText& Title, FText& Content,
+void UYesOrNoWidget::CreateYesNoWidget(UUserWidget* Owner, TSubclassOf<UUserWidget> Widget, FText& Title, FText& Content,
     FYesNoDelegate& YesDelegate, FYesNoDelegate& NoDelegate)
 {
     if(Widget == nullptr)
@@ -59,7 +59,7 @@ void UTownYesOrNoWidget::CreateYesNoWidget(UUserWidget* Owner, TSubclassOf<UUser
     
    if(YesOrNoWidgetInstance == nullptr)
     {
-        UTownYesOrNoWidget* NewWidget = CreateWidget<UTownYesOrNoWidget>(Owner->GetWorld(), Widget);
+        UYesOrNoWidget* NewWidget = CreateWidget<UYesOrNoWidget>(Owner->GetWorld(), Widget);
        if(NewWidget)
        {
 	        NewWidget->AddToViewport(9999);

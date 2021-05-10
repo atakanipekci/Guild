@@ -8,11 +8,11 @@
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
 #include "MovieSceneSequencePlayer.h"
-#include "TownBuildingActorComponent.h"
-#include "GuildGame/Widgets/TownBuildingWidgetBase.h"
+#include "BuildingActorComponent.h"
+#include "GuildGame/Widgets/BuildingWidgetBase.h"
 #include "TownGameModeBase.h"
 #include "TownPlayerController.h"
-#include "GuildGame/Widgets/TownYesOrNoWidget.h"
+#include "GuildGame/Widgets/YesOrNoWidget.h"
 #include "Animation/WidgetAnimation.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Overlay.h"
@@ -74,7 +74,7 @@ void UTownInteractionController::RaycastUnderCursor()
 				UActorComponent* StaticMesh = HoveredBuilding->GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass());
 				SetRenderCustomDepth(StaticMesh, false);
 			}
-			UActorComponent* Building = Hit.Actor->GetComponentByClass(UTownBuildingActorComponent::StaticClass());
+			UActorComponent* Building = Hit.Actor->GetComponentByClass(UBuildingActorComponent::StaticClass());
 
 			
 			UActorComponent* StaticMesh = Hit.Actor->GetComponentByClass(UStaticMeshComponent::StaticClass());
@@ -82,7 +82,7 @@ void UTownInteractionController::RaycastUnderCursor()
 
 			if(Building)
 			{
-				HoveredBuilding = Cast<UTownBuildingActorComponent>(Building);
+				HoveredBuilding = Cast<UBuildingActorComponent>(Building);
 				return;
 			}
 		}
@@ -191,8 +191,8 @@ void UTownInteractionController::ZoomOutFromBuilding()
 		 bEnableInput = false;
 
 		
-		if(UTownYesOrNoWidget::YesOrNoWidgetInstance)
-			UTownYesOrNoWidget::YesOrNoWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
+		if(UYesOrNoWidget::YesOrNoWidgetInstance)
+			UYesOrNoWidget::YesOrNoWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
 
 	
 		if(SelectedBuilding->GetConstructionState() == EBuildingConstructionState::Preview)
@@ -212,7 +212,7 @@ void UTownInteractionController::ToggleWidget()
 		if(WidgetInstance != nullptr)
 		{
 
-			UTownBuildingWidgetBase* BuildingWidgetInstance = Cast<UTownBuildingWidgetBase>(WidgetInstance);
+			UBuildingWidgetBase* BuildingWidgetInstance = Cast<UBuildingWidgetBase>(WidgetInstance);
 			if(BuildingWidgetInstance)
 			{
 				BuildingWidgetInstance->StopAllAnimations();
@@ -241,7 +241,7 @@ void UTownInteractionController::ToggleWidget()
 		}
 		else
 		{
-			UTownBuildingWidgetBase* NewWidget = CreateWidget<UTownBuildingWidgetBase>(PlayerController->GetWorld(), WidgetManager::GetWidget(SelectedBuilding->WidgetKey));
+			UBuildingWidgetBase* NewWidget = CreateWidget<UBuildingWidgetBase>(PlayerController->GetWorld(), WidgetManager::GetWidget(SelectedBuilding->WidgetKey));
 			WidgetManager::SetWidgetInstance(SelectedBuilding->WidgetKey, NewWidget);
 			
 			ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(PlayerController));

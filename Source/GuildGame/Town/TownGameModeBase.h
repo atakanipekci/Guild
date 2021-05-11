@@ -45,8 +45,6 @@ class GUILDGAME_API ATownGameModeBase : public AGameModeBase
 	UPROPERTY(EditAnywhere, Category = Building)
 	UDataTable* BuildingDataTable;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
-	UDataTable* CharactersTable;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	UDataTable* NpcTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)

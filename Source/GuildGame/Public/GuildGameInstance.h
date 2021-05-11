@@ -28,6 +28,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	class UDataTable* SequenceTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	UDataTable* CharactersTable;
 	
 	UFUNCTION()
 	bool TryToPurchase(int Amount);

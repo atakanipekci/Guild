@@ -18,5 +18,12 @@ class GUILDGAME_API URecruitWidget : public UBuildingWidgetBase
 	virtual void NativeConstruct() override;
 	virtual void Refresh() override;
 	
+	public:
+	UFUNCTION()
+	void RefreshRecruitables();
 	
+	UPROPERTY(meta = (BindWidget))
+	UButton* RefreshButton;
+	UPROPERTY(meta = (BindWidget))
+	class URecruitableCharactersDroppableWidget* RecruitableCharactersSlider;
 };

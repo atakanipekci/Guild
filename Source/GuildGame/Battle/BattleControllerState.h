@@ -7,7 +7,7 @@
 /**
  * 
  */
-class GUILDGAME_API GGControllerState
+class GUILDGAME_API BattleControllerState
 {
     public:
     virtual void Update() = 0;
@@ -20,13 +20,13 @@ class GUILDGAME_API GGControllerState
     virtual void ChangeTo() = 0;
     virtual void ChangeFrom() = 0;
     virtual bool CanChangeTo() = 0;
-    virtual ~GGControllerState() = default;
+    virtual ~BattleControllerState() = default;
 };
 
-class GUILDGAME_API ControllerStateDefault: public GGControllerState
+class GUILDGAME_API ControllerStateDefault: public BattleControllerState
 {
     public:
-    explicit ControllerStateDefault(class AGGPlayerController*);
+    explicit ControllerStateDefault(class ABattlePlayerController*);
     virtual ~ControllerStateDefault() = default;
     void Update() override;
     void LeftClickHandler() override;
@@ -39,13 +39,13 @@ class GUILDGAME_API ControllerStateDefault: public GGControllerState
     bool CanChangeTo() override;
 
     private:
-    class AGGPlayerController* PlayerController;
+    class ABattlePlayerController* PlayerController;
 };
 
-class GUILDGAME_API ControllerStateBasicAttack: public GGControllerState
+class GUILDGAME_API ControllerStateBasicAttack: public BattleControllerState
 {
     public:
-    explicit ControllerStateBasicAttack(class AGGPlayerController*);
+    explicit ControllerStateBasicAttack(class ABattlePlayerController*);
     virtual ~ControllerStateBasicAttack() = default;
     void Update() override;
     void LeftClickHandler() override;
@@ -58,6 +58,6 @@ class GUILDGAME_API ControllerStateBasicAttack: public GGControllerState
      bool CanChangeTo() override;
 
     private:
-    class AGGPlayerController* PlayerController;
+    class ABattlePlayerController* PlayerController;
 };
 

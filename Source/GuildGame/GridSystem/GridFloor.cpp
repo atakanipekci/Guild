@@ -8,7 +8,7 @@
 #include "GGLogHelper.h"
 #include "GuildGame/Managers/CharacterManager.h"
 #include "Kismet/GameplayStatics.h"
-#include "GuildGame/Battle/GGPlayerController.h"
+#include "GuildGame/Battle/BattlePlayerController.h"
 #include "GuildGame/GridSystem/Navigation/GridNavigationData.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
@@ -74,7 +74,7 @@ void AGridFloor::SetGridManager(GridManager* NewGridManager)
 void AGridFloor::BeginPlay()
 {
 	Super::BeginPlay();
-	AGGPlayerController* PlayerController = Cast<AGGPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	ABattlePlayerController* PlayerController = Cast<ABattlePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	if (PlayerController != nullptr)
 	{
 		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "setset");
@@ -315,7 +315,7 @@ float AGridFloor::GetPathLength(int StartIndex, int EndIndex)
 	return -1;
 }
 
-bool AGridFloor::UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate, EISMType MeshType) const
+bool AGridFloor::UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType MeshType) const
 {
 
 	for(int i = 0; i < GridFloorTypeCount; i++)

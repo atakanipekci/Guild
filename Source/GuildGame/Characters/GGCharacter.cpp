@@ -5,8 +5,8 @@
 
 
 #include "AIController.h"
-#include "GuildGame/Battle/GGAIController.h"
-#include "GuildGame/Battle/GGPlayerController.h"
+#include "GuildGame/Battle/BattleAIController.h"
+#include "GuildGame/Battle/BattlePlayerController.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CharacterStatsComponent.h"
@@ -29,12 +29,12 @@ AGGCharacter::AGGCharacter()
 	}
 }
 
-TArray<GGGrid*>* AGGCharacter::GetMovableGrids()
+TArray<Grid*>* AGGCharacter::GetMovableGrids()
 {
 	return &MovableGrids;
 }
 
-TArray<GGGrid*>* AGGCharacter::GetDamageableGrids()
+TArray<Grid*>* AGGCharacter::GetDamageableGrids()
 {
 	return &DamageableGrids;
 }
@@ -59,7 +59,7 @@ void AGGCharacter::Tick(float DeltaTime)
 
 void AGGCharacter::MoveTo(FVector TargetPos)
 {
-	AGGBasicAIController* AIController = Cast<AGGBasicAIController>(GetController());
+	ABattleAIController* AIController = Cast<ABattleAIController>(GetController());
 	if(AIController && Status == ECharacterStatus::Idle)
 	{
 		SetStatus(ECharacterStatus::Moving);

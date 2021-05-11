@@ -4,7 +4,7 @@
 
 #include "GuildGame/Managers/CharacterManager.h"
 #include "CoreMinimal.h"
-#include "GuildGame/GridSystem/GGGrid.h"
+#include "GuildGame/GridSystem/Grid.h"
 #include "GameFramework/Character.h"
 #include "GGCharacter.generated.h"
 
@@ -23,8 +23,8 @@ class GUILDGAME_API AGGCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AGGCharacter();
-	TArray<GGGrid*>* GetMovableGrids();
-	TArray<GGGrid*>* GetDamageableGrids();
+	TArray<Grid*>* GetMovableGrids();
+	TArray<Grid*>* GetDamageableGrids();
 
 protected:
 	// Called when the game starts or when spawned
@@ -48,8 +48,8 @@ public:
 	void ShowDamageableGrids();
 
 private:
-	TArray<GGGrid*> MovableGrids;
-	TArray<GGGrid*> DamageableGrids;
+	TArray<Grid*> MovableGrids;
+	TArray<Grid*> DamageableGrids;
 	ECharacterStatus Status = ECharacterStatus::Idle;
 	class UCharacterStatsComponent* StatsComponent;
 };

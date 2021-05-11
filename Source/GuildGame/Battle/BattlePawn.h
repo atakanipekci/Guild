@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "GGPawn.generated.h"
+#include "BattlePawn.generated.h"
 
 UCLASS()
-class GUILDGAME_API AGGPawn : public APawn
+class GUILDGAME_API ABattlePawn : public APawn
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this pawn's properties
-	AGGPawn();
+	ABattlePawn();
 
 protected:
 	// Called when the game starts or when spawned

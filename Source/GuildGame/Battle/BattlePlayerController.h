@@ -3,22 +3,22 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "GGPlayerController.generated.h"
+#include "BattlePlayerController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GUILDGAME_API AGGPlayerController : public APlayerController
+class GUILDGAME_API ABattlePlayerController : public APlayerController
 {
 	GENERATED_BODY()
 public:
-	AGGPlayerController();
-	~AGGPlayerController();
+	ABattlePlayerController();
+	~ABattlePlayerController();
 	
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-	class GGControllerState* GetActiveState() const;
+	class BattleControllerState* GetActiveState() const;
 	void SetState(int StateIndex);
 	void ChangeStateTo(int StateIndex);
 	void UpdateSelectedGrid(bool DrawPathTo = true);
@@ -37,6 +37,6 @@ private:
 	class AGGCharacter* SelectedCharacter = nullptr;
 	class AGridFloor* GridFloor = nullptr;
 	int SelectedGridIndex = -1;
-	class GGControllerState* ActiveState;
-	TArray<class GGControllerState*> States;
+	class BattleControllerState* ActiveState;
+	TArray<class BattleControllerState*> States;
 };

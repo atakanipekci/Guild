@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "GGAIController.generated.h"
+#include "BattleAIController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GUILDGAME_API AGGBasicAIController : public AAIController
+class GUILDGAME_API ABattleAIController : public AAIController
 {
 	GENERATED_BODY()
 

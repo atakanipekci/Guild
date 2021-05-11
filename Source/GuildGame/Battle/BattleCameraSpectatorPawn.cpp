@@ -1,17 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GGCameraSpectatorPawn.h"
+#include "BattleCameraSpectatorPawn.h"
 
-#include "GGPlayerController.h"
+#include "BattlePlayerController.h"
 #include "Engine/Classes/Components/SphereComponent.h"
 #include "Engine/Classes/Camera/CameraComponent.h"
 #include "Engine/Classes/Components/InputComponent.h"
 #include "Engine/Classes/Engine/Engine.h"
-#include "GGControllerState.h"
+#include "BattleControllerState.h"
 #include "Kismet/GameplayStatics.h"
 
-AGGCameraSpectatorPawn::AGGCameraSpectatorPawn(const FObjectInitializer& ObjectInitializer)
+ABattleCameraSpectatorPawn::ABattleCameraSpectatorPawn(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bAddDefaultMovementBindings = false;
@@ -53,9 +53,9 @@ AGGCameraSpectatorPawn::AGGCameraSpectatorPawn(const FObjectInitializer& ObjectI
 	RepositionCamera();
 }
 
-void AGGCameraSpectatorPawn::LeftClickHandler()
+void ABattleCameraSpectatorPawn::LeftClickHandler()
 {
-	AGGPlayerController* PlayerController = Cast<AGGPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	ABattlePlayerController* PlayerController = Cast<ABattlePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	if (PlayerController == nullptr)
 	{
 		return;
@@ -67,9 +67,9 @@ void AGGCameraSpectatorPawn::LeftClickHandler()
 	}
 }
 
-void AGGCameraSpectatorPawn::LeftClickReleaseHandler()
+void ABattleCameraSpectatorPawn::LeftClickReleaseHandler()
 {
-	AGGPlayerController* PlayerController = Cast<AGGPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	ABattlePlayerController* PlayerController = Cast<ABattlePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	if (PlayerController == nullptr)
 	{
 		return;
@@ -81,9 +81,9 @@ void AGGCameraSpectatorPawn::LeftClickReleaseHandler()
 	}
 }
 
-void AGGCameraSpectatorPawn::RightClickHandler()
+void ABattleCameraSpectatorPawn::RightClickHandler()
 {
-	AGGPlayerController* PlayerController = Cast<AGGPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	ABattlePlayerController* PlayerController = Cast<ABattlePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	if (PlayerController == nullptr)
 	{
 		return;
@@ -94,9 +94,9 @@ void AGGCameraSpectatorPawn::RightClickHandler()
 	}
 }
 
-void AGGCameraSpectatorPawn::RightClickReleaseHandler()
+void ABattleCameraSpectatorPawn::RightClickReleaseHandler()
 {
-	AGGPlayerController* PlayerController = Cast<AGGPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	ABattlePlayerController* PlayerController = Cast<ABattlePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	if (PlayerController == nullptr)
 	{
 		return;
@@ -109,7 +109,7 @@ void AGGCameraSpectatorPawn::RightClickReleaseHandler()
 }
 
 
-void AGGCameraSpectatorPawn::RotateInput(float Direction)
+void ABattleCameraSpectatorPawn::RotateInput(float Direction)
 {
 	if (!bCanMoveCamera)
 	{
@@ -119,7 +119,7 @@ void AGGCameraSpectatorPawn::RotateInput(float Direction)
 	RotateValue = FMath::Abs(Direction);
 }
 
-void AGGCameraSpectatorPawn::ZoomInByWheel()
+void ABattleCameraSpectatorPawn::ZoomInByWheel()
 {
 	if (!bCanMoveCamera) 
 	{
@@ -130,7 +130,7 @@ void AGGCameraSpectatorPawn::ZoomInByWheel()
 	CameraRadius = FMath::Clamp(CameraRadius, CameraRadiusMin, CameraRadiusMax);
 }
 
-void AGGCameraSpectatorPawn::ZoomOutByWheel()
+void ABattleCameraSpectatorPawn::ZoomOutByWheel()
 {
 	if (!bCanMoveCamera)
 	{
@@ -141,7 +141,7 @@ void AGGCameraSpectatorPawn::ZoomOutByWheel()
 	CameraRadius = FMath::Clamp(CameraRadius, CameraRadiusMin, CameraRadiusMax);
 }
 
-void AGGCameraSpectatorPawn::RotateLeftByWheel()
+void ABattleCameraSpectatorPawn::RotateLeftByWheel()
 {
 	if (!bCanMoveCamera)
 	{
@@ -151,7 +151,7 @@ void AGGCameraSpectatorPawn::RotateLeftByWheel()
 	CameraZAngle -= CameraRotationSpeed;
 }
 
-void AGGCameraSpectatorPawn::RotateRightByWheel()
+void ABattleCameraSpectatorPawn::RotateRightByWheel()
 {
 	if (!bCanMoveCamera)
 	{
@@ -161,7 +161,7 @@ void AGGCameraSpectatorPawn::RotateRightByWheel()
 	CameraZAngle += CameraRotationSpeed;
 }
 
-void AGGCameraSpectatorPawn::RotateUpByWheel()
+void ABattleCameraSpectatorPawn::RotateUpByWheel()
 {
 	if (!bCanMoveCamera)
 	{
@@ -172,7 +172,7 @@ void AGGCameraSpectatorPawn::RotateUpByWheel()
 	CameraHeightAngle = FMath::Clamp(CameraHeightAngle, CameraHeightAngleMin, CameraHeightAngleMax);
 }
 
-void AGGCameraSpectatorPawn::RotateDownByWheel()
+void ABattleCameraSpectatorPawn::RotateDownByWheel()
 {
 	if (!bCanMoveCamera)
 	{
@@ -183,7 +183,7 @@ void AGGCameraSpectatorPawn::RotateDownByWheel()
     CameraHeightAngle = FMath::Clamp(CameraHeightAngle, CameraHeightAngleMin, CameraHeightAngleMax);
 }
 
-void AGGCameraSpectatorPawn::MoveCameraForwardInput(float Direction)
+void ABattleCameraSpectatorPawn::MoveCameraForwardInput(float Direction)
 {
 	if (!bCanMoveCamera)
 	{
@@ -193,7 +193,7 @@ void AGGCameraSpectatorPawn::MoveCameraForwardInput(float Direction)
 	MoveForwardValue = Direction;
 }
 
-void AGGCameraSpectatorPawn::MoveCameraRightInput(float Direction)
+void ABattleCameraSpectatorPawn::MoveCameraRightInput(float Direction)
 {
 	if (!bCanMoveCamera)
 	{
@@ -203,7 +203,7 @@ void AGGCameraSpectatorPawn::MoveCameraRightInput(float Direction)
 	MoveRightValue = Direction;
 }
 
-void AGGCameraSpectatorPawn::MoveCameraUpInput(float Direction)
+void ABattleCameraSpectatorPawn::MoveCameraUpInput(float Direction)
 {
 	if (!bCanMoveCamera)
 	{
@@ -213,7 +213,7 @@ void AGGCameraSpectatorPawn::MoveCameraUpInput(float Direction)
 	MoveUpValue = Direction;
 }
 
-void AGGCameraSpectatorPawn::ZoomCameraInInput(float Direction)
+void ABattleCameraSpectatorPawn::ZoomCameraInInput(float Direction)
 {
 	if (!bCanMoveCamera)
 	{
@@ -223,7 +223,7 @@ void AGGCameraSpectatorPawn::ZoomCameraInInput(float Direction)
 	ZoomInValue = Direction;
 }
 
-void AGGCameraSpectatorPawn::RepositionCamera()
+void ABattleCameraSpectatorPawn::RepositionCamera()
 {
 	FVector NewLocation(0.f, 0.f, 0.f);
 	FRotator NewRotation(0.f, 0.f, 0.f);
@@ -249,9 +249,9 @@ void AGGCameraSpectatorPawn::RepositionCamera()
 	CameraComponent->SetRelativeRotation(NewRotation);
 }
 
-void AGGCameraSpectatorPawn::No1Clicked()
+void ABattleCameraSpectatorPawn::No1Clicked()
 {
-	AGGPlayerController* PlayerController = Cast<AGGPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	ABattlePlayerController* PlayerController = Cast<ABattlePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	if (PlayerController == nullptr)
 	{
 		return;
@@ -260,7 +260,7 @@ void AGGCameraSpectatorPawn::No1Clicked()
 	PlayerController->ChangeStateTo(1);
 }
 
-float AGGCameraSpectatorPawn::GetLandTerrainSurfaceAtCoord(float XCoord, float YCoord) const
+float ABattleCameraSpectatorPawn::GetLandTerrainSurfaceAtCoord(float XCoord, float YCoord) const
 {
 	FCollisionQueryParams TraceParams(FName(TEXT("LandTerrain")), false, this);        // TraceTag (info for debugging), bTraceComplex, AddIgnoredActor
 	TraceParams.bFindInitialOverlaps = false;
@@ -281,7 +281,7 @@ float AGGCameraSpectatorPawn::GetLandTerrainSurfaceAtCoord(float XCoord, float Y
 	return 0.f;        // water level
 }
 
-void AGGCameraSpectatorPawn::Tick(float DeltaSeconds)
+void ABattleCameraSpectatorPawn::Tick(float DeltaSeconds)
 {
 		Super::Tick(DeltaSeconds);
 
@@ -357,14 +357,14 @@ void AGGCameraSpectatorPawn::Tick(float DeltaSeconds)
 	}
 }
 
-FVector AGGCameraSpectatorPawn::MoveCameraForward(float Direction)
+FVector ABattleCameraSpectatorPawn::MoveCameraForward(float Direction)
 {
 	float MovementValue = Direction * CameraMovementSpeed;
 	FVector DeltaMovement = MovementValue * GetIsolatedCameraYaw().Vector();
 	return DeltaMovement;
 }
 
-FVector AGGCameraSpectatorPawn::MoveCameraRight(float Direction)
+FVector ABattleCameraSpectatorPawn::MoveCameraRight(float Direction)
 {
 	float MovementValue = Direction * CameraMovementSpeed;
 	FVector DeltaMovement = MovementValue * (FRotator(0.0f, 90.0f, 0.0f) + GetIsolatedCameraYaw()).Vector();
@@ -372,36 +372,36 @@ FVector AGGCameraSpectatorPawn::MoveCameraRight(float Direction)
 }
 
 
-float AGGCameraSpectatorPawn::MoveCameraUp(float Direction)
+float ABattleCameraSpectatorPawn::MoveCameraUp(float Direction)
 {
 	float MovementValue = Direction * CameraMovementSpeed;
 	return MovementValue;
 }
 
-void AGGCameraSpectatorPawn::ZoomCameraIn(float Direction)
+void ABattleCameraSpectatorPawn::ZoomCameraIn(float Direction)
 {
 	float MovementValue = Direction * CameraMovementSpeed;
 	CameraRadius += MovementValue;
 	CameraRadius = FMath::Clamp(CameraRadius, CameraRadiusMin, CameraRadiusMax);
 }
 
-void AGGCameraSpectatorPawn::TurnCameraUp(float Direction)
+void ABattleCameraSpectatorPawn::TurnCameraUp(float Direction)
 {
 	CameraHeightAngle -= Direction * CameraRotationSpeed * 10.0f;
 	CameraHeightAngle = FMath::Clamp(CameraHeightAngle, CameraHeightAngleMin, CameraHeightAngleMax);
 }
 
-void AGGCameraSpectatorPawn::TurnCameraRight(float Direction)
+void ABattleCameraSpectatorPawn::TurnCameraRight(float Direction)
 {
 	CameraZAngle += Direction * CameraRotationSpeed * 10.0f;
 }
 
-FRotator AGGCameraSpectatorPawn::GetIsolatedCameraYaw()
+FRotator ABattleCameraSpectatorPawn::GetIsolatedCameraYaw()
 {
 	return FRotator(0.0f, CameraComponent->GetComponentToWorld().Rotator().Yaw, 0.0f);
 }
 
-void AGGCameraSpectatorPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ABattleCameraSpectatorPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	if (!PlayerInputComponent)
 	{
@@ -410,20 +410,20 @@ void AGGCameraSpectatorPawn::SetupPlayerInputComponent(UInputComponent* PlayerIn
 
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction("ZoomOutByWheel", IE_Pressed, this, &AGGCameraSpectatorPawn::ZoomOutByWheel);
-	PlayerInputComponent->BindAction("ZoomInByWheel", IE_Pressed, this, &AGGCameraSpectatorPawn::ZoomInByWheel);
-	PlayerInputComponent->BindAction("RotateUpByWheel", IE_Pressed, this, &AGGCameraSpectatorPawn::RotateUpByWheel);
-	PlayerInputComponent->BindAction("RotateDownByWheel", IE_Pressed, this, &AGGCameraSpectatorPawn::RotateDownByWheel);
-	PlayerInputComponent->BindAction("RotateLeftByWheel", IE_Pressed, this, &AGGCameraSpectatorPawn::RotateLeftByWheel);
-	PlayerInputComponent->BindAction("RotateRightByWheel", IE_Pressed, this, &AGGCameraSpectatorPawn::RotateRightByWheel);
-	PlayerInputComponent->BindAxis("MoveForward", this, &AGGCameraSpectatorPawn::MoveCameraForwardInput);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AGGCameraSpectatorPawn::MoveCameraRightInput);
-	PlayerInputComponent->BindAxis("MoveUp", this, &AGGCameraSpectatorPawn::MoveCameraUpInput);
-	PlayerInputComponent->BindAxis("ZoomIn", this, &AGGCameraSpectatorPawn::ZoomCameraInInput);
-	PlayerInputComponent->BindAxis("Rotate", this, &AGGCameraSpectatorPawn::RotateInput);
-	PlayerInputComponent->BindAction("LeftMouseClick", IE_Pressed, this, &AGGCameraSpectatorPawn::LeftClickHandler);
-	PlayerInputComponent->BindAction("LeftMouseClick", IE_Released, this, &AGGCameraSpectatorPawn::LeftClickReleaseHandler);
-	PlayerInputComponent->BindAction("RightMouseClick", IE_Pressed, this, &AGGCameraSpectatorPawn::RightClickHandler);
-	PlayerInputComponent->BindAction("RightMouseClick", IE_Released, this, &AGGCameraSpectatorPawn::RightClickReleaseHandler);
-	PlayerInputComponent->BindAction("No1Click", IE_Pressed, this, &AGGCameraSpectatorPawn::No1Clicked);
+	PlayerInputComponent->BindAction("ZoomOutByWheel", IE_Pressed, this, &ABattleCameraSpectatorPawn::ZoomOutByWheel);
+	PlayerInputComponent->BindAction("ZoomInByWheel", IE_Pressed, this, &ABattleCameraSpectatorPawn::ZoomInByWheel);
+	PlayerInputComponent->BindAction("RotateUpByWheel", IE_Pressed, this, &ABattleCameraSpectatorPawn::RotateUpByWheel);
+	PlayerInputComponent->BindAction("RotateDownByWheel", IE_Pressed, this, &ABattleCameraSpectatorPawn::RotateDownByWheel);
+	PlayerInputComponent->BindAction("RotateLeftByWheel", IE_Pressed, this, &ABattleCameraSpectatorPawn::RotateLeftByWheel);
+	PlayerInputComponent->BindAction("RotateRightByWheel", IE_Pressed, this, &ABattleCameraSpectatorPawn::RotateRightByWheel);
+	PlayerInputComponent->BindAxis("MoveForward", this, &ABattleCameraSpectatorPawn::MoveCameraForwardInput);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ABattleCameraSpectatorPawn::MoveCameraRightInput);
+	PlayerInputComponent->BindAxis("MoveUp", this, &ABattleCameraSpectatorPawn::MoveCameraUpInput);
+	PlayerInputComponent->BindAxis("ZoomIn", this, &ABattleCameraSpectatorPawn::ZoomCameraInInput);
+	PlayerInputComponent->BindAxis("Rotate", this, &ABattleCameraSpectatorPawn::RotateInput);
+	PlayerInputComponent->BindAction("LeftMouseClick", IE_Pressed, this, &ABattleCameraSpectatorPawn::LeftClickHandler);
+	PlayerInputComponent->BindAction("LeftMouseClick", IE_Released, this, &ABattleCameraSpectatorPawn::LeftClickReleaseHandler);
+	PlayerInputComponent->BindAction("RightMouseClick", IE_Pressed, this, &ABattleCameraSpectatorPawn::RightClickHandler);
+	PlayerInputComponent->BindAction("RightMouseClick", IE_Released, this, &ABattleCameraSpectatorPawn::RightClickReleaseHandler);
+	PlayerInputComponent->BindAction("No1Click", IE_Pressed, this, &ABattleCameraSpectatorPawn::No1Clicked);
 }

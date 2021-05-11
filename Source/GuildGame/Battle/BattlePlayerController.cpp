@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GGPlayerController.h"
+#include "BattlePlayerController.h"
 
 #include "AIController.h"
 #include "GuildGame/Characters/GGCharacter.h"
-#include "GGControllerState.h"
+#include "BattleControllerState.h"
 #include "GuildGame/GridSystem/GridFloor.h"
 #include "GGLogHelper.h"
 
-AGGPlayerController::AGGPlayerController()
+ABattlePlayerController::ABattlePlayerController()
 	:Super()
 {
 	bShowMouseCursor = true;
@@ -24,7 +24,7 @@ AGGPlayerController::AGGPlayerController()
 	}
 }
 
-AGGPlayerController::~AGGPlayerController()
+ABattlePlayerController::~ABattlePlayerController()
 {
 	for(int i = 0; i < States.Num(); i++)
 	{
@@ -34,12 +34,12 @@ AGGPlayerController::~AGGPlayerController()
 }
 
 
-void AGGPlayerController::BeginPlay()
+void ABattlePlayerController::BeginPlay()
 {
 
 }
 
-void AGGPlayerController::Tick(float DeltaTime)
+void ABattlePlayerController::Tick(float DeltaTime)
 {
 	if(ActiveState)
 	{
@@ -47,12 +47,12 @@ void AGGPlayerController::Tick(float DeltaTime)
 	}
 }
 
-GGControllerState* AGGPlayerController::GetActiveState() const
+BattleControllerState* ABattlePlayerController::GetActiveState() const
 {
 	return ActiveState;
 }
 
-void AGGPlayerController::SetState(int StateIndex)
+void ABattlePlayerController::SetState(int StateIndex)
 {
 	if(StateIndex >= States.Num())
 	{
@@ -62,7 +62,7 @@ void AGGPlayerController::SetState(int StateIndex)
 	ActiveState = States[StateIndex];
 }
 
-void AGGPlayerController::ChangeStateTo(int StateIndex)
+void ABattlePlayerController::ChangeStateTo(int StateIndex)
 {
 	if(StateIndex >= States.Num())
 	{
@@ -86,7 +86,7 @@ void AGGPlayerController::ChangeStateTo(int StateIndex)
 	ActiveState->ChangeTo();
 }
 
-void AGGPlayerController::UpdateSelectedGrid(bool DrawPathTo)
+void ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)
 {
 	if(GridFloor == nullptr)
 	{
@@ -131,7 +131,7 @@ void AGGPlayerController::UpdateSelectedGrid(bool DrawPathTo)
 	}
 }
 
-void AGGPlayerController::DrawPath(int StartIndex, int EndIndex) const
+void ABattlePlayerController::DrawPath(int StartIndex, int EndIndex) const
 {
 	if(StartIndex == EndIndex || GridFloor == nullptr)
 	{
@@ -141,17 +141,17 @@ void AGGPlayerController::DrawPath(int StartIndex, int EndIndex) const
 	GridFloor->DrawPath(StartIndex,EndIndex);
 }
 
-void AGGPlayerController::SetGridFloor(AGridFloor* Grid)
+void ABattlePlayerController::SetGridFloor(AGridFloor* Grid)
 {
 	GridFloor = Grid;
 }
 
-AGridFloor* AGGPlayerController::GetGridFloor() const
+AGridFloor* ABattlePlayerController::GetGridFloor() const
 {
 	return GridFloor;
 }
 
-void AGGPlayerController::SelectCharAtMousePos()
+void ABattlePlayerController::SelectCharAtMousePos()
 {
 	AGGCharacter* Char = GetCharacterFromMousePos();
 	if(Char)
@@ -160,7 +160,7 @@ void AGGPlayerController::SelectCharAtMousePos()
 	}
 }
 
-void AGGPlayerController::MoveSelectedChar()
+void ABattlePlayerController::MoveSelectedChar()
 {
 	if(SelectedCharacter == nullptr || SelectedGridIndex < 0 || GridFloor == nullptr)
 	{
@@ -182,7 +182,7 @@ void AGGPlayerController::MoveSelectedChar()
 	SelectedCharacter->MoveTo(Target);
 }
 
-void AGGPlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)
+void ABattlePlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)
 {
 	SelectedCharacter = NewCharacter;
 	if(SelectedCharacter)
@@ -191,12 +191,12 @@ void AGGPlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)
 	}
 }
 
-AGGCharacter* AGGPlayerController::GetSelectedCharacter() const
+AGGCharacter* ABattlePlayerController::GetSelectedCharacter() const
 {
 	return SelectedCharacter;
 }
 
-AGGCharacter* AGGPlayerController::GetCharacterFromMousePos() const
+AGGCharacter* ABattlePlayerController::GetCharacterFromMousePos() const
 {
 	FHitResult TraceResult(ForceInit);
 	this->GetHitResultUnderCursor(ECollisionChannel::ECC_GameTraceChannel2, false, TraceResult);

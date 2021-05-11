@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GuildGame/GridSystem/GGGrid.h"
+#include "GuildGame/GridSystem/Grid.h"
 
 /**
  * 
@@ -27,18 +27,18 @@ public:
 	FVector GetGridTopLeft(int Index)const;
 	FVector GetGridBottomLeft(int Index)const;
 	void SetGridState(int Index, EGridState NewState);
-	bool IsPlaceable(TArray<GGGrid*>* GridsToPlace, EGridState RequiredState) const;
-	bool GetGridsFromCenter(int Index, int ARowCount, int AColumnCount,  TArray<GGGrid*>* GridsResult);
-	bool GetNeighbours(int Index, int ARowCount, int AColumnCount, TArray<GGGrid*>* GridsResult);
-	bool GetGridsInRange(int CenterIndex, float Dist, TArray<GGGrid*>* GridsResult, bool UsePathfinding = true);
+	bool IsPlaceable(TArray<Grid*>* GridsToPlace, EGridState RequiredState) const;
+	bool GetGridsFromCenter(int Index, int ARowCount, int AColumnCount,  TArray<Grid*>* GridsResult);
+	bool GetNeighbours(int Index, int ARowCount, int AColumnCount, TArray<Grid*>* GridsResult);
+	bool GetGridsInRange(int CenterIndex, float Dist, TArray<Grid*>* GridsResult, bool UsePathfinding = true);
 	FVector GetPositionToPlace(int Index, int RowCount, int ColumnCount) const;
-	bool SetGridStates(TArray<GGGrid*>* GridsToSet, EGridState NewState);
+	bool SetGridStates(TArray<Grid*>* GridsToSet, EGridState NewState);
 	void SetStartPos(FVector2D& NewPos)
 	{
 		StartPos = NewPos;	
 	}
 
-	TArray<GGGrid> GGGrids;
+	TArray<Grid> GGGrids;
 private:
 	FVector2D StartPos;
 	int ColumnCount;

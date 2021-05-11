@@ -6,6 +6,7 @@
 #include "GuildGame/Managers/CharacterGenerationManager.h"
 #include "GuildGame/Town/TownGameModeBase.h"
 #include "GuildGame/Managers/WidgetManager.h"
+#include "Kismet/GameplayStatics.h"
 
 bool UGuildGameInstance::TryToPurchase(int Amount)
 {
@@ -19,6 +20,13 @@ bool UGuildGameInstance::TryToPurchase(int Amount)
     {
         return false;
     }
+}
+
+void UGuildGameInstance::ReturnToTown()
+{
+    UGameplayStatics::OpenLevel(GetWorld(), "TownBase");
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("CONSTRUCTOR %s"), *UGameplayStatics::GetGameMode(GetWorld())->GetName()));
+    
 }
 
 void UGuildGameInstance::IncreaseDay(int Amount)
@@ -43,6 +51,4 @@ void UGuildGameInstance::Init()
     {
         CharacterGenerationManager::SetCharactersTable(CharactersTable);
     }
-
-    
 }

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TownMenuWidget.h"
+#include "TownHudWidget.h"
 #include "BuildingWidgetBase.h"
 #include "GuildGameInstance.h"
 #include "GuildGame/Town/TownInteractionController.h"
@@ -10,12 +10,12 @@
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 
-void UTownMenuWidget::NativeConstruct()
+void UTownHudWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     
     if(TestButton)
-        TestButton->OnClicked.AddUniqueDynamic(this, &UTownMenuWidget::OnTestClicked);
+        TestButton->OnClicked.AddUniqueDynamic(this, &UTownHudWidget::OnTestClicked);
 
     if(TestTextBlock)
         TestTextBlock->SetText(FText::FromString("Load Next Level"));
@@ -31,7 +31,7 @@ void UTownMenuWidget::NativeConstruct()
 
 
 
-void UTownMenuWidget::OnTestClicked()
+void UTownHudWidget::OnTestClicked()
 {
     // UE_LOG(LogTemp, Warning, TEXT("I just started running"));
     if(TestTextBlock)
@@ -59,7 +59,7 @@ void UTownMenuWidget::OnTestClicked()
      // }
 }
 
-void UTownMenuWidget::ExitCanvas(EMenuWidgetType CanvasType)
+void UTownHudWidget::ExitCanvas(EMenuWidgetType CanvasType)
 {
      if(PlayerController)
     {
@@ -76,7 +76,7 @@ void UTownMenuWidget::ExitCanvas(EMenuWidgetType CanvasType)
     }
 }
 
-void UTownMenuWidget::EnterCanvas(EMenuWidgetType CanvasType)
+void UTownHudWidget::EnterCanvas(EMenuWidgetType CanvasType)
 {
     if(PlayerController)
     {
@@ -94,7 +94,7 @@ void UTownMenuWidget::EnterCanvas(EMenuWidgetType CanvasType)
 }
 
 
-void UTownMenuWidget::UpdateUI()
+void UTownHudWidget::UpdateUI()
 {
     UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
     

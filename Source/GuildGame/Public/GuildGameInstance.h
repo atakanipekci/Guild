@@ -35,7 +35,11 @@ public:
 	UFUNCTION()
 	bool TryToPurchase(int Amount);
 
+	UFUNCTION(BlueprintCallable)
+	void ReturnToTown();
+
 	void IncreaseDay(int Amount);
 
 	virtual void Init() override;
+	
 };

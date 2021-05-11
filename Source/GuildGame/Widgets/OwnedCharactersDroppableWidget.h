@@ -18,9 +18,14 @@ class GUILDGAME_API UOwnedCharactersDroppableWidget : public UDroppableAreaWidge
 		virtual void NativeConstruct() override;
 		virtual void DropFrom(UDraggedCharacterWidget* DraggedWidget) override;
 		virtual bool DropTo(UDraggedCharacterWidget* DraggedWidget) override;
+	    void Refresh() ;
 		UDraggedCharacterWidget* CreateChildWidget(UDraggedCharacterWidget* DraggedWidget);
-	
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UScrollBox* ScrollBox;
+		UDraggedCharacterWidget* CreateChildWidget(struct FCharacterStats* Stat);
+
+		UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UScrollBox* ScrollBox;
+
+		UPROPERTY()
+		class ATownGameModeBase* GameMode;
 	
 };

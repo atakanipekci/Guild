@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 
-#include "TownMenuWidget.generated.h"
+#include "TownHudWidget.generated.h"
 
 /**
  * 
@@ -18,7 +18,7 @@ enum class EMenuWidgetType : uint8
 	TeamCanvas
 };
 UCLASS()
-class GUILDGAME_API UTownMenuWidget : public UUserWidget
+class GUILDGAME_API UTownHudWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	protected:

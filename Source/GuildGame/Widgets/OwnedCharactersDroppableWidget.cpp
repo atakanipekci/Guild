@@ -19,6 +19,12 @@ void UOwnedCharactersDroppableWidget::NativeConstruct()
     AreaType = EDroppableAreaType::OwnedCharacters;
     WidgetType = EDroppableWidgetType::Scroller;
 	ContentPanel = ScrollBox;
+
+	GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this->GetWorld()));
+	if(GameMode)
+	{
+		GameMode->OwnedCharactersWidget = this;
+	}
 }
 
 void UOwnedCharactersDroppableWidget::DropFrom(UDraggedCharacterWidget* DraggedWidget)
@@ -41,9 +47,6 @@ bool UOwnedCharactersDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWid
 					if(NewWidget)
 					{
 						DraggedWidget->RemoveFromRoot();
-
-						ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this->GetWorld()));
-
 						if(GameMode)
 						{
 							if(GameMode->OwnedCharacters.Find(NewWidget->Stat) == INDEX_NONE)
@@ -73,7 +76,6 @@ bool UOwnedCharactersDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWid
 					{
 						DraggedWidget->RemoveFromRoot();
 
-						ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this->GetWorld()));
 						if(GameMode->OwnedCharacters.Find(NewWidget->Stat) == INDEX_NONE)
 						{
 							GameMode->OwnedCharacters.Add(NewWidget->Stat);
@@ -95,6 +97,19 @@ bool UOwnedCharactersDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWid
     }
 
 	return false;
+}
+
+void UOwnedCharactersDroppableWidget::Refresh()
+{
+	if(ScrollBox)
+	{
+		ScrollBox->ClearChildren();
+
+		for (int i = 0; i < GameMode->OwnedCharacters.Num(); ++i)
+		{
+			CreateChildWidget(GameMode->OwnedCharacters[i]);
+		}
+	}
 }
 
 UDraggedCharacterWidget* UOwnedCharactersDroppableWidget::CreateChildWidget(UDraggedCharacterWidget* DraggedWidget)
@@ -140,6 +155,25 @@ UDraggedCharacterWidget* UOwnedCharactersDroppableWidget::CreateChildWidget(UDra
 	}
 
 	return NewWidget;
+}
+
+UDraggedCharacterWidget* UOwnedCharactersDroppableWidget::CreateChildWidget(FCharacterStats* Stat)
+{
+	UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), WidgetManager::GetWidget(EWidgetKeys::DraggedOwnedWidget));
+	if(NewWidget && ScrollBox && Stat)
+	{
+		ScrollBox->AddChild(NewWidget);
+		NewWidget->SetOwnerAreaWidget(this);
+
+		NewWidget->SetStat(Stat);
+		NewWidget->LatestChildIndex = ScrollBox->GetChildIndex(NewWidget);
+
+		if(Stat)
+			ImageManager::SetPortraitTextureByClass(Stat->ClassType, NewWidget->Portrait);
+
+
+	}
+	return  NewWidget;
 }
 
 	

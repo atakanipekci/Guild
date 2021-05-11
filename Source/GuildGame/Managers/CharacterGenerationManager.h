@@ -43,5 +43,11 @@ struct FCharacterGenerationStats : public FTableRowBase
 class GUILDGAME_API CharacterGenerationManager
 {
 public:
+	static FCharacterStats* CreateRandomCharacter();
+	static void SetCharactersTable(UDataTable* Table);
+
+	static UDataTable* CharactersDataTable;
+	static TArray<FName> OrderedRowNames;
+
 	
 };

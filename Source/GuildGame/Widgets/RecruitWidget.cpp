@@ -2,6 +2,9 @@
 
 
 #include "RecruitWidget.h"
+
+#include "RecruitableCharactersDroppableWidget.h"
+#include "Components/Button.h"
 // #include "GuildGame/Town/TownBuildingActorComponent.h"
 // #include "TownDefaultPawn.h"
 // #include "Components/Border.h"
@@ -14,6 +17,8 @@ void URecruitWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     //OnEnabled();
+    if(RefreshButton)
+        RefreshButton->OnClicked.AddUniqueDynamic(this, &URecruitWidget::RefreshRecruitables);
 }
 
 void URecruitWidget::Refresh()
@@ -40,4 +45,12 @@ void URecruitWidget::Refresh()
     //     }
     //     
     // }
+}
+
+void URecruitWidget::RefreshRecruitables()
+{
+    if(RecruitableCharactersSlider)
+    {
+        RecruitableCharactersSlider->RefreshRecruitables();
+    }
 }

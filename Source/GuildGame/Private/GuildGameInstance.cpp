@@ -2,6 +2,8 @@
 
 
 #include "GuildGameInstance.h"
+
+#include "GuildGame/Managers/CharacterGenerationManager.h"
 #include "GuildGame/Town/TownGameModeBase.h"
 #include "GuildGame/Managers/WidgetManager.h"
 
@@ -35,6 +37,11 @@ void UGuildGameInstance::Init()
     if(SequenceTable)
     {
         WidgetManager::SetSequenceTable(SequenceTable);
+    }
+
+     if(CharactersTable)
+    {
+        CharacterGenerationManager::SetCharactersTable(CharactersTable);
     }
 
     

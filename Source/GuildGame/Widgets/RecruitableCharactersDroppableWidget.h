@@ -17,7 +17,8 @@ class GUILDGAME_API URecruitableCharactersDroppableWidget : public UDroppableAre
 		virtual void NativeConstruct() override;
 		virtual void DropFrom(UDraggedCharacterWidget* DraggedWidget) override;
 		virtual bool DropTo(UDraggedCharacterWidget* DraggedWidget) override;
-
+	
+		void RefreshRecruitables();
 	
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UScrollBox* ScrollBox;

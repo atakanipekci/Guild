@@ -176,12 +176,7 @@ FReply UDraggedCharacterWidget::NativeOnMouseButtonDown(const FGeometry& InGeome
         UCharacterDetailWidget* ChrDetail =  Cast<UCharacterDetailWidget>(NewWidget);
         if(ChrDetail)
         {
-            UTextBlock* NameTextField = ChrDetail->CharacterNameText;
-
-            if(NameTextField && Stat)
-            {
-                NameTextField->SetText(FText::FromString(Stat->ClassName));
-            }
+            ChrDetail->RefreshPage(Stat);
         }
 	}
 

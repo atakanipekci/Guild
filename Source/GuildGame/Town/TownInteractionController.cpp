@@ -100,16 +100,19 @@ void UTownInteractionController::RaycastUnderCursor()
 
 void UTownInteractionController::PlaySequence()
 {
+		UE_LOG(LogTemp, Warning, TEXT("PlaySequence"));
 	if(SequenceAsset == nullptr || PlayerController == nullptr)
 		return;
 	
 	if (SequencePlayer == nullptr && SequenceActor == nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Create Sequence Player"));
           SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(PlayerController->GetWorld(), SequenceAsset, FMovieSceneSequencePlaybackSettings(), SequenceActor);
 	}
      
     if (SequencePlayer)
     {
+    	UE_LOG(LogTemp, Warning, TEXT("Sequence PLAY"));
     	//UE_LOG(LogTemp, Warning, TEXT("SETTING SEQ , %s"),*(SequenceAsset->GetName()));
     	SequencePlayer->Stop();
     	// SequencePlayer->OnFinished.RemoveAll(this);
@@ -152,8 +155,6 @@ void UTownInteractionController::LeftClickHandler()
 
 	if(State == EInteractionStatee::BuildingSelection)
 	{
-			 UE_LOG(LogTemp, Warning, TEXT("PLAYER CONTROLLER 2"));
-
 		ZoomInToBuilding();
 	}
 }

@@ -13,7 +13,7 @@ void ATownNpcAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFo
     {
         if(Char->CurrentBehaviourState == ENpcBehaviourStates::WalkingAround)
         {
-            Char->MoveToRandomLocation();
+            //Char->MoveToRandomLocation();
         }
     }
 }

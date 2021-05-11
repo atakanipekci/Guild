@@ -3,17 +3,21 @@
 
 #include "TownGameModeBase.h"
 
+#include "GuildGameInstance.h"
 #include "GuildGame/Managers/DayTaskManager.h"
-#include "GuildGame/Widgets/TownMenuWidget.h"
+#include "GuildGame/Widgets/TownHudWidget.h"
 #include "GuildGame/Town/Navigation/TownNpcManager.h"
 #include "TownPlayerController.h"
 #include "GuildGame/Managers/WidgetManager.h"
+#include "GuildGame/Widgets/OwnedCharactersDroppableWidget.h"
 #include "Kismet/GameplayStatics.h"
 
 ATownGameModeBase::ATownGameModeBase()
 {
     PlayerControllerClass = ATownPlayerController::StaticClass();
 }
+
+
 
 void ATownGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
@@ -34,7 +38,33 @@ void ATownGameModeBase::BeginPlay()
 		NpcManager->ManuelConstructor(NpcTable, this);
         //NpcManager->StartSpawning(OwnedCharacters);
 	}
+
+    OnLevelLoaded();    
 }
+
+void ATownGameModeBase::OnLevelLoaded()
+{
+    UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+    if(GameInstance)
+    {
+        if(GameInstance->SquadCharacters.Num() > 0)
+        {
+            for (int i = 0; i < GameInstance->SquadCharacters.Num(); ++i)
+            {
+                OwnedCharacters.Add(GameInstance->SquadCharacters[i]);
+            }
+           GameInstance->SquadCharacters.Empty();
+        }
+    }
+
+    if(OwnedCharactersWidget)
+    {
+        OwnedCharactersWidget->Refresh();
+    }
+    
+}
+
+
 
 void ATownGameModeBase::BeginDestroy()
 {

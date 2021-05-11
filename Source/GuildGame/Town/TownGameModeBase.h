@@ -32,6 +32,7 @@ class GUILDGAME_API ATownGameModeBase : public AGameModeBase
 	public:
 	ATownGameModeBase();
 
+	void OnLevelLoaded();
 	virtual void BeginPlay() override;
 	virtual void BeginDestroy() override;
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
@@ -54,7 +55,9 @@ class GUILDGAME_API ATownGameModeBase : public AGameModeBase
 	// TSubclassOf<class ATownNpcPawn> NpcPawnBlueprint;
 
 	UPROPERTY(BlueprintReadWrite)
-	class UTownMenuWidget* MenuWidget;
+	class UTownHudWidget* MenuWidget;
+	UPROPERTY(BlueprintReadWrite)
+	class UOwnedCharactersDroppableWidget* OwnedCharactersWidget;
 
 	UPROPERTY()
 	class UTownNpcManager* NpcManager;

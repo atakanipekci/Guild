@@ -14,11 +14,11 @@ enum class EGridState
 	Obstacle = 1
 };
 
-class GUILDGAME_API GGGrid
+class GUILDGAME_API Grid
 {
 public:
-	GGGrid(int ArrayIndex, EGridState NewState);
-	~GGGrid();
+	Grid(int ArrayIndex, EGridState NewState);
+	~Grid();
 	int Index;
 	EGridState GridState = EGridState::Empty;
 };

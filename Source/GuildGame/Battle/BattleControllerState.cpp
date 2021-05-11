@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GGControllerState.h"
-#include "GGPlayerController.h"
+#include "BattleControllerState.h"
+#include "BattlePlayerController.h"
 #include "GuildGame/Characters/GGCharacter.h"
 #include "GuildGame/GridSystem/GridFloor.h"
 
-ControllerStateDefault::ControllerStateDefault(AGGPlayerController* Controller)
+ControllerStateDefault::ControllerStateDefault(ABattlePlayerController* Controller)
 {
     PlayerController = Controller;
 }
@@ -85,7 +85,7 @@ bool ControllerStateDefault::CanChangeTo()
 	return true;
 }
 
-ControllerStateBasicAttack::ControllerStateBasicAttack(AGGPlayerController* Controller)
+ControllerStateBasicAttack::ControllerStateBasicAttack(ABattlePlayerController* Controller)
 {
 	 PlayerController = Controller;
 }

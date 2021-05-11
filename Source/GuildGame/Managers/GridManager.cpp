@@ -150,11 +150,11 @@ void GridManager::SetGridState(int Index, EGridState NewState)
     {
         return;
     }
-    GGGrid* GridToSet = &GGGrids[Index];
+    Grid* GridToSet = &GGGrids[Index];
     GridToSet->GridState = NewState;
 }
 
-bool GridManager::GetGridsFromCenter(int Index, int ARowCount, int AColumnCount,  TArray<GGGrid*>* GridsResult)
+bool GridManager::GetGridsFromCenter(int Index, int ARowCount, int AColumnCount,  TArray<Grid*>* GridsResult)
 {
     //todo: add controls for the edges of the map
     if(Index < 0 || GridsResult == nullptr)
@@ -183,7 +183,7 @@ bool GridManager::GetGridsFromCenter(int Index, int ARowCount, int AColumnCount,
     return true; 
 }
 
-bool GridManager::GetNeighbours(int Index, int ARowCount, int AColumnCount, TArray<GGGrid*>* GridsResult)
+bool GridManager::GetNeighbours(int Index, int ARowCount, int AColumnCount, TArray<Grid*>* GridsResult)
 {
     if(Index < 0|| GridsResult == nullptr)
     {
@@ -238,7 +238,7 @@ bool GridManager::GetNeighbours(int Index, int ARowCount, int AColumnCount, TArr
     return true;   
 }
 
-bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<GGGrid*>* GridsResult, bool UsePathfinding)
+bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<Grid*>* GridsResult, bool UsePathfinding)
 {
     int IndexDist = Dist/GridSize;
     int TopLeft = CenterIndex - IndexDist - IndexDist*ColumnCount;
@@ -305,7 +305,7 @@ FVector GridManager::GetPositionToPlace(int Index, int ARowCount, int AColumnCou
     }
 }
 
-bool GridManager::IsPlaceable(TArray<GGGrid*>* GridsToPlace, EGridState RequiredState) const
+bool GridManager::IsPlaceable(TArray<Grid*>* GridsToPlace, EGridState RequiredState) const
 {
     if(GridsToPlace == nullptr)
     {
@@ -323,7 +323,7 @@ bool GridManager::IsPlaceable(TArray<GGGrid*>* GridsToPlace, EGridState Required
     return true;
 }
 
-bool GridManager::SetGridStates(TArray<GGGrid*>* GridsToSet, EGridState NewState)
+bool GridManager::SetGridStates(TArray<Grid*>* GridsToSet, EGridState NewState)
 {
 
     if(GridsToSet == nullptr)

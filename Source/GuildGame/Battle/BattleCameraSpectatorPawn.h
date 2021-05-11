@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SpectatorPawn.h"
-#include "GGCameraSpectatorPawn.generated.h"
+#include "BattleCameraSpectatorPawn.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GUILDGAME_API AGGCameraSpectatorPawn : public ASpectatorPawn
+class GUILDGAME_API ABattleCameraSpectatorPawn : public ASpectatorPawn
 {
 	GENERATED_BODY()
 	public:
 
-	AGGCameraSpectatorPawn(const FObjectInitializer& ObjectInitializer);
+	ABattleCameraSpectatorPawn(const FObjectInitializer& ObjectInitializer);
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	class UCameraComponent* CameraComponent;

@@ -124,7 +124,7 @@ public:
 
 	float GetPathLength(int StartIndex, int EndIndex);
 
-	bool UpdateGridMeshes(TArray<GGGrid*>& GridsToUpdate, EISMType = EISMType::Movement) const;
+	bool UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType = EISMType::Movement) const;
 
 	void ClearGridMeshes();
 

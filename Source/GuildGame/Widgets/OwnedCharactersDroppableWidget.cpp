@@ -52,7 +52,7 @@ bool UOwnedCharactersDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWid
 								//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Team array count  %d"), GameMode->OwnedCharacters.Num()));
 							}
 							UE_LOG(LogTemp, Warning, TEXT("DROP 1 "));
-							if(GameMode->NpcManager)
+							if(GameMode->NpcManager && NewWidget->Stat)
 							{
 								UE_LOG(LogTemp, Warning, TEXT("DROP 2 "));
 								GameMode->SetNpcBehaviourState(NewWidget->Stat->UniqueID, ENpcBehaviourStates::WalkingAround, NewWidget->Stat->ClassType);

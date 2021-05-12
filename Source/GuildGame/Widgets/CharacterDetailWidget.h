@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "GuildGame/Characters/CharacterStats.h"
 
 #include "CharacterDetailWidget.generated.h"
 
@@ -27,5 +26,5 @@ class GUILDGAME_API UCharacterDetailWidget : public UUserWidget
 	class UTextBlock* BaseDamageText;
 	UPROPERTY(meta = (BindWidget))
 	class UImage* Portrait;
-	void RefreshPage(FCharacterStats* Stat);
+	void RefreshPage(struct FCharacterStats* Stat);
 };

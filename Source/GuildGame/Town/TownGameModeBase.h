@@ -55,7 +55,7 @@ class GUILDGAME_API ATownGameModeBase : public AGameModeBase
 	// TSubclassOf<class ATownNpcPawn> NpcPawnBlueprint;
 
 	UPROPERTY(BlueprintReadWrite)
-	class UTownHudWidget* MenuWidget;
+	class UTownHudWidget* HudWidget;
 	UPROPERTY(BlueprintReadWrite)
 	class UOwnedCharactersDroppableWidget* OwnedCharactersWidget;
 

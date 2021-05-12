@@ -6,6 +6,7 @@
 #include "GuildGame/Characters/GGCharacter.h"
 #include "GGLogHelper.h"
 #include "GridManager.h"
+#include "GuildGame/Characters/CharacterStats.h"
 
 GridManager* CharacterManager::CharGridManager = nullptr;
 
@@ -28,7 +29,6 @@ void CharacterManager::SetDamageableGrids(AGGCharacter* Character)
         return;
     }
     
-
     int Index = CharGridManager->WorldToGrid(Character->GetActorLocation());
     Character->DamageableGrids.Empty();
     CharGridManager->GetGridsInRange(Index,Character->GetDefaultDamageRange(), &(Character->DamageableGrids), false);
@@ -50,4 +50,18 @@ bool CharacterManager::CanAttackTo(const AGGCharacter* Dealer, const AGGCharacte
     }
 
     return true;
+}
+
+FString CharacterManager::GetCharFileRowName(ECharacterClassType CharacterType)
+{
+    if(CharacterType == ECharacterClassType::Knight)
+    {
+        return  FString(TEXT("Knight"));
+    }
+    else if(CharacterType == ECharacterClassType::Mage)
+    {
+        return  FString(TEXT("Mage"));
+    }
+   
+    return FString(TEXT("EMPTY"));
 }

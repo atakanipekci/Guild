@@ -4,6 +4,7 @@
 #include "TownNpcManager.h"
 
 #include "GuildGame/Characters/CharacterStats.h"
+#include "GuildGame/Managers/CharacterManager.h"
 #include "GuildGame/Town/TownGameModeBase.h"
 #include "TownNavNodeActor.h"
 #include "TownNpcCharacter.h"
@@ -34,13 +35,43 @@ void UTownNpcManager::StartSpawning(TArray<FCharacterStats*> OwnedCharacters)
 {
     for (int i = 0; i < OwnedCharacters.Num(); ++i)
     {
-        SpawnCharacter(OwnedCharacters[i]->ClassType, OwnedCharacters[i]->TownNpcBehaviourState);
+        const int RandIndex = FMath::RandRange(0, NavigationNodes.Num() - 1);
+        FVector Location(2970.0f, -770.0f, -1210.0f);
+        if(NavigationNodes.Num() > 0)
+		{
+			if(NavigationNodes[RandIndex])
+			{
+				Location = NavigationNodes[RandIndex]->Destination;
+			    Location.Z += 100;
+			}
+		}
+        if(TownGameMode && TownGameMode->GetWorld())
+        {
+            CharacterManager::SpawnCharacter<ATownNpcCharacter,ATownNpcCharacter>(TownGameMode->NpcCharacterBlueprint,OwnedCharacters[i]->ClassType,
+                Location, FRotator{},TownGameMode->GetWorld());
+        }
+        //SpawnCharacter(OwnedCharacters[i]->ClassType, OwnedCharacters[i]->TownNpcBehaviourState);
     }
 }
 
 void UTownNpcManager::SpawnOnClick()
 {
-    SpawnCharacter(ECharacterClassType::Knight, ENpcBehaviourStates::WalkingAround);
+    const int RandIndex = FMath::RandRange(0, NavigationNodes.Num() - 1);
+    FVector Location(2970.0f, -770.0f, -1210.0f);
+    if(NavigationNodes.Num() > 0)
+	{
+		if(NavigationNodes[RandIndex])
+		{
+			Location = NavigationNodes[RandIndex]->Destination;
+			Location.Z += 100;
+		}
+	}
+
+    if(TownGameMode && TownGameMode->GetWorld())
+    {
+        CharacterManager::SpawnCharacter<ATownNpcCharacter,ATownNpcCharacter>(TownGameMode->NpcCharacterBlueprint,ECharacterClassType::Knight,
+            Location, FRotator{},TownGameMode->GetWorld());
+    }
 }
 
 void UTownNpcManager::SetNpcBehaviourState(int UniqueID, ENpcBehaviourStates State, ECharacterClassType CharacterType)
@@ -61,15 +92,31 @@ void UTownNpcManager::SetNpcBehaviourState(int UniqueID, ENpcBehaviourStates Sta
     else
     {
         UE_LOG(LogTemp, Warning, TEXT("Spawn Not CONTAINS "));
-        ATownNpcCharacter* SpawnedCharacter = SpawnCharacter(CharacterType,  State);
-        if(SpawnedCharacter)
+        const int RandIndex = FMath::RandRange(0, NavigationNodes.Num() - 1);
+        FVector Location(2970.0f, -770.0f, -1210.0f);
+        if(NavigationNodes.Num() > 0)
+	    {
+		    if(NavigationNodes[RandIndex])
+		    {
+			    Location = NavigationNodes[RandIndex]->Destination;
+			    Location.Z += 100;
+		    }
+	    }
+        
+        if(TownGameMode && TownGameMode->GetWorld())
         {
-            SpawnedNpCs.Add(UniqueID, SpawnedCharacter);
+            ATownNpcCharacter* SpawnedCharacter = CharacterManager::SpawnCharacter<ATownNpcCharacter,ATownNpcCharacter>(TownGameMode->NpcCharacterBlueprint,CharacterType,
+                Location, FRotator{},TownGameMode->GetWorld());
+            if(SpawnedCharacter)
+            {
+                SpawnedNpCs.Add(UniqueID, SpawnedCharacter);
+            }
         }
+        // ATownNpcCharacter* SpawnedCharacter = SpawnCharacter(CharacterType,  State);
     }
 }
 
-ATownNpcCharacter* UTownNpcManager::SpawnCharacter(ECharacterClassType CharacterType, ENpcBehaviourStates State)
+/*ATownNpcCharacter* UTownNpcManager::SpawnCharacter(ECharacterClassType CharacterType, ENpcBehaviourStates State)
 {
     if(NpcTable && TownGameMode)
     {
@@ -111,7 +158,7 @@ ATownNpcCharacter* UTownNpcManager::SpawnCharacter(ECharacterClassType Character
                     const FString Context(TEXT("Widget Row Missing"));
                     const FName Row = *GetNpcTableRowName(CharacterType);
             
-                    FNpcDataTable* NpcDataTable = NpcTable->FindRow<FNpcDataTable>(Row, Context, true);
+                    FCharFileDataTable* NpcDataTable = NpcTable->FindRow<FCharFileDataTable>(Row, Context, true);
                     
                     if(NpcDataTable)
                     {
@@ -135,7 +182,7 @@ ATownNpcCharacter* UTownNpcManager::SpawnCharacter(ECharacterClassType Character
 
     return  nullptr;
 }
-
+*/
 FString UTownNpcManager::GetNpcTableRowName(ECharacterClassType CharacterType)
 {
     if(CharacterType == ECharacterClassType::Knight)

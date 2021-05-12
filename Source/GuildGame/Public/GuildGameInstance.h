@@ -30,7 +30,10 @@ public:
 	class UDataTable* SequenceTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
-	UDataTable* CharactersTable;
+	UDataTable* CharacterStatsTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	UDataTable* CharacterFileTable;
 	
 	UFUNCTION()
 	bool TryToPurchase(int Amount);

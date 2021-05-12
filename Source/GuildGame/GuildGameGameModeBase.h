@@ -12,6 +12,10 @@
 UCLASS()
 class GUILDGAME_API AGuildGameGameModeBase : public AGameModeBase
 {
+public:
 	GENERATED_BODY()
-	
+	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	TSubclassOf<class AGGCharacter> BattleCharactersBP;
 };

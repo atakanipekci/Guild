@@ -15,7 +15,7 @@ enum class ECharacterClassType: uint8;
  * 
  */
  USTRUCT(BlueprintType)
-struct FNpcDataTable : public FTableRowBase
+struct FCharFileDataTable : public FTableRowBase
 {
     GENERATED_BODY()
  	
@@ -41,7 +41,7 @@ class GUILDGAME_API UTownNpcManager : public UObject
 	void StartSpawning(TArray<struct FCharacterStats*> OwnedCharacters);
 
 	void SpawnOnClick();
-	class ATownNpcCharacter* SpawnCharacter(ECharacterClassType CharacterType, ENpcBehaviourStates State);
+	//class ATownNpcCharacter* SpawnCharacter(ECharacterClassType CharacterType, ENpcBehaviourStates State);
 	FString GetNpcTableRowName(ECharacterClassType CharacterType);
 
 

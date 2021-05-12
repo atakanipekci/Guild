@@ -47,8 +47,8 @@ void UGuildGameInstance::Init()
         WidgetManager::SetSequenceTable(SequenceTable);
     }
 
-     if(CharactersTable)
+     if(CharacterStatsTable)
     {
-        CharacterGenerationManager::SetCharactersTable(CharactersTable);
+        CharacterGenerationManager::SetCharactersTable(CharacterStatsTable);
     }
 }

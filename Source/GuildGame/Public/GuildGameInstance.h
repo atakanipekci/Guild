@@ -19,7 +19,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game")
 	int Gold;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game")
 	int Day;
+
+	struct FGuildStats* GuildStats;
 
 	TArray<struct FCharacterStats*> SquadCharacters;
 	

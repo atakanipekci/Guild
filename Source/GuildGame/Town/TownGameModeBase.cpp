@@ -61,6 +61,8 @@ void ATownGameModeBase::OnLevelLoaded()
     {
         OwnedCharactersWidget->Refresh();
     }
+
+    UpdateUI(this);
     
 }
 
@@ -105,9 +107,9 @@ void ATownGameModeBase::UpdateUI(UObject* Caller)
 
     if(Mode)
     {
-        if(Mode->MenuWidget)
+        if(Mode->HudWidget)
         {
-            Mode->MenuWidget->UpdateUI();
+            Mode->HudWidget->UpdateUI();
         }
     }
 }

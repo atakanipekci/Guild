@@ -3,11 +3,13 @@
 
 #include "TownHudWidget.h"
 #include "BuildingWidgetBase.h"
+#include "GuildDetailsWidget.h"
 #include "GuildGameInstance.h"
 #include "GuildGame/Town/TownInteractionController.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
 #include "Components/TextBlock.h"
+#include "GuildGame/Managers/WidgetManager.h"
 #include "Kismet/GameplayStatics.h"
 
 void UTownHudWidget::NativeConstruct()
@@ -17,10 +19,13 @@ void UTownHudWidget::NativeConstruct()
     if(TestButton)
         TestButton->OnClicked.AddUniqueDynamic(this, &UTownHudWidget::OnTestClicked);
 
+    if(GuildButton)
+        GuildButton->OnClicked.AddUniqueDynamic(this, &UTownHudWidget::OpenGuildDetailsScreen);
+
     if(TestTextBlock)
         TestTextBlock->SetText(FText::FromString("Load Next Level"));
 
-    UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+    UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(GetGameInstance());
     
     if(GoldText && GameInstance)
         GoldText->SetText(FText::AsNumber(GameInstance->Gold));
@@ -57,6 +62,33 @@ void UTownHudWidget::OnTestClicked()
         // }
     
      // }
+}
+
+void UTownHudWidget::OpenGuildDetailsScreen()
+{
+    UUserWidget* NewWidget = WidgetManager::GetWidgetInstance(EWidgetKeys::GuildDetail);
+        
+    if(NewWidget == nullptr)
+    {
+        NewWidget = CreateWidget<UUserWidget>(this->GetWorld(), WidgetManager::GetWidget(EWidgetKeys::GuildDetail));
+        WidgetManager::SetWidgetInstance(EWidgetKeys::GuildDetail, NewWidget);
+    }
+    else
+    {
+        NewWidget->RemoveFromViewport();
+    }
+
+    NewWidget->SetVisibility(ESlateVisibility::Visible);
+    NewWidget->AddToViewport();
+    UGuildDetailsWidget* GuildDetail =  Cast<UGuildDetailsWidget>(NewWidget);
+    if(GuildDetail)
+    {
+        UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(GetGameInstance());
+        if(GameInstance)
+        {
+            GuildDetail->RefreshPage(GameInstance->GuildStats);
+        }
+    }
 }
 
 void UTownHudWidget::ExitCanvas(EMenuWidgetType CanvasType)
@@ -97,7 +129,17 @@ void UTownHudWidget::EnterCanvas(EMenuWidgetType CanvasType)
 void UTownHudWidget::UpdateUI()
 {
     UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-    
-    if(GoldText && GameInstance)
-        GoldText->SetText(FText::AsNumber(GameInstance->Gold));
+    if(GameInstance)
+    {
+        if(GoldText)
+            GoldText->SetText(FText::AsNumber(GameInstance->Gold));
+
+        if(DayText)
+        {
+            FString DayString = "DAY ";
+            DayString.AppendInt(GameInstance->Day);
+            DayText->SetText(FText::FromString(DayString));
+        }
+        
+    }
 }

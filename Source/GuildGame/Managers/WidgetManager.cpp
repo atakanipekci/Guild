@@ -69,6 +69,10 @@ FString WidgetManager::GetWidgetRowName(const EWidgetKeys Key)
     {
         return  FString(TEXT("CharacterDetail"));
     }
+    else if(Key == EWidgetKeys::GuildDetail)
+    {
+        return  FString(TEXT("GuildDetail"));
+    }
 
     return FString(TEXT("EMPTY"));
 }

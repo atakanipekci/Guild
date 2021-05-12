@@ -29,9 +29,13 @@ class GUILDGAME_API UTownHudWidget : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 	class UButton* TestButton;
 	UPROPERTY(meta = (BindWidget))
+	class UButton* GuildButton;
+	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* TestTextBlock;
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* GoldText;
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* DayText;
 
 	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
 	class UCanvasPanel* WarCanvas;
@@ -43,6 +47,9 @@ class GUILDGAME_API UTownHudWidget : public UUserWidget
 
 	UFUNCTION()
 	void OnTestClicked();
+
+	UFUNCTION()
+	void OpenGuildDetailsScreen();
 
 	UFUNCTION(BlueprintCallable)
 	void ExitCanvas(EMenuWidgetType CanvasType);

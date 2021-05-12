@@ -64,10 +64,7 @@ void ATownNpcCharacter::MoveToRandomLocation()
 
 			if(DestinationNode)
 			{
-				if(FVector::Dist(DestinationNode->GetActorLocation(), GetActorLocation()) > 10)
-				{
-					MoveToLocation(DestinationNode->Destination);
-				}
+				MoveToLocation(DestinationNode->Destination);
 			}
 		}
 	}

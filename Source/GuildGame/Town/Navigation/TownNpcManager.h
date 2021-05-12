@@ -44,6 +44,9 @@ class GUILDGAME_API UTownNpcManager : public UObject
 	//class ATownNpcCharacter* SpawnCharacter(ECharacterClassType CharacterType, ENpcBehaviourStates State);
 	FString GetNpcTableRowName(ECharacterClassType CharacterType);
 
+	class ATownNavNodeActor* GetRandomNavigationNode();
+	FVector GetRandomLocationFromNode(float Zoffset);
+	void MoveNpcToDestination(class ATownNpcCharacter* SpawnedActor);
 
 	virtual void BeginDestroy() override;
 	
@@ -61,4 +64,6 @@ class GUILDGAME_API UTownNpcManager : public UObject
 	
 
 };
+
+
 

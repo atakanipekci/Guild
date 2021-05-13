@@ -246,9 +246,9 @@ void UTownInteractionController::ToggleWidget()
 			WidgetManager::SetWidgetInstance(SelectedBuilding->WidgetKey, NewWidget);
 			
 			ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(PlayerController));
-			if(GameMode->MenuUiContainerOverlay)
+			if(GameMode->HudBuildingWidgetsContainerOverlay)
 			{
-				GameMode->MenuUiContainerOverlay->AddChildToOverlay(NewWidget);
+				GameMode->HudBuildingWidgetsContainerOverlay->AddChildToOverlay(NewWidget);
 			}
 
 			bIsSequenceReversed = true;

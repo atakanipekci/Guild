@@ -14,7 +14,7 @@ bool UGuildGameInstance::TryToPurchase(int Amount)
     if(Gold >= Amount)
     {
         Gold -= Amount;
-        ATownGameModeBase::UpdateUI(this);//TODO
+        ATownGameModeBase::UpdateTownHud(this);//TODO
         return true;
     }
     else

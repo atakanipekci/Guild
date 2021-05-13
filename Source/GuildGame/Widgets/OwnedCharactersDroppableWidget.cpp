@@ -23,7 +23,7 @@ void UOwnedCharactersDroppableWidget::NativeConstruct()
 	GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this->GetWorld()));
 	if(GameMode)
 	{
-		GameMode->OwnedCharactersWidget = this;
+		GameMode->OwnedCharsDroppableWidgetInstance = this;
 	}
 }
 

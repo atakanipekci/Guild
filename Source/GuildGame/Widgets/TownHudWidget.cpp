@@ -66,16 +66,12 @@ void UTownHudWidget::OnTestClicked()
 
 void UTownHudWidget::OpenGuildDetailsScreen()
 {
-    UUserWidget* NewWidget = WidgetManager::GetWidgetInstance(EWidgetKeys::GuildDetail);
-        
-    if(NewWidget == nullptr)
-    {
-        NewWidget = CreateWidget<UUserWidget>(this->GetWorld(), WidgetManager::GetWidget(EWidgetKeys::GuildDetail));
-        WidgetManager::SetWidgetInstance(EWidgetKeys::GuildDetail, NewWidget);
-    }
-    else
+    UUserWidget* NewWidget = WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::GuildDetail, this);
+    if(NewWidget)
     {
         NewWidget->RemoveFromViewport();
+        NewWidget->SetVisibility(ESlateVisibility::Visible);
+        NewWidget->AddToViewport();
     }
 
     NewWidget->SetVisibility(ESlateVisibility::Visible);

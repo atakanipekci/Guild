@@ -159,20 +159,13 @@ FReply UDraggedCharacterWidget::NativeOnMouseButtonDown(const FGeometry& InGeome
 	{
 		 GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Right Mouse Button Down"));
 
-        UUserWidget* NewWidget = WidgetManager::GetWidgetInstance(EWidgetKeys::CharacterDetail);
-        
-        if(NewWidget == nullptr)
-        {
-            NewWidget = CreateWidget<UUserWidget>(this->GetWorld(), WidgetManager::GetWidget(EWidgetKeys::CharacterDetail));
-            WidgetManager::SetWidgetInstance(EWidgetKeys::CharacterDetail, NewWidget);
-        }
-        else
+        UUserWidget* NewWidget = WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::CharacterDetail, this);
+        if(NewWidget)
         {
             NewWidget->RemoveFromViewport();
+            NewWidget->SetVisibility(ESlateVisibility::Visible);
+            NewWidget->AddToViewport();
         }
-
-        NewWidget->SetVisibility(ESlateVisibility::Visible);
-        NewWidget->AddToViewport();
         UCharacterDetailWidget* ChrDetail =  Cast<UCharacterDetailWidget>(NewWidget);
         if(ChrDetail)
         {

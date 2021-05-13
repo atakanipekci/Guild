@@ -1,5 +1,7 @@
 ﻿#include "WidgetManager.h"
 
+#include "Blueprint/UserWidget.h"
+
 UDataTable* WidgetManager::WidgetsDataTable = nullptr;
 UDataTable* WidgetManager::SequenceDataTable = nullptr;
 
@@ -73,6 +75,10 @@ FString WidgetManager::GetWidgetRowName(const EWidgetKeys Key)
     {
         return  FString(TEXT("GuildDetail"));
     }
+    else if(Key == EWidgetKeys::TownHud)
+    {
+        return FString(TEXT("TownHud"));
+    }
 
     return FString(TEXT("EMPTY"));
 }
@@ -96,6 +102,19 @@ UUserWidget* WidgetManager::GetWidgetInstance(const EWidgetKeys Key)
         return  *Widget;
     }
     return  nullptr;
+}
+
+UUserWidget* WidgetManager::GetOrCreateWidgetInstance(const EWidgetKeys Key, UObject* Owner)
+{
+     UUserWidget* NewWidget = GetWidgetInstance(Key);
+     if(NewWidget == nullptr)
+     {
+         NewWidget = CreateWidget<UUserWidget>(Owner->GetWorld(), WidgetManager::GetWidget(Key));
+         SetWidgetInstance(Key, NewWidget);
+     }
+   
+
+    return  NewWidget;
 }
 
 FString WidgetManager::GetSequenceRowName(const ESequenceKeys Key)

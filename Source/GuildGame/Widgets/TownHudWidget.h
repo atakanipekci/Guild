@@ -43,6 +43,8 @@ class GUILDGAME_API UTownHudWidget : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 	class UCanvasPanel* TeamCanvas;
 
+	
+
 	virtual void NativeConstruct() override;
 
 	UFUNCTION()
@@ -58,6 +60,10 @@ class GUILDGAME_API UTownHudWidget : public UUserWidget
 	void EnterCanvas(EMenuWidgetType CanvasType);
 
 	public:
+
 	UFUNCTION()
 	void UpdateUI();
+
+	UPROPERTY(meta = (BindWidget))
+	class UOverlay* BuildingWidgetsContainerOverlay;
 };

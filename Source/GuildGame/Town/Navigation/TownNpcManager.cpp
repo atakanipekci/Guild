@@ -17,12 +17,12 @@ void UTownNpcManager::BeginDestroy()
     Super::BeginDestroy();
 }
 
-void UTownNpcManager::ManuelConstructor(UDataTable* Table, ATownGameModeBase* GameMode)
+void UTownNpcManager::ManuelConstructor(/*UDataTable* Table,*/ ATownGameModeBase* GameMode)
 {
-    if(Table != nullptr)
+    /*if(Table != nullptr)
     {
         NpcTable = Table;
-    }
+    }*/
 
     if(GameMode != nullptr)
     {

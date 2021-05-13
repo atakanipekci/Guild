@@ -22,7 +22,8 @@ enum class EWidgetKeys: uint8
 	TavernMenuWidget,
 	RecruitMenuWidget,
 	CharacterDetail,
-	GuildDetail
+	GuildDetail,
+	TownHud
 };
 
 UENUM()
@@ -59,6 +60,7 @@ class GUILDGAME_API WidgetManager
 		static FString GetWidgetRowName(const EWidgetKeys Key);
 		static void SetWidgetInstance(const EWidgetKeys Key, UUserWidget* Widget);
 		static UUserWidget* GetWidgetInstance(const EWidgetKeys Key);
+		static UUserWidget* GetOrCreateWidgetInstance(const EWidgetKeys Key, UObject* Owner);
 
 		static void SetSequenceTable(UDataTable* Table);
 		static FString GetSequenceRowName(ESequenceKeys Key);

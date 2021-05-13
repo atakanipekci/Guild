@@ -41,31 +41,28 @@ class GUILDGAME_API ATownGameModeBase : public AGameModeBase
 	void SpawnOnClick();
 
 	void SetNpcBehaviourState(int UniqueID,  ENpcBehaviourStates State, ECharacterClassType CharacterType);
-	
+	static void UpdateTownHud(UObject* Caller);
+
 
 	UPROPERTY(EditAnywhere, Category = Building)
 	UDataTable* BuildingDataTable;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
-	UDataTable* NpcTable;
+	UDataTable* RecruitBuildingUpgradeTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	TSubclassOf<class ATownNpcCharacter> NpcCharacterBlueprint;
 
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
-	// TSubclassOf<class ATownNpcPawn> NpcPawnBlueprint;
-
 	UPROPERTY(BlueprintReadWrite)
-	class UTownHudWidget* HudWidget;
+	class UTownHudWidget* HudWidgetInstance;
 	UPROPERTY(BlueprintReadWrite)
-	class UOwnedCharactersDroppableWidget* OwnedCharactersWidget;
+	class UOwnedCharactersDroppableWidget* OwnedCharsDroppableWidgetInstance;
 
 	UPROPERTY()
 	class UTownNpcManager* NpcManager;
 
 	UPROPERTY(BlueprintReadWrite)
-	class UOverlay* MenuUiContainerOverlay;
+	class UOverlay* HudBuildingWidgetsContainerOverlay;
 
 	TArray<struct FCharacterStats*> OwnedCharacters;
 	
-	static void UpdateUI(UObject* Caller);
 };

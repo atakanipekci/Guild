@@ -36,7 +36,7 @@ class GUILDGAME_API UTownNpcManager : public UObject
 
 
 	public:
-	void ManuelConstructor(class UDataTable* Table, class ATownGameModeBase* GameMode);
+	void ManuelConstructor(/*class UDataTable* Table, */class ATownGameModeBase* GameMode);
 
 	void StartSpawning(TArray<struct FCharacterStats*> OwnedCharacters);
 

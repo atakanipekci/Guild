@@ -35,9 +35,16 @@ void ATownGameModeBase::BeginPlay()
 
     if(NpcManager)
 	{
-		NpcManager->ManuelConstructor(NpcTable, this);
+		NpcManager->ManuelConstructor(/*NpcTable, */this);
         //NpcManager->StartSpawning(OwnedCharacters);
 	}
+
+    HudWidgetInstance = Cast<UTownHudWidget>(WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::TownHud, this));
+    if(HudWidgetInstance)
+    {
+        HudWidgetInstance->AddToViewport();
+        HudBuildingWidgetsContainerOverlay = HudWidgetInstance->BuildingWidgetsContainerOverlay;
+    }
 
     OnLevelLoaded();    
 }
@@ -57,13 +64,12 @@ void ATownGameModeBase::OnLevelLoaded()
         }
     }
 
-    if(OwnedCharactersWidget)
+    if(OwnedCharsDroppableWidgetInstance)
     {
-        OwnedCharactersWidget->Refresh();
+        OwnedCharsDroppableWidgetInstance->Refresh();
     }
 
-    UpdateUI(this);
-    
+    UpdateTownHud(this);
 }
 
 
@@ -101,15 +107,15 @@ void ATownGameModeBase::SetNpcBehaviourState(int UniqueID, ENpcBehaviourStates S
     }
 }
 
-void ATownGameModeBase::UpdateUI(UObject* Caller)
+void ATownGameModeBase::UpdateTownHud(UObject* Caller)
 {
     ATownGameModeBase* Mode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(Caller));
 
     if(Mode)
     {
-        if(Mode->HudWidget)
+        if(Mode->HudWidgetInstance)
         {
-            Mode->HudWidget->UpdateUI();
+            Mode->HudWidgetInstance->UpdateUI();
         }
     }
 }

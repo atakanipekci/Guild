@@ -33,6 +33,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	void SetStats(const FCharacterStats&);
 	void MoveTo(FVector);
 	void UpdateMovableGrids();
 	void UpdateDamageableGrids();

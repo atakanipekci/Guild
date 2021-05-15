@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "CharacterStats.h"
 #include "Components/ActorComponent.h"
 #include "CharacterStatsComponent.generated.h"
 
@@ -24,63 +26,62 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void SetStats(const FCharacterStats&);
+
 	void ChangeHealth(int Amount);
 
 	int GetMaxHealth() const
 	{
-		return MaxHealth;
+		return Stats.MaxHealth;
 	}
 
 	int GetCurrentHealth() const
 	{
-		return CurrentHealth;
+		return Stats.CurrentHealth;
 	}
 
 	void SetMaxHealth(int Amount)
 	{
-		MaxHealth = Amount;
+		Stats.MaxHealth = Amount;
 	}
 
 	void SetCurrentHealth(int Amount)
 	{
-		CurrentHealth = Amount;
+		Stats.CurrentHealth = Amount;
 	}
 	
 	float GetMovementRange() const
 	{
-		return MovementRange;
+		return Stats.MovementRange;
 	}
 
 	void SetMovementRange(float NewMovementRange)
 	{
-		this->MovementRange = NewMovementRange;
+		this->Stats.MovementRange = NewMovementRange;
 	}
 
 	float GetAttackRange() const
 	{
-		return AttackRange;
+		return Stats.AttackRange;
 	}
 
 	void SetAttackRange(float NewAttackRange)
 	{
-		this->AttackRange = NewAttackRange;
+		this->Stats.AttackRange = NewAttackRange;
 	}
 
 	int GetBaseDamage() const
 	{
-		return BaseDamage;
+		return Stats.BaseDamage;
 	}
 
 	void SetBaseDamage(int NewBaseDamage)
 	{
-		this->BaseDamage = NewBaseDamage;
+		this->Stats.BaseDamage = NewBaseDamage;
 	}
 	
 private:
-	int MaxHealth;
-	int CurrentHealth;
-	float MovementRange = 850;
-	float AttackRange = 150;
-	int BaseDamage = 5;
+
+	FCharacterStats Stats;
 
 };

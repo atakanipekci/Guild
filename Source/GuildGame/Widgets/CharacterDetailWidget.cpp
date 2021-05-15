@@ -20,7 +20,7 @@ void UCharacterDetailWidget::RefreshPage(FCharacterStats* Stat)
        }
        if(HealthText)
        {
-           HealthText->SetText(FText::FromString("Health :" + FString::FromInt(Stat->Health)));
+           HealthText->SetText(FText::FromString("Health :" + FString::FromInt(Stat->MaxHealth)));
        }
        if(BaseDamageText)
        {

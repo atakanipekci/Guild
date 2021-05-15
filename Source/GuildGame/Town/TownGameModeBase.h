@@ -12,8 +12,10 @@
  * 
  */
 
+enum class EBuildingTypes : unsigned char;
 enum class ECharacterClassType : unsigned char;
 enum class ENpcBehaviourStates : unsigned char;
+
 USTRUCT()
 struct FBuildingDataTable : public FTableRowBase
 {
@@ -41,13 +43,19 @@ class GUILDGAME_API ATownGameModeBase : public AGameModeBase
 	void SpawnOnClick();
 
 	void SetNpcBehaviourState(int UniqueID,  ENpcBehaviourStates State, ECharacterClassType CharacterType);
+	struct FBuildingStatsBase* CreateBuildingStats(EBuildingTypes BuildingType);
+	void UpgradeBuilding(EBuildingTypes BuildingType, bool& OutIsNextUpdateAvailable);
+	
 	static void UpdateTownHud(UObject* Caller);
+	
 
 
 	UPROPERTY(EditAnywhere, Category = Building)
 	UDataTable* BuildingDataTable;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	UDataTable* RecruitBuildingUpgradeTable;
+
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	TSubclassOf<class ATownNpcCharacter> NpcCharacterBlueprint;
@@ -64,5 +72,6 @@ class GUILDGAME_API ATownGameModeBase : public AGameModeBase
 	class UOverlay* HudBuildingWidgetsContainerOverlay;
 
 	TArray<struct FCharacterStats*> OwnedCharacters;
+	TMap<EBuildingTypes, struct FBuildingStatsBase*> BuildingStatsMap;
 	
 };

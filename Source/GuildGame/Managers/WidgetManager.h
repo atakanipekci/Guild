@@ -21,6 +21,7 @@ enum class EWidgetKeys: uint8
 	DraggedSquadWidget,
 	TavernMenuWidget,
 	RecruitMenuWidget,
+	RecruitUpgradeWidget,
 	CharacterDetail,
 	GuildDetail,
 	TownHud

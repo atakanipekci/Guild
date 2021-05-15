@@ -21,9 +21,14 @@ class GUILDGAME_API URecruitWidget : public UBuildingWidgetBase
 	public:
 	UFUNCTION()
 	void RefreshRecruitables();
+
+	UFUNCTION()
+	void OpenUpgradePage();
 	
 	UPROPERTY(meta = (BindWidget))
 	UButton* RefreshButton;
+	UPROPERTY(meta = (BindWidget))
+	UButton* UpgradeButton;
 	UPROPERTY(meta = (BindWidget))
 	class URecruitableCharactersDroppableWidget* RecruitableCharactersSlider;
 };

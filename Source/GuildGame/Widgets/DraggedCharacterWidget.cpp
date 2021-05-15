@@ -162,9 +162,12 @@ FReply UDraggedCharacterWidget::NativeOnMouseButtonDown(const FGeometry& InGeome
         UUserWidget* NewWidget = WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::CharacterDetail, this);
         if(NewWidget)
         {
-            NewWidget->RemoveFromViewport();
+            //NewWidget->RemoveFromViewport();
             NewWidget->SetVisibility(ESlateVisibility::Visible);
-            NewWidget->AddToViewport();
+            if(NewWidget->IsInViewport() == false)
+            {
+                NewWidget->AddToViewport();
+            }
         }
         UCharacterDetailWidget* ChrDetail =  Cast<UCharacterDetailWidget>(NewWidget);
         if(ChrDetail)

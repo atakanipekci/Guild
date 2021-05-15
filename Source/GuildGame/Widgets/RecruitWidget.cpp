@@ -68,17 +68,19 @@ void URecruitWidget::OpenUpgradePage()
     UUserWidget* UpgradePage = WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::RecruitUpgradeWidget, this);
     if(UpgradePage)
     {
-        UpgradePage->RemoveFromViewport();
+        //UpgradePage->RemoveFromViewport();
         UpgradePage->SetVisibility(ESlateVisibility::Visible);
-        UpgradePage->AddToViewport();
-
+        if(UpgradePage->IsInViewport() == false)
+        {
+            UpgradePage->AddToViewport();
+        }
+        
         ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this));
         if(GameMode)
         {
             FBuildingStatsBase* BuildingStats = GameMode->BuildingStatsMap[EBuildingTypes::Recruit];
             UBuildingUpgradeWidgetBase* RecruitUpgradePage = Cast<UBuildingUpgradeWidgetBase>(UpgradePage);
             RecruitUpgradePage->RefreshPage(BuildingStats);
-            
         }
     }
 }

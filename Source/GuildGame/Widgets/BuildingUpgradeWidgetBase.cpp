@@ -13,7 +13,8 @@
 
 void UBuildingUpgradeWidgetBase::NativeConstruct()
 {
-	if(UpgradesGridPanel)
+	Super::NativeConstruct();
+	if(UpgradesGridPanel && Upgrades.Num() <= 0)
 	{
 		for (int i = 0; i < UpgradesGridPanel->GetChildrenCount(); ++i)
 		{
@@ -26,7 +27,7 @@ void UBuildingUpgradeWidgetBase::NativeConstruct()
 	}
 
 	if(UpgradeButton)
-		UpgradeButton->OnClicked.AddDynamic(this, &UBuildingUpgradeWidgetBase::UpgradeBuilding);
+		UpgradeButton->OnClicked.AddUniqueDynamic(this, &UBuildingUpgradeWidgetBase::UpgradeBuildingLevel);
 }
 
 void UBuildingUpgradeWidgetBase::RefreshPage()
@@ -67,7 +68,7 @@ void UBuildingUpgradeWidgetBase::RefreshPage(FBuildingStatsBase* Stat)
 	RefreshPage();
 }
 
-void UBuildingUpgradeWidgetBase::UpgradeBuilding()
+void UBuildingUpgradeWidgetBase::UpgradeBuildingLevel()
 {
 	ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this));
 	if(GameMode)

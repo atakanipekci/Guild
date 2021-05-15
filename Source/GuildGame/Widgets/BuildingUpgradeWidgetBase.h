@@ -20,7 +20,7 @@ class GUILDGAME_API UBuildingUpgradeWidgetBase : public UUserWidget
 	public:
 	void RefreshPage(struct FBuildingStatsBase* Stat);
 	UFUNCTION()
-	void UpgradeBuilding();
+	void UpgradeBuildingLevel();
 
 	UPROPERTY(meta = (BindWidget))
 	class UUniformGridPanel* UpgradesGridPanel;

@@ -45,7 +45,8 @@ class GUILDGAME_API ATownGameModeBase : public AGameModeBase
 	void SetNpcBehaviourState(int UniqueID,  ENpcBehaviourStates State, ECharacterClassType CharacterType);
 	struct FBuildingStatsBase* CreateBuildingStats(EBuildingTypes BuildingType);
 	void UpgradeBuilding(EBuildingTypes BuildingType, bool& OutIsNextUpdateAvailable);
-	
+	TArray<FTableRowBase*> GetBuildingUpgradeRowsByType(EBuildingTypes BuildingType);
+
 	static void UpdateTownHud(UObject* Caller);
 	
 

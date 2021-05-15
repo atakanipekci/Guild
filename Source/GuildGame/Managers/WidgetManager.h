@@ -24,7 +24,8 @@ enum class EWidgetKeys: uint8
 	RecruitUpgradeWidget,
 	CharacterDetail,
 	GuildDetail,
-	TownHud
+	TownHud,
+	RecruitBuildingUpgTooltip
 };
 
 UENUM()

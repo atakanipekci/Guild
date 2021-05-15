@@ -46,6 +46,8 @@ void UTownHudWidget::OnTestClicked()
  
      FString CurrentLevel = TheWorld->GetMapName();
      UGameplayStatics::OpenLevel(GetWorld(), "TestMap");
+
+    //TODO save towngamemode data and delete all pointers 
     
      // if (CurrentLevel == "ThirdPersonExampleMap")
      // {

@@ -184,6 +184,22 @@ void ATownGameModeBase::UpgradeBuilding(EBuildingTypes BuildingType, bool& OutIs
     }
 }
 
+TArray<FTableRowBase*> ATownGameModeBase::GetBuildingUpgradeRowsByType(EBuildingTypes BuildingType)
+{
+     TArray<FTableRowBase*> Rows;
+    
+     if(BuildingType == EBuildingTypes::Recruit)
+     {
+         if(RecruitBuildingUpgradeTable)
+         {
+             const FString Context(TEXT("Buildin Upgrade Stat Row Missing"));
+             RecruitBuildingUpgradeTable->GetAllRows(Context, Rows);
+         }
+     }
+
+    return Rows;
+}
+
 void ATownGameModeBase::UpdateTownHud(UObject* Caller)
 {
     ATownGameModeBase* Mode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(Caller));

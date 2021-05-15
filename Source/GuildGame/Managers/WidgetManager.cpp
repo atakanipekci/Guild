@@ -83,6 +83,10 @@ FString WidgetManager::GetWidgetRowName(const EWidgetKeys Key)
     {
         return FString(TEXT("TownHud"));
     }
+    else if(Key == EWidgetKeys::RecruitBuildingUpgTooltip)
+    {
+        return FString(TEXT("RecruitBuildingUpgTooltip"));
+    }
 
     return FString(TEXT("EMPTY"));
 }
@@ -113,7 +117,7 @@ UUserWidget* WidgetManager::GetOrCreateWidgetInstance(const EWidgetKeys Key, UOb
      UUserWidget* NewWidget = GetWidgetInstance(Key);
      if(NewWidget == nullptr)
      {
-         NewWidget = CreateWidget<UUserWidget>(Owner->GetWorld(), WidgetManager::GetWidget(Key));
+         NewWidget = CreateWidget<UUserWidget>(Owner->GetWorld(), GetWidget(Key));
          SetWidgetInstance(Key, NewWidget);
      }
    

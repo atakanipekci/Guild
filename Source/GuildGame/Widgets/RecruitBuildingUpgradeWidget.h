@@ -13,5 +13,9 @@ UCLASS()
 class GUILDGAME_API URecruitBuildingUpgradeWidget : public UBuildingUpgradeWidgetBase
 {
 	GENERATED_BODY()
-	
+
+	public:
+	virtual void NativeConstruct() override;
+
+	 TArray<struct FTableRowBase*> TableRows;
 };

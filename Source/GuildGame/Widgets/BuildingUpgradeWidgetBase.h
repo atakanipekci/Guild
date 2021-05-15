@@ -14,10 +14,10 @@ class GUILDGAME_API UBuildingUpgradeWidgetBase : public UUserWidget
 {
 	GENERATED_BODY()
 
-	virtual void NativeConstruct() override;
 	void RefreshPage();
 	
 	public:
+	virtual void NativeConstruct() override;
 	void RefreshPage(struct FBuildingStatsBase* Stat);
 	UFUNCTION()
 	void UpgradeBuildingLevel();

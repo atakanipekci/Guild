@@ -14,6 +14,7 @@
 void UBuildingUpgradeWidgetBase::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
 	if(UpgradesGridPanel && Upgrades.Num() <= 0)
 	{
 		for (int i = 0; i < UpgradesGridPanel->GetChildrenCount(); ++i)

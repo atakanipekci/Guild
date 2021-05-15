@@ -19,8 +19,9 @@ FCharacterStats* CharacterGenerationManager::CreateRandomCharacter()
 		int UniqueID = WidgetManager::GetAndSetDraggableSpawnCount();
 		FCharacterStats* CopyStruct = new FCharacterStats(*CharacterData);
 		// CopyStruct->Price = 50;
-		CopyStruct->Health += CopyStruct->Health * FMath::RandRange(0.0f, 0.20f);
-		CopyStruct->BaseDamage += CopyStruct->Health * FMath::RandRange(0.0f, 0.05f);
+		CopyStruct->MaxHealth += CopyStruct->MaxHealth * FMath::RandRange(0.0f, 0.20f);
+		CopyStruct->CurrentHealth = CopyStruct->MaxHealth;
+		CopyStruct->BaseDamage += CopyStruct->BaseDamage * FMath::RandRange(0.0f, 0.05f);
 		CopyStruct->UniqueID = UniqueID;
 		CopyStruct->TownNpcBehaviourState = ENpcBehaviourStates::WalkingAround;
 

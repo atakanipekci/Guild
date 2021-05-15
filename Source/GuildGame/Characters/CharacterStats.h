@@ -22,7 +22,9 @@ struct FCharacterStats : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString ClassName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int Health;
+	int MaxHealth = 100;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int CurrentHealth;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int BaseDamage = 5;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -35,14 +37,14 @@ struct FCharacterStats : public FTableRowBase
 	
 	ENpcBehaviourStates TownNpcBehaviourState;
 
-	FCharacterStats()
-	{
-	}
+	FCharacterStats() = default;
+	
 	explicit FCharacterStats(const FCharacterStats& StructForCopy)
 	{
 		ClassType = StructForCopy.ClassType;
 		ClassName = StructForCopy.ClassName;
-		Health = StructForCopy.Health;
+		CurrentHealth = StructForCopy.CurrentHealth;
+		MaxHealth = StructForCopy.MaxHealth;
 		BaseDamage = StructForCopy.BaseDamage;
 		MovementRange = StructForCopy.MovementRange;
 		AttackRange = StructForCopy.AttackRange;
@@ -59,7 +61,7 @@ struct FCharacterStats : public FTableRowBase
 		}
 	}
 
-	 bool operator==(const FCharacterStats & InventoryItem) const
+	 bool operator==(const FCharacterStats & OtherStats) const
      {
          return true;
      }

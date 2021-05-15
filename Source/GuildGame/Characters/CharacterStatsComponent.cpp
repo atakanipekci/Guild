@@ -35,11 +35,17 @@ void UCharacterStatsComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 	// ...
 }
 
+void UCharacterStatsComponent::SetStats(const FCharacterStats& NewStats)
+{
+	Stats = NewStats;
+}
+
 void UCharacterStatsComponent::ChangeHealth(int Amount)
 {
-	CurrentHealth += Amount;
-	LOG("Health : %d", CurrentHealth);
-	if(CurrentHealth <= 0)
+	LOG("Health : %d", GetCurrentHealth());
+	SetCurrentHealth(GetCurrentHealth()+Amount);
+	LOG("Health : %d", GetCurrentHealth());
+	if(GetCurrentHealth() <= 0)
 	{
 		AGGCharacter* Char = Cast<AGGCharacter> (this->GetOwner());
 		if(Char)

@@ -57,6 +57,14 @@ void AGGCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void AGGCharacter::SetStats(const FCharacterStats& Stats)
+{
+	if(StatsComponent)
+	{
+		StatsComponent->SetStats(Stats);
+	}
+}
+
 void AGGCharacter::MoveTo(FVector TargetPos)
 {
 	ABattleAIController* AIController = Cast<ABattleAIController>(GetController());

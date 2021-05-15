@@ -69,9 +69,12 @@ void UTownHudWidget::OpenGuildDetailsScreen()
     UUserWidget* NewWidget = WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::GuildDetail, this);
     if(NewWidget)
     {
-        NewWidget->RemoveFromViewport();
+        //NewWidget->RemoveFromViewport();
         NewWidget->SetVisibility(ESlateVisibility::Visible);
-        NewWidget->AddToViewport();
+        if(NewWidget->IsInViewport() == false)
+        {
+            NewWidget->AddToViewport();
+        }
     }
 
     UGuildDetailsWidget* GuildDetail =  Cast<UGuildDetailsWidget>(NewWidget);

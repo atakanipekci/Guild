@@ -147,7 +147,6 @@ FBuildingStatsBase* ATownGameModeBase::CreateBuildingStats(EBuildingTypes Buildi
 
 void ATownGameModeBase::UpgradeBuilding(EBuildingTypes BuildingType, bool& OutIsNextUpdateAvailable)
 {
-    UE_LOG(LogTemp, Warning, TEXT("UPDATED 0.1"));
     if(BuildingType == EBuildingTypes::Recruit)
     {
         const TArray<FName> RowNames = RecruitBuildingUpgradeTable->GetRowNames();
@@ -155,15 +154,12 @@ void ATownGameModeBase::UpgradeBuilding(EBuildingTypes BuildingType, bool& OutIs
         
         FRecruitBuildingStats* BuildingStats = static_cast<FRecruitBuildingStats*>(BuildingStatsMap[EBuildingTypes::Recruit]);
 
-        UE_LOG(LogTemp, Warning, TEXT("UPDATED 0.2"));
         if(BuildingStats)
         {
-             UE_LOG(LogTemp, Warning, TEXT("UPDATED 0.3 %d"), RowCount);
             if(RowCount > 0 &&  BuildingStats->UpgradeLevel  < RowCount)
             {
                  const int TargetNameIndex = BuildingStats->UpgradeLevel;
                  BuildingStats->UpgradeLevel++;
-                 UE_LOG(LogTemp, Warning, TEXT("UPDATED1"));
 
                  const FString Context(TEXT("Buildin Upgrade Stat Row Missing"));
                  const FName Row = RowNames[TargetNameIndex];
@@ -171,7 +167,6 @@ void ATownGameModeBase::UpgradeBuilding(EBuildingTypes BuildingType, bool& OutIs
                  FRecruitBuildingUpgradeStats* UpgradeData = RecruitBuildingUpgradeTable->FindRow<FRecruitBuildingUpgradeStats>(Row, Context, true);
                  if(UpgradeData)
                  {
-                     UE_LOG(LogTemp, Warning, TEXT("UPDATED3"));
                      FRecruitBuildingUpgradeStats* CopyStruct = new FRecruitBuildingUpgradeStats(*UpgradeData);
 
                      if(BuildingStats->UpgradeStats)

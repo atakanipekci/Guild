@@ -10,6 +10,7 @@
 
 void UGuildDetailsWidget::NativeConstruct()
 {
+	Super::NativeConstruct();
 	 if(GainFameBtn)
         GainFameBtn->OnClicked.AddUniqueDynamic(this, &UGuildDetailsWidget::GainFame);
 }

@@ -3,8 +3,13 @@
 
 #include "RecruitWidget.h"
 
+#include "BuildingUpgradeWidgetBase.h"
 #include "RecruitableCharactersDroppableWidget.h"
 #include "Components/Button.h"
+#include "GuildGame/Managers/WidgetManager.h"
+#include "GuildGame/Town/BuildingStats.h"
+#include "GuildGame/Town/TownGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
 // #include "GuildGame/Town/TownBuildingActorComponent.h"
 // #include "TownDefaultPawn.h"
 // #include "Components/Border.h"
@@ -19,6 +24,9 @@ void URecruitWidget::NativeConstruct()
     //OnEnabled();
     if(RefreshButton)
         RefreshButton->OnClicked.AddUniqueDynamic(this, &URecruitWidget::RefreshRecruitables);
+    
+    if(UpgradeButton)
+        UpgradeButton->OnClicked.AddUniqueDynamic(this, &URecruitWidget::OpenUpgradePage);
 }
 
 void URecruitWidget::Refresh()
@@ -52,5 +60,25 @@ void URecruitWidget::RefreshRecruitables()
     if(RecruitableCharactersSlider)
     {
         RecruitableCharactersSlider->RefreshRecruitables();
+    }
+}
+
+void URecruitWidget::OpenUpgradePage()
+{
+    UUserWidget* UpgradePage = WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::RecruitUpgradeWidget, this);
+    if(UpgradePage)
+    {
+        UpgradePage->RemoveFromViewport();
+        UpgradePage->SetVisibility(ESlateVisibility::Visible);
+        UpgradePage->AddToViewport();
+
+        ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this));
+        if(GameMode)
+        {
+            FBuildingStatsBase* BuildingStats = GameMode->BuildingStatsMap[EBuildingTypes::Recruit];
+            UBuildingUpgradeWidgetBase* RecruitUpgradePage = Cast<UBuildingUpgradeWidgetBase>(UpgradePage);
+            RecruitUpgradePage->RefreshPage(BuildingStats);
+            
+        }
     }
 }

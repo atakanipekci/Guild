@@ -74,8 +74,6 @@ void UTownHudWidget::OpenGuildDetailsScreen()
         NewWidget->AddToViewport();
     }
 
-    NewWidget->SetVisibility(ESlateVisibility::Visible);
-    NewWidget->AddToViewport();
     UGuildDetailsWidget* GuildDetail =  Cast<UGuildDetailsWidget>(NewWidget);
     if(GuildDetail)
     {

@@ -39,7 +39,7 @@ void UTownNpcManager::StartSpawning(TArray<FCharacterStats*> OwnedCharacters)
         if(TownGameMode && TownGameMode->GetWorld())
         {
            ATownNpcCharacter* SpawnedCharacter =  CharacterManager::SpawnCharacter<ATownNpcCharacter,ATownNpcCharacter>(TownGameMode->NpcCharacterBlueprint,OwnedCharacters[i]->ClassType,
-                RandLocation, FRotator{},TownGameMode->GetWorld());
+                RandLocation, FRotator(),TownGameMode->GetWorld());
             if(SpawnedCharacter)
             {
                 MoveNpcToDestination(SpawnedCharacter);
@@ -57,7 +57,7 @@ void UTownNpcManager::SpawnOnClick()
     if(TownGameMode && TownGameMode->GetWorld())
     {
         ATownNpcCharacter* SpawnedCharacter = CharacterManager::SpawnCharacter<ATownNpcCharacter,ATownNpcCharacter>(TownGameMode->NpcCharacterBlueprint,ECharacterClassType::Knight,
-            RandLocation, FRotator{},TownGameMode->GetWorld());
+            RandLocation, FRotator(),TownGameMode->GetWorld());
         if(SpawnedCharacter)
         {
             MoveNpcToDestination(SpawnedCharacter);
@@ -87,7 +87,7 @@ void UTownNpcManager::SetNpcBehaviourState(int UniqueID, ENpcBehaviourStates Sta
         if(TownGameMode && TownGameMode->GetWorld())
         {
             ATownNpcCharacter* SpawnedCharacter = CharacterManager::SpawnCharacter<ATownNpcCharacter,ATownNpcCharacter>(TownGameMode->NpcCharacterBlueprint,CharacterType,
-                RandLocation, FRotator{},TownGameMode->GetWorld());
+                RandLocation, FRotator(),TownGameMode->GetWorld());
             if(SpawnedCharacter)
             {
                 SpawnedNpCs.Add(UniqueID, SpawnedCharacter);

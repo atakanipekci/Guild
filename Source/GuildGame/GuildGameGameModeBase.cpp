@@ -8,6 +8,7 @@
 #include "Characters/CharacterStats.h"
 #include "Characters/GGCharacter.h"
 #include "Managers/CharacterManager.h"
+#include "Managers/GridManager.h"
 #include "GGLogHelper.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -16,19 +17,25 @@ void AGuildGameGameModeBase::BeginPlay()
 	 UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
      if(GameInstance)
      {
-     	float pos_x = 0;
+     	int Count = 0;
+     	GridManager* GridMan = CharacterManager::CharGridManager;
      	for (auto Element : GameInstance->SquadCharacters)
      	{
-			AGGCharacter* Char = CharacterManager::SpawnCharacter<AGGCharacter,AGGCharacter>(BattleCharactersBP,Element->ClassType,
-           									FVector{pos_x,0,110}, FRotator{}, GetWorld());
-
-     		if(Char)
+     		if(GridMan)
      		{
-     			LOG("Health REE %d", Element->MaxHealth);
-     			Char->SetStats(*Element);
+     			FVector Location = GridMan->GetGridCenter(Count);
+     			Location.Z = 100;
+				AGGCharacter* Char = CharacterManager::SpawnCharacter<AGGCharacter,AGGCharacter>(BattleCharactersBP,Element->ClassType,
+           										Location, FRotator(), GetWorld());
+
+     			if(Char)
+     			{
+     				Char->SetStats(*Element);
+     				Char->SetCurrentIndex(Count);
+					GridMan->SetGridState(Count, EGridState::Obstacle);
+     			}
      		}
-     		
-     		pos_x += 100;
+     		Count+=2;
      	}   
      }
 }

@@ -184,6 +184,10 @@ void ABattlePlayerController::MoveSelectedChar()
 
 void ABattlePlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)
 {
+	if(SelectedCharacter)
+	{
+		SelectedCharacter->Deselect();
+	}
 	SelectedCharacter = NewCharacter;
 	if(SelectedCharacter)
 	{

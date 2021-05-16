@@ -39,6 +39,8 @@ public:
 	void UpdateDamageableGrids();
 	void AttackTo(AGGCharacter* Target);
 	void SetSelected();
+	void Deselect();
+	void SetCurrentIndex(int NewIndex);
 	float GetDefaultMovementRange()const;
 	float GetDefaultDamageRange()const;
 	int GetBaseDamage()const;
@@ -53,4 +55,5 @@ private:
 	TArray<Grid*> DamageableGrids;
 	ECharacterStatus Status = ECharacterStatus::Idle;
 	class UCharacterStatsComponent* StatsComponent;
+	int CurrentGridIndex;
 };

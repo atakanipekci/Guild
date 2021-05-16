@@ -27,6 +27,11 @@ AGGCharacter::AGGCharacter()
 		StatsComponent->SetMaxHealth(100);
 		StatsComponent->SetCurrentHealth(100);
 	}
+	GridManager* GridMan = CharacterManager::CharGridManager;
+    if(GridMan)
+    {
+     	//CurrentGridIndex = GridMan->WorldToGrid(GetActorLocation());
+    }
 }
 
 TArray<Grid*>* AGGCharacter::GetMovableGrids()
@@ -108,12 +113,27 @@ void AGGCharacter::AttackTo(AGGCharacter* Target)
 
 void AGGCharacter::SetSelected()
 {
-	UpdateMovableGrids();
 	GridManager* GridMan = CharacterManager::CharGridManager;
 	if(GridMan && GridMan->GetAttachedFloor())
 	{
+		GridMan->SetGridState(CurrentGridIndex, EGridState::Empty);
+		UpdateMovableGrids();
 		GridMan->GetAttachedFloor()->UpdateGridMeshes(MovableGrids);
 	}
+}
+
+void AGGCharacter::Deselect()
+{
+	GridManager* GridMan = CharacterManager::CharGridManager;
+	if(GridMan && GridMan->GetAttachedFloor())
+	{
+		GridMan->SetGridState(CurrentGridIndex, EGridState::Obstacle);
+	}
+}
+
+void AGGCharacter::SetCurrentIndex(int NewIndex)
+{
+	CurrentGridIndex = NewIndex;
 }
 
 float AGGCharacter::GetDefaultMovementRange() const
@@ -154,14 +174,16 @@ ECharacterStatus AGGCharacter::GetStatus() const
 void AGGCharacter::SetStatus(ECharacterStatus NewStatus)
 {
 	Status = NewStatus;
+	GridManager* GridMan = CharacterManager::CharGridManager;
 	if(Status == ECharacterStatus::Idle)
 	{
 		UpdateMovableGrids();
-		GridManager* GridMan = CharacterManager::CharGridManager;
 		if(GridMan && GridMan->GetAttachedFloor())
 		{
 			GridMan->GetAttachedFloor()->UpdateGridMeshes(MovableGrids);
 		}
+		
+     	CurrentGridIndex = GridMan->WorldToGrid(GetActorLocation());
 	}
 }
 

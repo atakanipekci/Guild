@@ -6,6 +6,7 @@
 
 
 #include "CharacterDetailWidget.h"
+#include "DraggedVisualWidget.h"
 #include "GuildGame/Characters/CharacterStats.h"
 #include "DroppableAreaWidget.h"
 #include "GuildGame/Town/TownGameModeBase.h"
@@ -14,6 +15,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/PanelWidget.h"
 #include "Components/TextBlock.h"
+#include "GuildGame/Managers/ImageManager.h"
 #include "Kismet/GameplayStatics.h"
 
 void UDraggedCharacterWidget::NativeConstruct()
@@ -150,6 +152,20 @@ void UDraggedCharacterWidget::NativeOnDragDetected(const FGeometry& InGeometry, 
     OutOperation = UWidgetBlueprintLibrary::CreateDragDropOperation(DragDropOperation);
     OutOperation->Payload = this;
     OutOperation->DefaultDragVisual = DraggedVisualInstance;
+
+    if(DraggedVisualInstance)
+    {
+        UDraggedVisualWidget* Visual = Cast<UDraggedVisualWidget>(DraggedVisualInstance);
+
+        if(Visual)
+        {
+            if(Visual->Portrait && Stat)
+            {
+                ImageManager::SetPortraitTextureByClass(Stat->ClassType, Visual->Portrait);
+            }
+        }
+        
+    }
     //OutOperation->event
 }
 

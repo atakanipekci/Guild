@@ -10,7 +10,9 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CharacterStatsComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GuildGame/GridSystem/GridFloor.h"
+#include "GuildGame/Widgets/BattleHealthBarWidget.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -27,6 +29,13 @@ AGGCharacter::AGGCharacter()
 		StatsComponent->SetMaxHealth(100);
 		StatsComponent->SetCurrentHealth(100);
 	}
+
+	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>("HealthBarComponent");
+	if(HealthBarComponent)
+	{
+		HealthBarComponent->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	}
+
 	GridManager* GridMan = CharacterManager::CharGridManager;
     if(GridMan)
     {
@@ -53,6 +62,14 @@ void AGGCharacter::BeginPlay()
 	{
 		PlayerController->SetSelectedCharacter(this);
 	}*/
+
+	if(HealthBarComponent)
+	{
+		HealthBarWidget = Cast<UBattleHealthBarWidget>(HealthBarComponent->GetUserWidgetObject());
+		// if(HealthBarWidget)
+		// 	HealthBarWidget->SetRenderScale(FVector2D(0.1f, 0.1));
+	}
+	UpdateHealthBar();
 	
 }
 
@@ -193,6 +210,7 @@ float AGGCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 	if(StatsComponent)
 	{
 		StatsComponent->ChangeHealth(-DamageAmount);
+		UpdateHealthBar();
 	}
 	return DamageAmount;
 }
@@ -211,5 +229,13 @@ void AGGCharacter::ShowDamageableGrids()
 		GridMan->GetAttachedFloor()->UpdateGridMeshes(DamageableGrids, EISMType::Attack);
 	}
 	
+}
+
+void AGGCharacter::UpdateHealthBar()
+{
+	if(HealthBarWidget && StatsComponent)
+	{
+		HealthBarWidget->SetHpBar(StatsComponent->GetCurrentHealth(), StatsComponent->GetMaxHealth());
+	}
 }
 

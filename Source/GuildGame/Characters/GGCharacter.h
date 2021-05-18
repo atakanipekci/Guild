@@ -50,10 +50,20 @@ public:
 	float TakeDefaultDamage(float DamageAmount, AActor* Dealer);
 	void ShowDamageableGrids();
 
+	void UpdateHealthBar();
+
 private:
 	TArray<Grid*> MovableGrids;
 	TArray<Grid*> DamageableGrids;
 	ECharacterStatus Status = ECharacterStatus::Idle;
 	class UCharacterStatsComponent* StatsComponent;
+	
+	UPROPERTY(EditAnywhere)
+	class USceneComponent* SceneComponent;
+	UPROPERTY(EditAnywhere)
+	class UWidgetComponent* HealthBarComponent;
+	UPROPERTY()
+	class UBattleHealthBarWidget* HealthBarWidget;
+	
 	int CurrentGridIndex;
 };

@@ -18,13 +18,10 @@ ATownGameModeBase::ATownGameModeBase()
     PlayerControllerClass = ATownPlayerController::StaticClass();
 }
 
-
-
 void ATownGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
     Super::InitGame(MapName, Options, ErrorMessage);
-    NpcManager = NewObject<UTownNpcManager>();
-
+    NpcManager = new TownNpcManager(this);
 }
 
 void ATownGameModeBase::BeginPlay()
@@ -32,13 +29,8 @@ void ATownGameModeBase::BeginPlay()
     Super::BeginPlay();
     UE_LOG(LogTemp, Warning, TEXT("GameMode BEGINPLAY "));
     
-    DayTaskManager::UpdateTasks(this);
+    //DayTaskManager::UpdateTasks(this);
 
-    if(NpcManager)
-	{
-		NpcManager->ManuelConstructor(/*NpcTable, */this);
-        //NpcManager->StartSpawning(OwnedCharacters);
-	}
 
     HudWidgetInstance = Cast<UTownHudWidget>(WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::TownHud, this));
     if(HudWidgetInstance)
@@ -86,16 +78,11 @@ void ATownGameModeBase::OnLevelLoaded()
 void ATownGameModeBase::BeginDestroy()
 {
     Super::BeginDestroy();
-
+    UE_LOG(LogTemp, Warning, TEXT("GameMode DESTROY "));
     WidgetManager::ResetWidgetInstances();
 
-    if(NpcManager)
-	{
-		NpcManager->ConditionalBeginDestroy();
-	}
-    
+    delete NpcManager;
 }
-
 
 
 void ATownGameModeBase::SpawnOnClick()
@@ -122,7 +109,7 @@ FBuildingStatsBase* ATownGameModeBase::CreateBuildingStats(EBuildingTypes Buildi
         const int RowCount = RowNames.Num();
         
         FRecruitBuildingStats* BuildingStats = new FRecruitBuildingStats();
-        
+        //TODO load from save
         const int TargetNameIndex = FMath::Max(BuildingStats->UpgradeLevel - 1, 0);
         
         if(RowCount > 0 && TargetNameIndex < RowCount)
@@ -140,6 +127,11 @@ FBuildingStatsBase* ATownGameModeBase::CreateBuildingStats(EBuildingTypes Buildi
                 return  BuildingStats;
             }
         }
+        else
+        {
+            delete BuildingStats;
+        }
+        
     }
 
     return  nullptr;

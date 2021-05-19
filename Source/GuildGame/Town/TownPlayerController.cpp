@@ -2,7 +2,7 @@
 
 
 #include "TownPlayerController.h"
-#include "TownInteractionController.h"
+#include "TownBuildingInteractionManager.h"
 
 ATownPlayerController::ATownPlayerController()
 {
@@ -11,26 +11,26 @@ ATownPlayerController::ATownPlayerController()
 void ATownPlayerController::BeginPlay()
 {
 
-	InteractionController = NewObject<UTownInteractionController>();
-	if(InteractionController)
-		InteractionController->ManuelConstructor(EInteractionStatee::BuildingSelection, this);
+	BuildingInteractionManager = NewObject<UTownBuildingInteractionManager>();
+	if(BuildingInteractionManager)
+		BuildingInteractionManager->ManuelConstructor(EInteractionStatee::BuildingSelection, this);
 }
 
 void ATownPlayerController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 	
-    if(InteractionController)
+    if(BuildingInteractionManager)
     {
-        InteractionController->Tick();
+        BuildingInteractionManager->Tick();
     }
 }
 
 void ATownPlayerController::InteractionControllerWidgetToggle()
 {
-    if(InteractionController)
+    if(BuildingInteractionManager)
     {
-        InteractionController->ToggleWidget();
+        BuildingInteractionManager->ToggleWidget();
     }
 }
 void ATownPlayerController::SetupInputComponent()
@@ -58,18 +58,18 @@ void ATownPlayerController::SetupInputComponent()
 
 void ATownPlayerController::LeftClickHandler()
 {
-		if(InteractionController)
+		if(BuildingInteractionManager)
 		{
-			InteractionController->LeftClickHandler();
+			BuildingInteractionManager->LeftClickHandler();
 		}
 }
 
 void ATownPlayerController::BeginDestroy()
 {
 	Super::BeginDestroy();
-	if(InteractionController)
+	if(BuildingInteractionManager)
 	{
-		InteractionController->ConditionalBeginDestroy();
+		BuildingInteractionManager->ConditionalBeginDestroy();
 	}
 }
 

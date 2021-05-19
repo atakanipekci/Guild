@@ -5,7 +5,7 @@
 #include "BuildingWidgetBase.h"
 #include "GuildDetailsWidget.h"
 #include "GuildGameInstance.h"
-#include "GuildGame/Town/TownInteractionController.h"
+#include "GuildGame/Town/TownBuildingInteractionManager.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
 #include "Components/TextBlock.h"
@@ -94,8 +94,8 @@ void UTownHudWidget::ExitCanvas(EMenuWidgetType CanvasType)
 {
      if(PlayerController)
     {
-        if(PlayerController->InteractionController)
-            PlayerController->InteractionController->ToPrevStateState();
+        if(PlayerController->BuildingInteractionManager)
+            PlayerController->BuildingInteractionManager->ToPrevStateState();
     }
     if(CanvasType == EMenuWidgetType::TeamCanvas)
     {
@@ -111,8 +111,8 @@ void UTownHudWidget::EnterCanvas(EMenuWidgetType CanvasType)
 {
     if(PlayerController)
     {
-        if(PlayerController->InteractionController)
-            PlayerController->InteractionController->ChangeState(PlayerController->InteractionController->State, EInteractionStatee::MenuWidget);
+        if(PlayerController->BuildingInteractionManager)
+            PlayerController->BuildingInteractionManager->ChangeState(PlayerController->BuildingInteractionManager->State, EInteractionStatee::MenuWidget);
     }
     if(CanvasType == EMenuWidgetType::TeamCanvas)
     {

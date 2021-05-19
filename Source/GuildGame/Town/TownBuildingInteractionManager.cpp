@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TownInteractionController.h"
+#include "TownBuildingInteractionManager.h"
 
 
 
@@ -18,24 +18,24 @@
 #include "Components/Overlay.h"
 #include "Kismet/GameplayStatics.h"
 
-UTownInteractionController::UTownInteractionController()
+UTownBuildingInteractionManager::UTownBuildingInteractionManager()
 {
 	
 }
 
-UTownInteractionController::~UTownInteractionController()
+UTownBuildingInteractionManager::~UTownBuildingInteractionManager()
 {
 	
 }
 
-void UTownInteractionController::ManuelConstructor(EInteractionStatee NewState, ATownPlayerController* NewPlayerController)
+void UTownBuildingInteractionManager::ManuelConstructor(EInteractionStatee NewState, ATownPlayerController* NewPlayerController)
 {
 	this->State = State;
 	this->PrevState = State;
     this->PlayerController = NewPlayerController;
 }
 
-void UTownInteractionController::Tick()
+void UTownBuildingInteractionManager::Tick()
 {
     if(State == EInteractionStatee::BuildingSelection)
     {
@@ -55,7 +55,7 @@ void UTownInteractionController::Tick()
 
 }
 
-void UTownInteractionController::RaycastUnderCursor()
+void UTownBuildingInteractionManager::RaycastUnderCursor()
 {
     if(PlayerController == nullptr)
 		return;
@@ -98,7 +98,7 @@ void UTownInteractionController::RaycastUnderCursor()
 	HoveredBuilding = nullptr;
 }
 
-void UTownInteractionController::PlaySequence()
+void UTownBuildingInteractionManager::PlaySequence()
 {
 		UE_LOG(LogTemp, Warning, TEXT("PlaySequence"));
 	if(SequenceAsset == nullptr || PlayerController == nullptr)
@@ -122,7 +122,7 @@ void UTownInteractionController::PlaySequence()
     }
 }
 
-void UTownInteractionController::PlaySequenceReverse()
+void UTownBuildingInteractionManager::PlaySequenceReverse()
 {
 	if (SequenceAsset && SequencePlayer && SequenceActor)
 	{
@@ -136,7 +136,7 @@ void UTownInteractionController::PlaySequenceReverse()
 
 
 
-void UTownInteractionController::SetRenderCustomDepth(UActorComponent* Building, bool EnableDepth)
+void UTownBuildingInteractionManager::SetRenderCustomDepth(UActorComponent* Building, bool EnableDepth)
 {
 	if(Building != nullptr)
 	{
@@ -149,7 +149,7 @@ void UTownInteractionController::SetRenderCustomDepth(UActorComponent* Building,
 	}
 }
 
-void UTownInteractionController::LeftClickHandler()
+void UTownBuildingInteractionManager::LeftClickHandler()
 {
 	 UE_LOG(LogTemp, Warning, TEXT("PLAYER CONTROLLER 1"));
 
@@ -159,7 +159,7 @@ void UTownInteractionController::LeftClickHandler()
 	}
 }
 
-void UTownInteractionController::ZoomInToBuilding()
+void UTownBuildingInteractionManager::ZoomInToBuilding()
 {
 	if(bEnableInput == false)
 		return;
@@ -180,7 +180,7 @@ void UTownInteractionController::ZoomInToBuilding()
 }
 
 
-void UTownInteractionController::ZoomOutFromBuilding()
+void UTownBuildingInteractionManager::ZoomOutFromBuilding()
 {
 	if(bEnableInput == false)
 		return;
@@ -204,7 +204,7 @@ void UTownInteractionController::ZoomOutFromBuilding()
 	}
 }
 
-void UTownInteractionController::ToggleWidget()
+void UTownBuildingInteractionManager::ToggleWidget()
 {
 	if(SelectedBuilding)
 	{
@@ -253,7 +253,7 @@ void UTownInteractionController::ToggleWidget()
 
 			bIsSequenceReversed = true;
 			OnFinishEvent.Clear();
-			OnFinishEvent.BindDynamic(this, &UTownInteractionController::OnWidgetAnimationFinish);
+			OnFinishEvent.BindDynamic(this, &UTownBuildingInteractionManager::OnWidgetAnimationFinish);
 			NewWidget->Refresh();
 			NewWidget->BindToAnimationFinished(NewWidget->OpenUpAnimation, OnFinishEvent);
 			NewWidget->PlayAnimation(NewWidget->OpenUpAnimation);
@@ -263,11 +263,11 @@ void UTownInteractionController::ToggleWidget()
 	}
 }
 
-void UTownInteractionController::OnSequenceFinish()
+void UTownBuildingInteractionManager::OnSequenceFinish()
 {
 }
 
-void UTownInteractionController::OnWidgetAnimationFinish()
+void UTownBuildingInteractionManager::OnWidgetAnimationFinish()
 {
 
 	if(SelectedBuilding && State == EInteractionStatee::BuildingSelection)
@@ -285,7 +285,7 @@ void UTownInteractionController::OnWidgetAnimationFinish()
 	bEnableInput = true;
 }
 
-void UTownInteractionController::ChangeState(EInteractionStatee From, EInteractionStatee To)
+void UTownBuildingInteractionManager::ChangeState(EInteractionStatee From, EInteractionStatee To)
 {
 	if(State != To)
 	{
@@ -293,52 +293,25 @@ void UTownInteractionController::ChangeState(EInteractionStatee From, EInteracti
 	}
 	
 	State = To;
-	OnStateChange(From, true);
-	OnStateChange(To, false);
+	OnStateChange(To, From);
 }
 
-void UTownInteractionController::OnStateChange(const EInteractionStatee NewState, const bool IsFrom)
+void UTownBuildingInteractionManager::OnStateChange(const EInteractionStatee NewState, const EInteractionStatee OldState)
 {
-	if(NewState == EInteractionStatee::BuildingSelection)
+	if(OldState == EInteractionStatee::BuildingSelection)
 	{
-		if(IsFrom)
+		if(HoveredBuilding)
 		{
-			if(HoveredBuilding)
-			{
-				UActorComponent* StaticMesh = HoveredBuilding->GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass());
-				if(StaticMesh)
-					SetRenderCustomDepth(StaticMesh, false);
-				HoveredBuilding = nullptr;
-			}
-		}
-		else
-		{
-			
+			UActorComponent* StaticMesh = HoveredBuilding->GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass());
+			if(StaticMesh)
+				SetRenderCustomDepth(StaticMesh, false);
+			HoveredBuilding = nullptr;
 		}
 	}
-	else if(NewState == EInteractionStatee::BuildingWidget)
-	{
-		if(IsFrom)
-		{
-		}
-		else
-		{
-			
-		}
-	}
-	else if(NewState == EInteractionStatee::MenuWidget)
-	{
-		if(IsFrom)
-		{
-		}
-		else
-		{
-			
-		}
-	}
+	
 }
 
-void UTownInteractionController::ToPrevStateState()
+void UTownBuildingInteractionManager::ToPrevStateState()
 {
 	ChangeState(State, PrevState);
 }

@@ -26,7 +26,7 @@ void UBuildingActorComponent::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogTemp, Warning, TEXT("BUILDING BEGINPLAY"));
-	DayTaskManager::AddBuildingCaller(BuildingDataTableKey, this);
+	//DayTaskManager::AddBuildingCaller(BuildingDataTableKey, this);
 	
 	if(PreviewMatBP && ConstructedMatBP && NotConstructedMatBP && UnderConstructionMatBP)
 	{

@@ -16,7 +16,7 @@ FCharacterStats* CharacterGenerationManager::CreateRandomCharacter()
 	if(CharactersDataTable)
 	{
 		FCharacterStats* CharacterData = CharactersDataTable->FindRow<FCharacterStats>(Row, Context, true);
-		int UniqueID = WidgetManager::GetAndSetDraggableSpawnCount();
+		int UniqueID = WidgetManager::IncrementSpawnedDraggableCount();
 		FCharacterStats* CopyStruct = new FCharacterStats(*CharacterData);
 		// CopyStruct->Price = 50;
 		CopyStruct->MaxHealth += CopyStruct->MaxHealth * FMath::RandRange(0.0f, 0.20f);

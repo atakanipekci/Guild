@@ -26,10 +26,11 @@ void AGuildGameGameModeBase::BeginPlay()
      			FVector Location = GridMan->GetGridCenter(Count);
      			Location.Z = 100;
 				AGGCharacter* Char = CharacterManager::SpawnCharacter<AGGCharacter,AGGCharacter>(BattleCharactersBP,Element->ClassType,
-           										Location, FRotator(), GetWorld());
+           										Location, FRotator::ZeroRotator, GetWorld());
 
      			if(Char)
      			{
+     				Char->GetAnimInstance();//This initializes Anim Instance
      				Char->SetStats(*Element);
      				Char->SetCurrentIndex(Count);
 					GridMan->SetGridState(Count, EGridState::Obstacle);

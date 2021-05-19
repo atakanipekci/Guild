@@ -3,6 +3,7 @@
 
 #include "BattleAIController.h"
 #include "GGLogHelper.h"
+#include "GuildGame/Characters/CharacterAnimInstance.h"
 #include "GuildGame/Characters/GGCharacter.h"
 
 void ABattleAIController::OnMoveCompleted(FAIRequestID Id, const FPathFollowingResult& Result)
@@ -14,6 +15,10 @@ void ABattleAIController::OnMoveCompleted(FAIRequestID Id, const FPathFollowingR
         if(Char->GetStatus() == ECharacterStatus::Moving)
         {
             Char->SetStatus(ECharacterStatus::Idle);
+
+            UCharacterAnimInstance* AnimInstance = Char->GetAnimInstance();
+            if(AnimInstance)
+			    AnimInstance->ChangeAnimState(ECharacterAnimState::Idle);
         }
     }
 }

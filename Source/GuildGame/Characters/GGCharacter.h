@@ -29,6 +29,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
 
 public:	
 	// Called every frame
@@ -51,12 +52,20 @@ public:
 	void ShowDamageableGrids();
 
 	void UpdateHealthBar();
+	class UCharacterAnimInstance* GetAnimInstance();
+
 
 private:
 	TArray<Grid*> MovableGrids;
 	TArray<Grid*> DamageableGrids;
 	ECharacterStatus Status = ECharacterStatus::Idle;
+
+	UPROPERTY()
 	class UCharacterStatsComponent* StatsComponent;
+	
+	UPROPERTY()
+	class UCharacterAnimInstance* AnimInstance;
+	
 	
 	UPROPERTY(EditAnywhere)
 	class USceneComponent* SceneComponent;

@@ -27,5 +27,5 @@ class GUILDGAME_API ATownPlayerController : public APlayerController
 		void InteractionControllerWidgetToggle();
 
 		UPROPERTY()
-		class UTownInteractionController* InteractionController;
+		class UTownBuildingInteractionManager* BuildingInteractionManager;
 };

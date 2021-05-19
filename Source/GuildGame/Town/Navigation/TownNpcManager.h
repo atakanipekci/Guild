@@ -29,18 +29,16 @@ struct FCharFileDataTable : public FTableRowBase
 	TSubclassOf<UAnimInstance> AnimationBP;
 };
 
-UCLASS()
-class GUILDGAME_API UTownNpcManager : public UObject
+class GUILDGAME_API TownNpcManager
 {
-	GENERATED_BODY()
-
 
 	public:
-	void ManuelConstructor(/*class UDataTable* Table, */class ATownGameModeBase* GameMode);
+	TownNpcManager(class ATownGameModeBase* GameMode);
 
 	void StartSpawning(TArray<struct FCharacterStats*> OwnedCharacters);
 
 	void SpawnOnClick();
+	void SpawnNpcToRandomLocation(int UniqueID, ENpcBehaviourStates State, ECharacterClassType CharacterType);
 	//class ATownNpcCharacter* SpawnCharacter(ECharacterClassType CharacterType, ENpcBehaviourStates State);
 	FString GetNpcTableRowName(ECharacterClassType CharacterType);
 
@@ -48,17 +46,10 @@ class GUILDGAME_API UTownNpcManager : public UObject
 	FVector GetRandomLocationFromNode(float Zoffset);
 	void MoveNpcToDestination(class ATownNpcCharacter* SpawnedActor);
 
-	virtual void BeginDestroy() override;
-	
 	void SetNpcBehaviourState(int UniqueID, const ENpcBehaviourStates State, ECharacterClassType CharacterType);
 
-	UPROPERTY()
-	UDataTable* NpcTable;
-	UPROPERTY()
 	ATownGameModeBase* TownGameMode;
-	UPROPERTY()
 	TArray<class ATownNavNodeActor*> NavigationNodes;
-	UPROPERTY()
 	TMap<int, class ATownNpcCharacter*> SpawnedNpCs;
 
 	

@@ -40,9 +40,6 @@ public:
 	UPROPERTY()
 	class ATownNpcAIController* AIController;
 
-	UPROPERTY()
-	class UTownNpcManager* NpcManager;
-
 	ENpcBehaviourStates CurrentBehaviourState;
 
 	UPROPERTY()

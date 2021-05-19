@@ -47,5 +47,6 @@ public:
 	void IncreaseDay(int Amount);
 
 	virtual void Init() override;
+	virtual void BeginDestroy() override;
 	
 };

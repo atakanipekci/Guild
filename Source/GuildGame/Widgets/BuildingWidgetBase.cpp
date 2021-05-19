@@ -6,7 +6,7 @@
 #include "GuildGame/Town/BuildingActorComponent.h"
 #include "GuildGameInstance.h"
 #include "GuildGame/Town/TownGameModeBase.h"
-#include "GuildGame/Town/TownInteractionController.h"
+#include "GuildGame/Town/TownBuildingInteractionManager.h"
 #include "GuildGame/Town/TownPlayerController.h"
 #include "YesOrNoWidget.h"
 #include "GuildGame/Managers/WidgetManager.h"
@@ -30,11 +30,11 @@ void UBuildingWidgetBase::Refresh()
 {
     if(PlayerController)
     {
-        if(PlayerController->InteractionController)
+        if(PlayerController->BuildingInteractionManager)
         {
-            if(PlayerController->InteractionController->SelectedBuilding)
+            if(PlayerController->BuildingInteractionManager->SelectedBuilding)
             {
-                UBuildingActorComponent* Building = PlayerController->InteractionController->SelectedBuilding;
+                UBuildingActorComponent* Building = PlayerController->BuildingInteractionManager->SelectedBuilding;
                 const EBuildingConstructionState ConstructionState = Building->GetConstructionState();
                 
                 if(ConstructionState == EBuildingConstructionState::Constructed)
@@ -72,8 +72,8 @@ void UBuildingWidgetBase::OnExitClicked()
 {
     if(PlayerController)
     {
-        if(PlayerController->InteractionController)
-            PlayerController->InteractionController->ZoomOutFromBuilding();
+        if(PlayerController->BuildingInteractionManager)
+            PlayerController->BuildingInteractionManager->ZoomOutFromBuilding();
     }
 }
 
@@ -106,14 +106,14 @@ bool UBuildingWidgetBase::ConstrYesEvent()
     UGuildGameInstance* Instance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(this));
     if(PlayerController && Mode && Instance)
     {
-        if(PlayerController->InteractionController)
+        if(PlayerController->BuildingInteractionManager)
         {
-            if(PlayerController->InteractionController->SelectedBuilding)
+            if(PlayerController->BuildingInteractionManager->SelectedBuilding)
             {
                 if(Mode->BuildingDataTable)
                 {
                     const FString Context(TEXT("CONTEXT DATATABLE TEXT"));
-                    const FName Row = *(PlayerController->InteractionController->SelectedBuilding->BuildingDataTableKey);
+                    const FName Row = *(PlayerController->BuildingInteractionManager->SelectedBuilding->BuildingDataTableKey);
                     FBuildingDataTable* BuildingData = Mode->BuildingDataTable->FindRow<FBuildingDataTable>(Row, Context, true);
 
                     if(BuildingData)
@@ -121,7 +121,7 @@ bool UBuildingWidgetBase::ConstrYesEvent()
                         const bool Response = Instance->TryToPurchase(BuildingData->ConstructionPrice);
                         if(Response == true)
                         {
-                            PlayerController->InteractionController->SelectedBuilding->SetConstructionState(EBuildingConstructionState::UnderConstruction);
+                            PlayerController->BuildingInteractionManager->SelectedBuilding->SetConstructionState(EBuildingConstructionState::UnderConstruction);
                             /*Pawn->ZoomOutFromBuilding();*/
                             Refresh();
 
@@ -131,7 +131,7 @@ bool UBuildingWidgetBase::ConstrYesEvent()
                              OnFinish.BindUObject(this, &UBuildingWidgetBase::OnBuildingConstructionFinish);
                             
                              //DayTaskManager::AddTask(PlayerController->InteractionController->SelectedBuilding->BuildingDataTableKey, 0, 0 ,OnStart, OnFinish, OnUpdate);
-                            DayTaskManager::AddTask(PlayerController->InteractionController->SelectedBuilding->BuildingDataTableKey, Instance->Day, 2, ETaskType::ConstructionBuilding);
+                            //DayTaskManager::AddTask(PlayerController->InteractionController->SelectedBuilding->BuildingDataTableKey, Instance->Day, 2, ETaskType::ConstructionBuilding);
                             return  true;
                         }
                         else

@@ -69,7 +69,7 @@ class GUILDGAME_API WidgetManager
 		static ULevelSequence* GetSequence(ESequenceKeys Key);
 		static void ResetWidgetInstances();
 		
-		static int GetAndSetDraggableSpawnCount();
+		static int IncrementSpawnedDraggableCount();
 
 		
 		static UDataTable* WidgetsDataTable;

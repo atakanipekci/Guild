@@ -12,44 +12,24 @@
 
 class ATownNpcAIController;
 
-void UTownNpcManager::BeginDestroy()
-{
-    Super::BeginDestroy();
-}
 
-void UTownNpcManager::ManuelConstructor(/*UDataTable* Table,*/ ATownGameModeBase* GameMode)
+TownNpcManager::TownNpcManager(ATownGameModeBase* GameMode)
 {
-    /*if(Table != nullptr)
-    {
-        NpcTable = Table;
-    }*/
-
     if(GameMode != nullptr)
     {
         TownGameMode = GameMode;
     }
-
 }
 
-void UTownNpcManager::StartSpawning(TArray<FCharacterStats*> OwnedCharacters)
+void TownNpcManager::StartSpawning(TArray<FCharacterStats*> OwnedCharacters)
 {
     for (int i = 0; i < OwnedCharacters.Num(); ++i)
     {
-        FVector RandLocation = GetRandomLocationFromNode(100);
-        if(TownGameMode && TownGameMode->GetWorld())
-        {
-           ATownNpcCharacter* SpawnedCharacter =  CharacterManager::SpawnCharacter<ATownNpcCharacter,ATownNpcCharacter>(TownGameMode->NpcCharacterBlueprint,OwnedCharacters[i]->ClassType,
-                RandLocation, FRotator(),TownGameMode->GetWorld());
-            if(SpawnedCharacter)
-            {
-                MoveNpcToDestination(SpawnedCharacter);
-            }
-        }
-        //SpawnCharacter(OwnedCharacters[i]->ClassType, OwnedCharacters[i]->TownNpcBehaviourState);
+        SpawnNpcToRandomLocation( OwnedCharacters[i]->UniqueID,  OwnedCharacters[i]->TownNpcBehaviourState, OwnedCharacters[i]->ClassType);
     }
 }
 
-void UTownNpcManager::SpawnOnClick()
+void TownNpcManager::SpawnOnClick()
 {
     const int RandIndex = FMath::RandRange(0, NavigationNodes.Num() - 1);
     FVector RandLocation = GetRandomLocationFromNode(100);
@@ -57,7 +37,7 @@ void UTownNpcManager::SpawnOnClick()
     if(TownGameMode && TownGameMode->GetWorld())
     {
         ATownNpcCharacter* SpawnedCharacter = CharacterManager::SpawnCharacter<ATownNpcCharacter,ATownNpcCharacter>(TownGameMode->NpcCharacterBlueprint,ECharacterClassType::Knight,
-            RandLocation, FRotator(),TownGameMode->GetWorld());
+            RandLocation, FRotator::ZeroRotator,TownGameMode->GetWorld());
         if(SpawnedCharacter)
         {
             MoveNpcToDestination(SpawnedCharacter);
@@ -65,11 +45,28 @@ void UTownNpcManager::SpawnOnClick()
     }
 }
 
-void UTownNpcManager::SetNpcBehaviourState(int UniqueID, ENpcBehaviourStates State, ECharacterClassType CharacterType)
+void TownNpcManager::SpawnNpcToRandomLocation(int UniqueID, ENpcBehaviourStates State, ECharacterClassType CharacterType)
+{
+    const FVector RandLocation = GetRandomLocationFromNode(100);
+    
+    if(TownGameMode)
+    {
+        ATownNpcCharacter* SpawnedCharacter = CharacterManager::SpawnCharacter<ATownNpcCharacter,ATownNpcCharacter>(TownGameMode->NpcCharacterBlueprint,CharacterType,
+            RandLocation, FRotator::ZeroRotator,TownGameMode->GetWorld());
+        if(SpawnedCharacter)
+        {
+            SpawnedNpCs.Add(UniqueID, SpawnedCharacter);
+            MoveNpcToDestination(SpawnedCharacter);
+            SpawnedCharacter->SetBehaviourState(State);
+        }
+    }
+}
+
+void TownNpcManager::SetNpcBehaviourState(int UniqueID, ENpcBehaviourStates State, ECharacterClassType CharacterType)
 {
     if(SpawnedNpCs.Contains(UniqueID))
     {
-        UE_LOG(LogTemp, Warning, TEXT("Spawn CONTAINS "));
+        //UE_LOG(LogTemp, Warning, TEXT("Spawn CONTAINS "));
         ATownNpcCharacter** Character =  SpawnedNpCs.Find(UniqueID);
 
         if(Character)
@@ -82,30 +79,18 @@ void UTownNpcManager::SetNpcBehaviourState(int UniqueID, ENpcBehaviourStates Sta
     }
     else
     {
-        FVector RandLocation = GetRandomLocationFromNode(100);
-        
-        if(TownGameMode && TownGameMode->GetWorld())
-        {
-            ATownNpcCharacter* SpawnedCharacter = CharacterManager::SpawnCharacter<ATownNpcCharacter,ATownNpcCharacter>(TownGameMode->NpcCharacterBlueprint,CharacterType,
-                RandLocation, FRotator(),TownGameMode->GetWorld());
-            if(SpawnedCharacter)
-            {
-                SpawnedNpCs.Add(UniqueID, SpawnedCharacter);
-                MoveNpcToDestination(SpawnedCharacter);
-            }
-        }
-      
+        SpawnNpcToRandomLocation( UniqueID,  State,  CharacterType);
     }
 }
 
-void UTownNpcManager::MoveNpcToDestination(ATownNpcCharacter* SpawnedActor)
+void TownNpcManager::MoveNpcToDestination(ATownNpcCharacter* SpawnedActor)
 {
     ATownNavNodeActor* RandomNavNode =  GetRandomNavigationNode();
     SpawnedActor->DestinationNode = RandomNavNode;
     SpawnedActor->MoveToRandomLocation();
 }
 
-FString UTownNpcManager::GetNpcTableRowName(ECharacterClassType CharacterType)
+FString TownNpcManager::GetNpcTableRowName(ECharacterClassType CharacterType)
 {
     if(CharacterType == ECharacterClassType::Knight)
     {
@@ -119,7 +104,7 @@ FString UTownNpcManager::GetNpcTableRowName(ECharacterClassType CharacterType)
     return FString(TEXT("EMPTY"));
 }
 
-ATownNavNodeActor* UTownNpcManager::GetRandomNavigationNode()
+ATownNavNodeActor* TownNpcManager::GetRandomNavigationNode()
 {
     if(NavigationNodes.Num() <= 0)
     {
@@ -131,7 +116,7 @@ ATownNavNodeActor* UTownNpcManager::GetRandomNavigationNode()
     return NavigationNodes[RandIndex];
 }
 
-FVector UTownNpcManager::GetRandomLocationFromNode(float Zoffset)
+FVector TownNpcManager::GetRandomLocationFromNode(float Zoffset)
 {
     ATownNavNodeActor* RandomNavNode =  GetRandomNavigationNode();
 

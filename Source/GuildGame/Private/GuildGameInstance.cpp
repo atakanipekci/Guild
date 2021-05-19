@@ -53,8 +53,12 @@ void UGuildGameInstance::Init()
         CharacterGenerationManager::SetCharactersTable(CharacterStatsTable);
     }
 
-    GuildStats = new FGuildStats();
     
+    //TODO load Stats from save
+    GuildStats = new FGuildStats();
+
+
+    //
     // FGuildStats* GuildStats = new FGuildStats();
     // GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("FAME LEVEL  %d"), GuildStats->FameLevel));
     // // GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Squad count  %s"), *FameLevelsDisplayNames[0]));
@@ -62,4 +66,11 @@ void UGuildGameInstance::Init()
     // GuildStats->GainFameExperience(1500);
     // GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("FAME LEVEL  %d"), GuildStats->FameLevel));
     // // GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Squad count  %s"), *FameLevelsDisplayNames[0]));
+}
+
+void UGuildGameInstance::BeginDestroy()
+{
+    Super::BeginDestroy();
+    UE_LOG(LogTemp, Warning, TEXT("GameInstance DESTROY "));
+    delete GuildStats;
 }

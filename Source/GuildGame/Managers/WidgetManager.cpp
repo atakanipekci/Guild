@@ -161,7 +161,7 @@ void WidgetManager::ResetWidgetInstances()
     WidgetInstanceMap.Empty();
 }
 
-int WidgetManager::GetAndSetDraggableSpawnCount()
+int WidgetManager::IncrementSpawnedDraggableCount()
 {
     return SpawnedDraggableWidgetCount++;
 }

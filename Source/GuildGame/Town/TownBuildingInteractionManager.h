@@ -6,7 +6,7 @@
 
 #include "Animation/WidgetAnimation.h"
 
-#include "TownInteractionController.generated.h"
+#include "TownBuildingInteractionManager.generated.h"
 
 
 /**
@@ -21,12 +21,12 @@ enum class EInteractionStatee: uint8
 };
 
 UCLASS()
-class GUILDGAME_API UTownInteractionController : public UObject
+class GUILDGAME_API UTownBuildingInteractionManager : public UObject
 {
 	GENERATED_BODY()
 public:
-	UTownInteractionController();
-	~UTownInteractionController();
+	UTownBuildingInteractionManager();
+	~UTownBuildingInteractionManager();
 	void ManuelConstructor(EInteractionStatee NewState, class ATownPlayerController* NewPlayerController);
 	void Tick();
 	void LeftClickHandler();
@@ -39,7 +39,7 @@ public:
 	void ZoomInToBuilding();
 	void ZoomOutFromBuilding();
 	void ChangeState(EInteractionStatee From, EInteractionStatee To);
-	void OnStateChange(const EInteractionStatee State, const bool IsFrom);
+	void OnStateChange(const EInteractionStatee State, const EInteractionStatee PrevState);
 	void ToPrevStateState();
 
 	UFUNCTION(BlueprintCallable)

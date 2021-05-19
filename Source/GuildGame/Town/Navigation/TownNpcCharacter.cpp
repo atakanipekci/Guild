@@ -30,14 +30,6 @@ void ATownNpcCharacter::BeginPlay()
 	}
 	
 	AIController = Cast<ATownNpcAIController>(GetController());
-	ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	if(GameMode)
-	{
-		if(GameMode->NpcManager)
-		{
-			NpcManager = GameMode->NpcManager;
-		}
-	}
 }
 
 void ATownNpcCharacter::MoveToLocation(FVector TargetLocation)

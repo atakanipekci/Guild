@@ -38,7 +38,7 @@ class GUILDGAME_API ATownGameModeBase : public AGameModeBase
 	virtual void BeginPlay() override;
 	virtual void BeginDestroy() override;
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
-
+	
 	UFUNCTION(BlueprintCallable)
 	void SpawnOnClick();
 
@@ -66,8 +66,7 @@ class GUILDGAME_API ATownGameModeBase : public AGameModeBase
 	UPROPERTY(BlueprintReadWrite)
 	class UOwnedCharactersDroppableWidget* OwnedCharsDroppableWidgetInstance;
 
-	UPROPERTY()
-	class UTownNpcManager* NpcManager;
+	class TownNpcManager* NpcManager;
 
 	UPROPERTY(BlueprintReadWrite)
 	class UOverlay* HudBuildingWidgetsContainerOverlay;

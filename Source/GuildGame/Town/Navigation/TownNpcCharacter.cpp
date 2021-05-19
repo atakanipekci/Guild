@@ -9,6 +9,7 @@
 #include "TownNpcAIController.h"
 #include "TownNpcManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GuildGame/Characters/CharacterAnimInstance.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -17,6 +18,8 @@ ATownNpcCharacter::ATownNpcCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
+
+	
 }
 
 // Called when the game starts or when spawned
@@ -28,7 +31,7 @@ void ATownNpcCharacter::BeginPlay()
 	{
 		MovementComponent->MaxWalkSpeed = FMath::RandRange(165, 185);
 	}
-	
+
 	AIController = Cast<ATownNpcAIController>(GetController());
 }
 
@@ -39,6 +42,9 @@ void ATownNpcCharacter::MoveToLocation(FVector TargetLocation)
 	if( AIController)
 	{
 		AIController->MoveToLocation(TargetLocation);
+
+		if(AnimInstance)
+			AnimInstance->ChangeAnimState(ECharacterAnimState::Run);
 	//	UE_LOG(LogTemp, Warning, TEXT("IS FOLLIWIGN A PATH == %d "), AIController->IsFollowingAPath());
 	}
 }
@@ -78,5 +84,19 @@ void ATownNpcCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+UCharacterAnimInstance* ATownNpcCharacter::GetAnimInstance()
+{
+	if(AnimInstance == nullptr)
+	{
+		USkeletalMeshComponent* Skeletal = GetMesh();
+		if(Skeletal)
+		{
+			AnimInstance = Cast<UCharacterAnimInstance>(Skeletal->GetAnimInstance());
+		}
+	}
+
+	return  AnimInstance;
 }
 

@@ -5,6 +5,7 @@
 
 
 #include "AIController.h"
+#include "CharacterAnimInstance.h"
 #include "GuildGame/Battle/BattleAIController.h"
 #include "GuildGame/Battle/BattlePlayerController.h"
 #include "Components/CapsuleComponent.h"
@@ -41,6 +42,8 @@ AGGCharacter::AGGCharacter()
     {
      	//CurrentGridIndex = GridMan->WorldToGrid(GetActorLocation());
     }
+
+	
 }
 
 TArray<Grid*>* AGGCharacter::GetMovableGrids()
@@ -70,7 +73,6 @@ void AGGCharacter::BeginPlay()
 		// 	HealthBarWidget->SetRenderScale(FVector2D(0.1f, 0.1));
 	}
 	UpdateHealthBar();
-	
 }
 
 // Called every frame
@@ -100,6 +102,10 @@ void AGGCharacter::MoveTo(FVector TargetPos)
 			GridMan->GetAttachedFloor()->ClearPath();
 		}
 		AIController->MoveToLocation(TargetPos,5,false,true,false,true,0,false);
+		if(AnimInstance)
+		{
+			AnimInstance->ChangeAnimState(ECharacterAnimState::Run);
+		}
 	}
 }
 
@@ -237,5 +243,19 @@ void AGGCharacter::UpdateHealthBar()
 	{
 		HealthBarWidget->SetHpBar(StatsComponent->GetCurrentHealth(), StatsComponent->GetMaxHealth());
 	}
+}
+
+UCharacterAnimInstance* AGGCharacter::GetAnimInstance()
+{
+	if(AnimInstance == nullptr)
+	{
+		USkeletalMeshComponent* Skeletal = GetMesh();
+		if(Skeletal)
+		{
+			AnimInstance = Cast<UCharacterAnimInstance>(Skeletal->GetAnimInstance());
+		}
+	}
+
+	return  AnimInstance;
 }
 

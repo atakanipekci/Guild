@@ -70,7 +70,7 @@ void URecruitWidget::OpenUpgradePage()
     {
         //UpgradePage->RemoveFromViewport();
         UpgradePage->SetVisibility(ESlateVisibility::Visible);
-        if(UpgradePage->IsInViewport() == false)
+        if(UpgradePage->IsInViewport() == false)//we do this to not call constructor again
         {
             UpgradePage->AddToViewport();
         }

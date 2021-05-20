@@ -1,5 +1,6 @@
 ﻿#include "WidgetManager.h"
 
+#include "CharacterManager.h"
 #include "Blueprint/UserWidget.h"
 
 UDataTable* WidgetManager::WidgetsDataTable = nullptr;
@@ -87,6 +88,15 @@ FString WidgetManager::GetWidgetRowName(const EWidgetKeys Key)
     {
         return FString(TEXT("RecruitBuildingUpgTooltip"));
     }
+    else if(Key == EWidgetKeys::KnightSkills)
+    {
+        return FString(TEXT("KnightSkills"));
+    }
+    else if(Key == EWidgetKeys::MageSkills)
+    {
+        return FString(TEXT("KnightSkills"));
+    }
+    
 
     return FString(TEXT("EMPTY"));
 }
@@ -123,6 +133,22 @@ UUserWidget* WidgetManager::GetOrCreateWidgetInstance(const EWidgetKeys Key, UOb
    
 
     return  NewWidget;
+}
+
+UUserWidget* WidgetManager::GetSkillsWidgetByType(ECharacterClassType ClassType, UObject* Owner)
+{
+    if(ClassType == ECharacterClassType::Knight)
+    {
+        return GetOrCreateWidgetInstance(EWidgetKeys::KnightSkills, Owner);
+    }
+    else if(ClassType == ECharacterClassType::Mage)
+    {
+        return GetOrCreateWidgetInstance(EWidgetKeys::MageSkills, Owner);
+    }
+    else
+    {
+        return  nullptr;
+    }
 }
 
 FString WidgetManager::GetSequenceRowName(const ESequenceKeys Key)

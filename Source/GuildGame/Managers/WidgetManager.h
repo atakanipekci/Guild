@@ -13,6 +13,8 @@
  * 
  */
 
+enum class ECharacterClassType : unsigned char;
+
 UENUM()
 enum class EWidgetKeys: uint8
 {
@@ -25,7 +27,9 @@ enum class EWidgetKeys: uint8
 	CharacterDetail,
 	GuildDetail,
 	TownHud,
-	RecruitBuildingUpgTooltip
+	RecruitBuildingUpgTooltip,
+	KnightSkills,
+	MageSkills
 };
 
 UENUM()
@@ -63,7 +67,8 @@ class GUILDGAME_API WidgetManager
 		static void SetWidgetInstance(const EWidgetKeys Key, UUserWidget* Widget);
 		static UUserWidget* GetWidgetInstance(const EWidgetKeys Key);
 		static UUserWidget* GetOrCreateWidgetInstance(const EWidgetKeys Key, UObject* Owner);
-
+		static UUserWidget* GetSkillsWidgetByType(ECharacterClassType ClassType, UObject* Owner);
+	
 		static void SetSequenceTable(UDataTable* Table);
 		static FString GetSequenceRowName(ESequenceKeys Key);
 		static ULevelSequence* GetSequence(ESequenceKeys Key);

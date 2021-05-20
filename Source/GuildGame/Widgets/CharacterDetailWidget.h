@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "GuildGame/Managers/CharacterManager.h"
 
 #include "CharacterDetailWidget.generated.h"
 
@@ -15,6 +16,7 @@ class GUILDGAME_API UCharacterDetailWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+	virtual void NativeConstruct() override;
 	public:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* CharacterNameText;
@@ -26,5 +28,22 @@ class GUILDGAME_API UCharacterDetailWidget : public UUserWidget
 	class UTextBlock* BaseDamageText;
 	UPROPERTY(meta = (BindWidget))
 	class UImage* Portrait;
+
+
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* SkillsButton;
+
+	struct FCharacterStats* CharacterStat;
+	
 	void RefreshPage(struct FCharacterStats* Stat);
+
+	
+
+	UFUNCTION()
+	void OpenSkillsWidget();
 };
+
+
+
+

@@ -72,7 +72,6 @@ void AGGCharacter::BeginPlay()
 		// if(HealthBarWidget)
 		// 	HealthBarWidget->SetRenderScale(FVector2D(0.1f, 0.1));
 	}
-	UpdateHealthBar();
 }
 
 // Called every frame
@@ -86,6 +85,7 @@ void AGGCharacter::SetStats(const FCharacterStats& Stats)
 	if(StatsComponent)
 	{
 		StatsComponent->SetStats(Stats);
+		UpdateHealthBar();
 	}
 }
 

@@ -28,7 +28,7 @@ class GUILDGAME_API UBuildingUpgradeWidgetBase : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 	class UButton* UpgradeButton;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Upgrade)
+	UPROPERTY()
 	TArray<class UBuildingUpgradeNode*> Upgrades;
 
 	struct FBuildingStatsBase* BuildingStats;

@@ -49,7 +49,7 @@ public:
 	class ATownNavNodeActor* DestinationNode;
 
 	UPROPERTY()
-	UCharacterMovementComponent* MovementComponent;;
+	UCharacterMovementComponent* MovementComponent;
 
 
 };

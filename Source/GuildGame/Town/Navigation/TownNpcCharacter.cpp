@@ -8,6 +8,7 @@
 #include "TownNavNodeActor.h"
 #include "TownNpcAIController.h"
 #include "TownNpcManager.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GuildGame/Characters/CharacterAnimInstance.h"
 #include "Kismet/GameplayStatics.h"
@@ -19,6 +20,20 @@ ATownNpcCharacter::ATownNpcCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	MovementComponent = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
 
+	// WeaponComponents.Add(CreateDefaultSubobject<UStaticMeshComponent>("RightWeapon"));
+	// if(WeaponComponents.Num() >= 1 && WeaponComponents[0])
+	// {
+ //       WeaponComponents[0]->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+ //       WeaponComponents[0]->SetRelativeLocation(FVector::ZeroVector);
+	// }
+ //
+	// WeaponComponents.Add(CreateDefaultSubobject<UStaticMeshComponent>("LeftWeapon"));
+	// if(WeaponComponents.Num() >= 2 && WeaponComponents[1])
+	// {
+ //       WeaponComponents[1]->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+ //       WeaponComponents[1]->SetRelativeLocation(FVector::ZeroVector);
+	// }
+	
 	
 }
 
@@ -33,6 +48,17 @@ void ATownNpcCharacter::BeginPlay()
 	}
 
 	AIController = Cast<ATownNpcAIController>(GetController());
+
+	// USkeletalMeshComponent* SkeletalMesh = Cast<USkeletalMeshComponent>(GetComponentByClass(USkeletalMeshComponent::StaticClass()));
+	// if(WeaponComponents[0] && SkeletalMesh)
+	// {
+ //        WeaponComponents[0]->AttachToComponent(SkeletalMesh, FAttachmentTransformRules::KeepRelativeTransform, TEXT("hand_r"));
+	// }
+	// if(WeaponComponents[1] && SkeletalMesh)
+	// {
+ //        WeaponComponents[1]->AttachToComponent(SkeletalMesh, FAttachmentTransformRules::KeepRelativeTransform, TEXT("hand_l"));
+	// }
+
 }
 
 void ATownNpcCharacter::MoveToLocation(FVector TargetLocation)

@@ -4,6 +4,8 @@
 
 #include "GuildGame/Managers/CharacterManager.h"
 #include "CoreMinimal.h"
+
+#include "GGCharacterBase.h"
 #include "GuildGame/GridSystem/Grid.h"
 #include "GameFramework/Character.h"
 #include "GGCharacter.generated.h"
@@ -15,7 +17,7 @@ enum class ECharacterStatus : uint8
 };
 
 UCLASS()
-class GUILDGAME_API AGGCharacter : public ACharacter
+class GUILDGAME_API AGGCharacter : public AGGCharacterBase
 {
 	GENERATED_BODY()
 

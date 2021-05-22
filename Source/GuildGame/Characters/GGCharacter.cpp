@@ -13,6 +13,7 @@
 #include "CharacterStatsComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GuildGame/GridSystem/GridFloor.h"
+#include "GuildGame/Skills/CharacterSkills.h"
 #include "GuildGame/Widgets/BattleHealthBarWidget.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -46,9 +47,22 @@ AGGCharacter::AGGCharacter()
 	
 }
 
+AGGCharacter::~AGGCharacter()
+{
+	for (auto Element : Skills)
+	{
+		delete Element;
+	}
+}
+
 TArray<Grid*>* AGGCharacter::GetMovableGrids()
 {
 	return &MovableGrids;
+}
+
+TArray<Grid*>* AGGCharacter::GetTargetableGrids()
+{
+	return &TargetableGrids;
 }
 
 TArray<Grid*>* AGGCharacter::GetDamageableGrids()
@@ -86,6 +100,20 @@ void AGGCharacter::SetStats(const FCharacterStats& Stats)
 	{
 		StatsComponent->SetStats(Stats);
 		UpdateHealthBar();
+		UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+		for (auto Element : StatsComponent->GetSkillIDs())
+		{
+    		if(GameInstance != nullptr && GameInstance->CharacterSkillsTable != nullptr)
+			{
+    			FString Name;
+    			Name.AppendInt(Element);
+    	 		FSkillData* SkillData = GameInstance->CharacterSkillsTable->FindRow<FSkillData>(FName(Name),"Skill File Row Missing", true);
+				if(SkillData)
+				{
+					Skills.Add(new CharacterSkills(*SkillData));
+				}
+			}
+		}
 	}
 }
 
@@ -112,6 +140,11 @@ void AGGCharacter::MoveTo(FVector TargetPos)
 void AGGCharacter::UpdateMovableGrids()
 {
 	CharacterManager::SetMovableGrids(this);
+}
+
+void AGGCharacter::UpdateTargetableGrids()
+{
+	CharacterManager::SetTargetableGrids(this);
 }
 
 void AGGCharacter::UpdateDamageableGrids()
@@ -226,13 +259,23 @@ float AGGCharacter::TakeDefaultDamage(float DamageAmount, AActor* Dealer)
 	return TakeDamage(DamageAmount, FDamageEvent(), nullptr,this);
 }
 
-void AGGCharacter::ShowDamageableGrids()
+float AGGCharacter::Heal(float HealAmount, AGGCharacter* Healer)
 {
-	UpdateDamageableGrids();
+	if(StatsComponent)
+	{
+		StatsComponent->ChangeHealth(HealAmount);
+		UpdateHealthBar();
+	}
+	return HealAmount;
+}
+
+void AGGCharacter::ShowTargetableGrids()
+{
+	UpdateTargetableGrids();
 	GridManager* GridMan = CharacterManager::CharGridManager;
 	if(GridMan && GridMan->GetAttachedFloor())
 	{
-		GridMan->GetAttachedFloor()->UpdateGridMeshes(DamageableGrids, EISMType::Attack);
+		GridMan->GetAttachedFloor()->UpdateGridMeshes(TargetableGrids, EISMType::Target);
 	}
 	
 }

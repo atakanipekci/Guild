@@ -8,6 +8,8 @@
 #include "GGCharacterBase.h"
 #include "GuildGame/GridSystem/Grid.h"
 #include "GameFramework/Character.h"
+//#include "GuildGame/Skills/CharacterSkills.h"
+
 #include "GGCharacter.generated.h"
 
 enum class ECharacterStatus : uint8
@@ -25,7 +27,9 @@ class GUILDGAME_API AGGCharacter : public AGGCharacterBase
 public:
 	// Sets default values for this character's properties
 	AGGCharacter();
+	~AGGCharacter();
 	TArray<Grid*>* GetMovableGrids();
+	TArray<Grid*>* GetTargetableGrids();
 	TArray<Grid*>* GetDamageableGrids();
 
 protected:
@@ -39,6 +43,7 @@ public:
 	void SetStats(const FCharacterStats&);
 	void MoveTo(FVector);
 	void UpdateMovableGrids();
+	void UpdateTargetableGrids();
 	void UpdateDamageableGrids();
 	void AttackTo(AGGCharacter* Target);
 	void SetSelected();
@@ -51,7 +56,8 @@ public:
 	void SetStatus(ECharacterStatus);
 	float TakeDamage(float DamageAmount,struct FDamageEvent const & DamageEvent,class AController * EventInstigator, AActor * DamageCause) override;
 	float TakeDefaultDamage(float DamageAmount, AActor* Dealer);
-	void ShowDamageableGrids();
+	float Heal(float HealAmount, AGGCharacter* Healer);
+	void ShowTargetableGrids();
 
 	void UpdateHealthBar();
 	class UCharacterAnimInstance* GetAnimInstance();
@@ -59,6 +65,7 @@ public:
 
 private:
 	TArray<Grid*> MovableGrids;
+	TArray<Grid*> TargetableGrids;
 	TArray<Grid*> DamageableGrids;
 	ECharacterStatus Status = ECharacterStatus::Idle;
 
@@ -77,4 +84,5 @@ private:
 	class UBattleHealthBarWidget* HealthBarWidget;
 	
 	int CurrentGridIndex;
+	TArray<class CharacterSkills*> Skills;
 };

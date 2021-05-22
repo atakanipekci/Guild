@@ -24,12 +24,15 @@ AGridFloor::AGridFloor()
 	SelectionMesh->SetupAttachment(RootComponent);
 	GridMesh = CreateDefaultSubobject<UProceduralMeshComponent>("CustomMesh");
 	GridMesh->SetupAttachment(RootComponent);
-	MovementGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("AvailableGrids");
+	MovementGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("Moveable Grids");
 	MovementGridMesh->SetupAttachment(RootComponent);
-	AttackGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("NotAvailableGrids");
-	AttackGridMesh->SetupAttachment(RootComponent);
+	TargetGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("Targetable Grids");
+	TargetGridMesh->SetupAttachment(RootComponent);
+	DamageGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("Damageable Grids");
+	DamageGridMesh->SetupAttachment(RootComponent);
 	MovementGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	AttackGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	TargetGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DamageGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SelectionMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);	
 }
@@ -97,7 +100,7 @@ void AGridFloor::BeginPlay()
 	AvailableGridMesh->AddInstanceWorldSpace(FTransform{TempPos});
 	TempPos = FloorGridManager->GetGridCenter(11);
 	TempPos.Z = GetActorLocation().Z;
-	AttackGridMesh->AddInstanceWorldSpace(FTransform{TempPos});*/
+	TargetGridMesh->AddInstanceWorldSpace(FTransform{TempPos});*/
 
 	UpdateGridStatesWithTrace();
 	
@@ -212,8 +215,10 @@ void AGridFloor::OnConstruction(const FTransform& Transform)
 		float LineEnd = RowCount*GridSize;
 		CreateLine(FVector(0,LineStart,0),FVector(LineEnd,LineStart,0),LineSize,LineVertices, LineTriangles);
 	}
-
-	GridMesh->CreateMeshSection_LinearColor(0,LineVertices,LineTriangles,TArray<FVector>(), TArray<FVector2D>(), TArray<FLinearColor>(), TArray<FProcMeshTangent>(),false);
+	if(GridMesh)
+	{
+		GridMesh->CreateMeshSection_LinearColor(0,LineVertices,LineTriangles,TArray<FVector>(), TArray<FVector2D>(), TArray<FLinearColor>(), TArray<FProcMeshTangent>(),false);
+	}
 
 	TArray<FVector> SelectionVertices;
 	TArray<int> SelectionTriangles;
@@ -233,20 +238,40 @@ void AGridFloor::OnConstruction(const FTransform& Transform)
 			break;
 				
 			case 1:
-				ISMDetails = ISMMap.Find(EISMType::Attack);
-				ISMPointer = AttackGridMesh;
+				ISMDetails = ISMMap.Find(EISMType::Target);
+				ISMPointer = TargetGridMesh;
 			break;
+
+			case 2:
+				ISMDetails = ISMMap.Find(EISMType::Damage);
+				ISMPointer = DamageGridMesh;
+				break;
 
 			default:
 				ISMDetails = ISMMap.Find(EISMType::Movement);
-				ISMPointer = AttackGridMesh;
+				ISMPointer = TargetGridMesh;
 			break;
 		}
 
 		if(ISMPointer == nullptr || ISMDetails == nullptr || ISMDetails->Mesh == nullptr || ISMDetails->Material == nullptr)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL ISM");
-			return;
+			if(ISMPointer == nullptr)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL ISM POINTER");
+			}
+			if(ISMDetails == nullptr)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL ISM DETAILS");
+			}
+			if(ISMDetails->Mesh == nullptr)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL ISM MESH");
+			}
+			if(ISMDetails->Material == nullptr)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL ISM MAT");
+			}
+			continue;
 		}
 
 		ISMPointer->SetStaticMesh(ISMDetails->Mesh);
@@ -318,7 +343,7 @@ float AGridFloor::GetPathLength(int StartIndex, int EndIndex)
 bool AGridFloor::UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType MeshType) const
 {
 
-	for(int i = 0; i < GridFloorTypeCount; i++)
+	for(int i = 1; i < GridFloorTypeCount; i++)
 	{
 		switch (i)
 		{
@@ -329,10 +354,17 @@ bool AGridFloor::UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType MeshTyp
 				}
 			break;
 					
-			case EISMType::Attack:
-				if(AttackGridMesh)
+			case EISMType::Target:
+				if(TargetGridMesh)
 				{
-					AttackGridMesh->ClearInstances();
+					TargetGridMesh->ClearInstances();
+				}
+			break;
+
+			case EISMType::Damage:
+				if(DamageGridMesh)
+				{
+					DamageGridMesh->ClearInstances();
 				}
 			break;
 
@@ -353,10 +385,17 @@ bool AGridFloor::UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType MeshTyp
 			}
 			break;
 
-			case EISMType::Attack:
-			if(AttackGridMesh)
+			case EISMType::Target:
+			if(TargetGridMesh)
 			{
-				AttackGridMesh->AddInstanceWorldSpace(FTransform{Pos});
+				TargetGridMesh->AddInstanceWorldSpace(FTransform{Pos});
+			}
+			break;
+
+			case EISMType::Damage:
+			if(DamageGridMesh)
+			{
+				DamageGridMesh->AddInstanceWorldSpace(FTransform{Pos});
 			}
 			break;
 
@@ -376,9 +415,14 @@ void AGridFloor::ClearGridMeshes()
 		MovementGridMesh->ClearInstances();
 	}
 		
-	if(AttackGridMesh)
+	if(TargetGridMesh)
 	{
-		AttackGridMesh->ClearInstances();
+		TargetGridMesh->ClearInstances();
+	}
+
+	if(DamageGridMesh)
+	{
+		DamageGridMesh->ClearInstances();
 	}
 }
 

@@ -33,6 +33,10 @@ struct FCharacterStats : public FTableRowBase
 	float AttackRange = 150;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Price;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<int> SkillIDs;
+	
 	int UniqueID;
 	
 	ENpcBehaviourStates TownNpcBehaviourState;
@@ -50,6 +54,7 @@ struct FCharacterStats : public FTableRowBase
 		AttackRange = StructForCopy.AttackRange;
 		Price = StructForCopy.Price;
 		TownNpcBehaviourState = StructForCopy.TownNpcBehaviourState;
+		SkillIDs = StructForCopy.SkillIDs;
 
 		if(StructForCopy.UniqueID >= 0)
 		{

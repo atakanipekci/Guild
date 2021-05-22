@@ -21,6 +21,8 @@ class GUILDGAME_API BattleControllerState
     virtual void ChangeFrom() = 0;
     virtual bool CanChangeTo() = 0;
     virtual ~BattleControllerState() = default;
+    protected:
+    class ABattlePlayerController* PlayerController;
 };
 
 class GUILDGAME_API ControllerStateDefault: public BattleControllerState
@@ -37,9 +39,6 @@ class GUILDGAME_API ControllerStateDefault: public BattleControllerState
     void ChangeTo() override;
     void ChangeFrom() override;
     bool CanChangeTo() override;
-
-    private:
-    class ABattlePlayerController* PlayerController;
 };
 
 class GUILDGAME_API ControllerStateBasicAttack: public BattleControllerState
@@ -55,9 +54,21 @@ class GUILDGAME_API ControllerStateBasicAttack: public BattleControllerState
     void ESCHandler() override;
     void ChangeTo() override;
     void ChangeFrom() override;
-     bool CanChangeTo() override;
-
-    private:
-    class ABattlePlayerController* PlayerController;
+    bool CanChangeTo() override;
 };
 
+class GUILDGAME_API ControllerStateCastingSkill: public BattleControllerState
+{
+    public:
+    explicit ControllerStateCastingSkill(class ABattlePlayerController*);
+    virtual ~ControllerStateCastingSkill() = default;
+    void Update() override;
+    void LeftClickHandler() override;
+    void LeftClickReleaseHandler() override;
+    void RightClickHandler() override;
+    void RightClickReleaseHandler() override;
+    void ESCHandler() override;
+    void ChangeTo() override;
+    void ChangeFrom() override;
+    bool CanChangeTo() override;
+};

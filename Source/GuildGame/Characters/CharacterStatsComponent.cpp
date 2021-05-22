@@ -55,3 +55,8 @@ void UCharacterStatsComponent::ChangeHealth(int Amount)
 	}
 }
 
+const TArray<int>& UCharacterStatsComponent::GetSkillIDs() const
+{
+	return Stats.SkillIDs;
+}
+

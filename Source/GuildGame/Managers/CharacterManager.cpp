@@ -22,7 +22,7 @@ void CharacterManager::SetMovableGrids(AGGCharacter* Character)
     CharGridManager->GetGridsInRange(Index,Character->GetDefaultMovementRange(), &(Character->MovableGrids));
 }
 
-void CharacterManager::SetDamageableGrids(AGGCharacter* Character)
+void CharacterManager::SetTargetableGrids(AGGCharacter* Character)
 {
     if(Character == nullptr || CharGridManager == nullptr)
     {
@@ -30,8 +30,12 @@ void CharacterManager::SetDamageableGrids(AGGCharacter* Character)
     }
     
     int Index = CharGridManager->WorldToGrid(Character->GetActorLocation());
-    Character->DamageableGrids.Empty();
-    CharGridManager->GetGridsInRange(Index,Character->GetDefaultDamageRange(), &(Character->DamageableGrids), false);
+    Character->TargetableGrids.Empty();
+    CharGridManager->GetGridsInRange(Index,Character->GetDefaultDamageRange(), &(Character->TargetableGrids), false);
+}
+
+void CharacterManager::SetDamageableGrids(AGGCharacter* Character)
+{
 }
 
 bool CharacterManager::CanAttackTo(const AGGCharacter* Dealer, const AGGCharacter* Target)

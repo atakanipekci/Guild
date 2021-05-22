@@ -79,9 +79,10 @@ public:
 	{
 		this->Stats.BaseDamage = NewBaseDamage;
 	}
+
+	const TArray<int>& GetSkillIDs() const;
 	
 private:
 
 	FCharacterStats Stats;
-
 };

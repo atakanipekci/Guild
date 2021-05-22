@@ -13,8 +13,10 @@
 UENUM(BlueprintType)
 enum class EISMType: uint8
 {
+	Empty,
 	Movement,
-	Attack
+	Target,
+	Damage
 };
 
 USTRUCT(BlueprintType)
@@ -82,7 +84,10 @@ public:
 	UInstancedStaticMeshComponent* MovementGridMesh;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	UInstancedStaticMeshComponent* AttackGridMesh;
+	UInstancedStaticMeshComponent* TargetGridMesh;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	UInstancedStaticMeshComponent* DamageGridMesh;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TMap<EISMType,FISMDetails> ISMMap;
@@ -93,7 +98,7 @@ public:
 	USceneComponent* RootComponent;
 private:
 	UPROPERTY(EditAnywhere)
-	int GridFloorTypeCount = 2;
+	int GridFloorTypeCount = 3;
 	
 	GridManager* FloorGridManager;
 	ASplineActor* PathActor = nullptr;

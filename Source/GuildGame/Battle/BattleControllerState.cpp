@@ -151,7 +151,7 @@ void ControllerStateBasicAttack::ChangeTo()
 	AGGCharacter* SelectedCharacter = PlayerController->GetSelectedCharacter();
 	if(SelectedCharacter)
 	{
-		SelectedCharacter->ShowDamageableGrids();
+		SelectedCharacter->ShowTargetableGrids();
 	}
 }
 
@@ -182,4 +182,92 @@ bool ControllerStateBasicAttack::CanChangeTo()
 
 	return true;
 	
+}
+
+ControllerStateCastingSkill::ControllerStateCastingSkill(ABattlePlayerController* Controller)
+{
+	PlayerController = Controller;
+}
+
+void ControllerStateCastingSkill::Update()
+{
+	if (PlayerController == nullptr)
+	{
+		return;
+	}
+
+	PlayerController->UpdateSelectedGrid(false);
+}
+
+void ControllerStateCastingSkill::LeftClickHandler()
+{
+}
+
+void ControllerStateCastingSkill::LeftClickReleaseHandler()
+{
+	if (PlayerController == nullptr)
+	{
+		return;
+	}
+}
+
+void ControllerStateCastingSkill::RightClickHandler()
+{
+}
+
+void ControllerStateCastingSkill::RightClickReleaseHandler()
+{
+	if (PlayerController == nullptr)
+	{
+		return;
+	}
+
+	PlayerController->ChangeStateTo(0);
+}
+
+void ControllerStateCastingSkill::ESCHandler()
+{
+	RightClickReleaseHandler();
+}
+
+void ControllerStateCastingSkill::ChangeTo()
+{
+	if (PlayerController == nullptr)
+	{
+		return;
+	}
+
+	AGGCharacter* SelectedCharacter = PlayerController->GetSelectedCharacter();
+	if(SelectedCharacter)
+	{
+		SelectedCharacter->ShowTargetableGrids();
+	}
+}
+
+void ControllerStateCastingSkill::ChangeFrom()
+{
+	if (PlayerController == nullptr)
+	{
+		return;
+	}
+
+	if(PlayerController->GetGridFloor())
+	{
+		PlayerController->GetGridFloor()->ClearGridMeshes();
+	}
+}
+
+bool ControllerStateCastingSkill::CanChangeTo()
+{
+	if (PlayerController == nullptr)
+	{
+		return false;
+	}
+
+	if (PlayerController->GetSelectedCharacter() == nullptr || PlayerController->GetSelectedCharacter()->GetStatus() != ECharacterStatus::Idle)
+	{
+		return false;
+	}
+
+	return true;
 }

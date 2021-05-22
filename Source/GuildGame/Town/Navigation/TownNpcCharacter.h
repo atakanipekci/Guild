@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GuildGame/Characters/GGCharacterBase.h"
+
 #include "TownNpcCharacter.generated.h"
 
 UENUM()
@@ -14,7 +16,7 @@ enum class ENpcBehaviourStates: uint8
 };
 
 UCLASS()
-class GUILDGAME_API ATownNpcCharacter : public ACharacter
+class GUILDGAME_API ATownNpcCharacter : public AGGCharacterBase
 {
 	GENERATED_BODY()
 

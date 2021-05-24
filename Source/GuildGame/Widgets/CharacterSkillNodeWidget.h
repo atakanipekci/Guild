@@ -6,13 +6,15 @@
 #include "Blueprint/UserWidget.h"
 #include "CharacterSkillNodeWidget.generated.h"
 
-UENUM(Blueprintable)
-enum class ECharacterSkillTypes : uint8
+
+UENUM()
+enum class ESkillNodeState: uint8
 {
-	FireBall,
-	LightningBall,
-	Heal
-}; 
+	Locked,
+	Unlocked,
+	CanBeUnlocked
+};
+
 UCLASS()
 class GUILDGAME_API UCharacterSkillNodeWidget : public UUserWidget
 {
@@ -23,12 +25,6 @@ class GUILDGAME_API UCharacterSkillNodeWidget : public UUserWidget
 	
 	UFUNCTION()
 	void OnPressed();
-	
-	UPROPERTY(EditAnywhere)
-	TArray<ECharacterSkillTypes> Prerequisites;
-
-	UPROPERTY(EditAnywhere)
-	ECharacterSkillTypes SkillType;
 
 	UPROPERTY(meta = (BindWidget))
 	class UButton* SkillButton;
@@ -36,19 +32,33 @@ class GUILDGAME_API UCharacterSkillNodeWidget : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 	class UImage* Portrait;
 
-	FButtonStyle LatestStyle;
+	FButtonStyle ButtonStyle;
 
+public:
+
+	ESkillNodeState NodeState;
+	
 	UPROPERTY(EditAnywhere)
 	int UnlockSkillPointCost;
+	
+	UPROPERTY(EditAnywhere)
+	TArray<int> PrerequisitesSkillIDs;
 
-	public:
-
+	UPROPERTY(EditAnywhere)
+	int SkillID;
+	
 	bool bIsPressed;
 
 	UPROPERTY()
 	class UCharacterSkillsWidget* OwnerWidget;
 
+	UPROPERTY()
+	TArray<class UCharacterSkillLineWidget*> Lines;
+
 	void ReleaseButton();
+	void ResetButtonStyle();
+
+	void SetSkillNodeState(ESkillNodeState State);
 
 
 };

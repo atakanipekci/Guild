@@ -36,6 +36,8 @@ struct FCharacterStats : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<int> SkillIDs;
+
+	int SpendableSkillPoints = 0;
 	
 	int UniqueID;
 	
@@ -55,7 +57,8 @@ struct FCharacterStats : public FTableRowBase
 		Price = StructForCopy.Price;
 		TownNpcBehaviourState = StructForCopy.TownNpcBehaviourState;
 		SkillIDs = StructForCopy.SkillIDs;
-
+		SpendableSkillPoints = StructForCopy.SpendableSkillPoints;
+		
 		if(StructForCopy.UniqueID >= 0)
 		{
 			UniqueID = StructForCopy.UniqueID;

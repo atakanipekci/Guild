@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+
 #include "CharacterSkillsWidget.generated.h"
 
 /**
@@ -20,20 +21,38 @@ class GUILDGAME_API UCharacterSkillsWidget : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 	class UCanvasPanel* SkillsPanel;
 
+	UPROPERTY(meta = (BindWidget))
+	class UCanvasPanel* LinesPanel;
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* AcquireSkillButton;
+
 	UPROPERTY()
 	TArray<class UCharacterSkillNodeWidget*> SkillNodes;
 
+	UPROPERTY()
+	TArray<class UCharacterSkillLineWidget*> Lines;
+
+	UFUNCTION()
+	void AcquireSkill();
 	
 
 	void RefreshSkillsArray();
+	void RefreshSkillNodes();
 
 	public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<class UImage*> Lines;
+	UPROPERTY(EditAnywhere)
+	FSlateColor CanBeUnlockedButtonColor;
+
+	UPROPERTY()
+	class UCharacterSkillNodeWidget* SelectedSkillNode;
+	
+	
 	
 	
 	void RefreshPage(struct FCharacterStats* Stat);
 	void ReleaseSkillNodeButtons(UCharacterSkillNodeWidget* Excluded);
+	bool CanSkillBeAcquired(class UCharacterSkillNodeWidget* SkillNode);
 	
 };

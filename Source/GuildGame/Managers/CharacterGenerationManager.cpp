@@ -25,6 +25,8 @@ FCharacterStats* CharacterGenerationManager::CreateRandomCharacter()
 		CopyStruct->UniqueID = UniqueID;
 		CopyStruct->TownNpcBehaviourState = ENpcBehaviourStates::WalkingAround;
 
+		CopyStruct->SpendableSkillPoints = FMath::RandRange(0, 3);
+
 		return  CopyStruct;
 	}
 	else

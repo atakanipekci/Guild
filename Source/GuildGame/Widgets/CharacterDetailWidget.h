@@ -29,10 +29,16 @@ class GUILDGAME_API UCharacterDetailWidget : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 	class UImage* Portrait;
 
+	UPROPERTY(meta = (BindWidget))
+	class UScaleBox* SkillsPanelParent;
+
 
 
 	UPROPERTY(meta = (BindWidget))
 	class UButton* SkillsButton;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* SkillsButtonText;
 
 	struct FCharacterStats* CharacterStat;
 	
@@ -42,6 +48,7 @@ class GUILDGAME_API UCharacterDetailWidget : public UUserWidget
 
 	UFUNCTION()
 	void OpenSkillsWidget();
+
 };
 
 

@@ -24,3 +24,19 @@ CharacterSkills::~CharacterSkills()
 		delete Element;
 	}
 }
+
+FCharSkillFileDataTable* CharacterSkills::GetSkillFiles(int SkillID, UWorld* World)
+{
+ if(World == nullptr) return nullptr;
+    
+    UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(World));
+
+    if(GameInstance == nullptr || GameInstance->CharacterSkillsFileTable == nullptr)
+    {
+        return nullptr;
+    }
+     const FName RowName = *(FString::FromInt(SkillID));
+     FCharSkillFileDataTable* SkillFiles = GameInstance->CharacterSkillsFileTable->FindRow<FCharSkillFileDataTable>(RowName, "Character Skill File Row Missing", true);
+     
+     return  SkillFiles;
+}

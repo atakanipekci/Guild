@@ -5,9 +5,14 @@
 
 #include "CharacterSkillLineWidget.h"
 #include "CharacterSkillNodeWidget.h"
+#include "CharacterSkillTooltipWidget.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
+#include "Components/Image.h"
+#include "Components/TextBlock.h"
 #include "GuildGame/Characters/CharacterStats.h"
+#include "GuildGame/Managers/WidgetManager.h"
+#include "GuildGame/Skills/CharacterSkills.h"
 
 void UCharacterSkillsWidget::NativeConstruct()
 {
@@ -18,19 +23,23 @@ void UCharacterSkillsWidget::NativeConstruct()
 		AcquireSkillButton->OnClicked.AddUniqueDynamic(this, &UCharacterSkillsWidget::AcquireSkill);
 		AcquireSkillButton->SetVisibility(ESlateVisibility::Hidden);
 	}
+
+	Tooltip = CreateWidget<UCharacterSkillTooltipWidget>(GetWorld(), WidgetManager::GetWidget(EWidgetKeys::CharacterSkillTooltip));
 	//RefreshSkillsArray();
 
 }
 
 void UCharacterSkillsWidget::AcquireSkill()
 {
-	if(SelectedSkillNode && CharacterStat && AcquireSkillButton)
+	if(SelectedSkillNode && CharacterStat && AcquireSkillButton && CostText)
 	{
 		if(CanSkillBeAcquired(SelectedSkillNode))
 		{
 			CharacterStat->SpendableSkillPoints -= SelectedSkillNode->UnlockSkillPointCost;
 			CharacterStat->SkillIDs.Add(SelectedSkillNode->SkillID);
 			SelectedSkillNode->SetSkillNodeState(ESkillNodeState::Unlocked);
+
+			CostText->SetVisibility(ESlateVisibility::Hidden);
 			AcquireSkillButton->SetVisibility(ESlateVisibility::Hidden);
 
 			RefreshSkillNodes();
@@ -46,6 +55,10 @@ void UCharacterSkillsWidget::RefreshSkillsArray()
 		AcquireSkillButton->SetVisibility(ESlateVisibility::Hidden);
 	}
 
+	if(CostText)
+	{
+		CostText->SetVisibility(ESlateVisibility::Hidden);
+	}
 	
     if(SkillsPanel)
 	{
@@ -65,12 +78,26 @@ void UCharacterSkillsWidget::RefreshSkillsArray()
 		}
     	
         SkillNodes.Empty();
+    	SkillsMap.Empty();
+    	UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+	    if(GameInstance == nullptr || GameInstance->CharacterSkillsFileTable == nullptr)
+	    {
+	        return;
+	    }
+    	
 		for (int i = 0; i < SkillsPanel->GetChildrenCount(); ++i)
 		{
 			
 			UCharacterSkillNodeWidget* ChildWidget = Cast<UCharacterSkillNodeWidget>(SkillsPanel->GetChildAt(i));
-			if(ChildWidget)
+			if(ChildWidget && GameInstance)
 			{
+				
+    	 		FSkillData* SkillData = GameInstance->CharacterSkillsTable->FindRow<FSkillData>(FName(FString::FromInt(ChildWidget->SkillID)),"Skill File Row Missing", true);
+
+				if(SkillData)
+					SkillsMap.Add(ChildWidget->SkillID, new FSkillData(*SkillData));
+				
 				ChildWidget->Lines.Empty();
 				for (int j = 0; j < Lines.Num(); ++j)
 				{
@@ -83,19 +110,38 @@ void UCharacterSkillsWidget::RefreshSkillsArray()
 					}
 				}
 				SkillNodes.Add(ChildWidget);
+				ChildWidget->SetToolTip(Tooltip);
 				ChildWidget->OwnerWidget = this;
 				ChildWidget->bIsPressed = false;
+				if(ChildWidget->Portrait)
+				{
+					FCharSkillFileDataTable* SkillFiles = CharacterSkills::GetSkillFiles(ChildWidget->SkillID, GetWorld());
+					if(SkillFiles)
+					{
+						const FVector2D ImageSize = ChildWidget->Portrait->Brush.GetImageSize();
+						ChildWidget->Portrait->SetBrushResourceObject(SkillFiles->SkillImage);
+						ChildWidget->Portrait->SetBrushSize(ImageSize);
+						
+					}
+				}
 			}
 		}
 
     	RefreshSkillNodes();
 	}
-
-	
 }
 
 void UCharacterSkillsWidget::RefreshSkillNodes()
 {
+	if(SkillPoints && CharacterStat && AcquireSkillButton)
+	{
+		SkillPoints->SetText(FText::FromString(FString::Printf(TEXT("Points To Spend %d"), CharacterStat->SpendableSkillPoints)));
+
+		if(CharacterStat->bIsOwned == false)
+		{
+			AcquireSkillButton->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 	for (int i = 0; i < SkillNodes.Num(); ++i)
 	{
 		UCharacterSkillNodeWidget* ChildWidget = Cast<UCharacterSkillNodeWidget>(SkillNodes[i]);
@@ -103,36 +149,43 @@ void UCharacterSkillsWidget::RefreshSkillNodes()
 		{
 			if(CharacterStat)
 			{
-				ChildWidget->ResetButtonStyle();
-				if(CharacterStat->SkillIDs.Contains(ChildWidget->SkillID))
+				ChildWidget->ResetButtonStyle(true, true, true);
+				if(CharacterStat->bIsOwned == true)
 				{
-					ChildWidget->SetSkillNodeState(ESkillNodeState::Unlocked);
-				}
-				else 
-				{
-					bool bMeetsConditions = true;
-					for (int j = 0; j < ChildWidget->PrerequisitesSkillIDs.Num(); ++j)
+					if(CharacterStat->SkillIDs.Contains(ChildWidget->SkillID))
 					{
-						if(CharacterStat->SkillIDs.Contains(ChildWidget->PrerequisitesSkillIDs[j]) == false)
+						ChildWidget->SetSkillNodeState(ESkillNodeState::Unlocked);
+					}
+					else 
+					{
+						bool bMeetsConditions = true;
+						for (int j = 0; j < ChildWidget->PrerequisitesSkillIDs.Num(); ++j)
 						{
-							bMeetsConditions = false;
-							break;
+							if(CharacterStat->SkillIDs.Contains(ChildWidget->PrerequisitesSkillIDs[j]) == false)
+							{
+								bMeetsConditions = false;
+								break;
+							}
+						}
+
+						if(bMeetsConditions == true)
+						{
+							bMeetsConditions = CanSkillBeAcquired(ChildWidget);
+						}
+
+						if(bMeetsConditions == false)
+						{
+							ChildWidget->SetSkillNodeState(ESkillNodeState::Locked);
+						}
+						else
+						{
+							ChildWidget->SetSkillNodeState(ESkillNodeState::CanBeUnlocked);
 						}
 					}
-
-					if(bMeetsConditions == true)
-					{
-						bMeetsConditions = CanSkillBeAcquired(ChildWidget);
-					}
-
-					if(bMeetsConditions == false)
-					{
-						ChildWidget->SetSkillNodeState(ESkillNodeState::Locked);
-					}
-					else
-					{
-						ChildWidget->SetSkillNodeState(ESkillNodeState::CanBeUnlocked);
-					}
+				}
+				else
+				{
+					ChildWidget->SetSkillNodeState(ESkillNodeState::Locked);
 				}
 			}
 		}
@@ -150,23 +203,35 @@ void UCharacterSkillsWidget::RefreshPage(FCharacterStats* Stat)
 
 void UCharacterSkillsWidget::ReleaseSkillNodeButtons(UCharacterSkillNodeWidget* Excluded)
 {
-	if(Excluded && AcquireSkillButton)
+	if(Excluded && AcquireSkillButton && CostText)
 	{
 		if(Excluded->NodeState == ESkillNodeState::CanBeUnlocked)
 		{
 			AcquireSkillButton->SetVisibility(ESlateVisibility::Visible);
 			AcquireSkillButton->SetIsEnabled(true);
+			CostText->SetVisibility(ESlateVisibility::Visible);
+			CostText->SetText(FText::FromString(FString::Printf(TEXT("Cost: %d"), Excluded->UnlockSkillPointCost)));
 		}
 		else if(Excluded->NodeState == ESkillNodeState::Unlocked)
 		{
 			AcquireSkillButton->SetVisibility(ESlateVisibility::Hidden);
 			AcquireSkillButton->SetIsEnabled(true);
+			CostText->SetVisibility(ESlateVisibility::Hidden);
 		}
 		else if(Excluded->NodeState == ESkillNodeState::Locked)
 		{
 			AcquireSkillButton->SetVisibility(ESlateVisibility::Visible);
 			AcquireSkillButton->SetIsEnabled(false);
+			CostText->SetVisibility(ESlateVisibility::Visible);
+			CostText->SetText(FText::FromString(FString::Printf(TEXT("Cost: %d"), Excluded->UnlockSkillPointCost)));
 		}
+		
+		if(CharacterStat && CharacterStat->bIsOwned == false)
+		{
+			AcquireSkillButton->SetVisibility(ESlateVisibility::Hidden);
+		}
+
+		
 	}
 	for (int i = 0; i < SkillNodes.Num(); ++i)
 	{
@@ -187,7 +252,7 @@ bool UCharacterSkillsWidget::CanSkillBeAcquired(UCharacterSkillNodeWidget* Skill
 	{
 		if(CharacterStat->SkillIDs.Contains(SkillNode->SkillID) == false)
 		{
-			if(CharacterStat->SpendableSkillPoints >= SkillNode->UnlockSkillPointCost)
+			if(CharacterStat->SpendableSkillPoints > 0 && CharacterStat->SpendableSkillPoints >= SkillNode->UnlockSkillPointCost)
 			{
 				return true;
 			}
@@ -195,4 +260,19 @@ bool UCharacterSkillsWidget::CanSkillBeAcquired(UCharacterSkillNodeWidget* Skill
 	}
 	
 	return false;
+}
+
+void UCharacterSkillsWidget::RefreshTooltip(int SkillID)
+{
+	if(Tooltip)
+	{
+		FSkillData** Skill = SkillsMap.Find(SkillID);
+		if(Skill)
+		{
+			if(*Skill)
+			{
+				Tooltip->Refresh(**Skill);
+			}
+		}
+	}
 }

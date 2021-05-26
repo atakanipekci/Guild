@@ -17,26 +17,38 @@ void URecruitBuildingUpgradeWidget::NativeConstruct()
 	if(GameMode)
 	{
 		TableRows = GameMode->GetBuildingUpgradeRowsByType(EBuildingTypes::Recruit);
-		 UE_LOG(LogTemp, Warning, TEXT("ROW COUNT ON UPG %d"), TableRows.Num());
+		 //UE_LOG(LogTemp, Warning, TEXT("ROW COUNT ON UPG %d"), TableRows.Num());
 	}
 
 	if(Upgrades.Num() > 0)
 	{
+		Tooltip = CreateWidget<URecruitBuildingUpgTooltipWidget>(GetWorld(), WidgetManager::GetWidget(EWidgetKeys::RecruitBuildingUpgTooltip));
+		
 		for (int i = 0; i < Upgrades.Num() && i + 1 < TableRows.Num(); ++i)
 		{
-			URecruitBuildingUpgTooltipWidget* Tooltip = CreateWidget<URecruitBuildingUpgTooltipWidget>(GetWorld(), WidgetManager::GetWidget(EWidgetKeys::RecruitBuildingUpgTooltip));
 			if(Tooltip)
 			{
-				FRecruitBuildingUpgradeStats* PrevRow = static_cast<FRecruitBuildingUpgradeStats*>(TableRows[i]);
-				FRecruitBuildingUpgradeStats* Row = static_cast<FRecruitBuildingUpgradeStats*>(TableRows[i + 1]);
-				if(Row && PrevRow)
-				{
-					Tooltip->Refresh(Row, PrevRow, i + 1);
-					Upgrades[i]->SetToolTip(Cast<UWidget>(Tooltip));
-				}
+				//RefreshTooltip(*Tooltip, i);
+				Upgrades[i]->SetToolTip(Cast<UWidget>(Tooltip));
+				Upgrades[i]->OwnerWidget = this;
+				Upgrades[i]->Index = i;
 			}
 		}
 	}
+}
 
-	
+void URecruitBuildingUpgradeWidget::RefreshTooltip(int NodeIndex)
+{
+	if(Upgrades.Num() > 0)
+	{
+		if (NodeIndex < Upgrades.Num() && NodeIndex + 1 < TableRows.Num())
+		{
+			FRecruitBuildingUpgradeStats* PrevRow = static_cast<FRecruitBuildingUpgradeStats*>(TableRows[NodeIndex]);
+			FRecruitBuildingUpgradeStats* Row = static_cast<FRecruitBuildingUpgradeStats*>(TableRows[NodeIndex + 1]);
+			if(Row && PrevRow && Tooltip)
+			{
+				Tooltip->Refresh(*Row, *PrevRow, NodeIndex + 1);
+			}
+		}
+	}
 }

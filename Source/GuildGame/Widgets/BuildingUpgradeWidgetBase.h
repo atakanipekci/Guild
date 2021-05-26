@@ -9,6 +9,7 @@
 /**
  * 
  */
+
 UCLASS()
 class GUILDGAME_API UBuildingUpgradeWidgetBase : public UUserWidget
 {
@@ -19,6 +20,7 @@ class GUILDGAME_API UBuildingUpgradeWidgetBase : public UUserWidget
 	public:
 	virtual void NativeConstruct() override;
 	void RefreshPage(struct FBuildingStatsBase* Stat);
+	
 	UFUNCTION()
 	void UpgradeBuildingLevel();
 

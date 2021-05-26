@@ -27,11 +27,21 @@ class GUILDGAME_API UCharacterSkillsWidget : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 	class UButton* AcquireSkillButton;
 
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* SkillPoints;
+	
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* CostText;
+
+
+
 	UPROPERTY()
 	TArray<class UCharacterSkillNodeWidget*> SkillNodes;
 
 	UPROPERTY()
 	TArray<class UCharacterSkillLineWidget*> Lines;
+
+	TMap<int, struct FSkillData*> SkillsMap;
 
 	UFUNCTION()
 	void AcquireSkill();
@@ -42,17 +52,16 @@ class GUILDGAME_API UCharacterSkillsWidget : public UUserWidget
 
 	public:
 
-	UPROPERTY(EditAnywhere)
-	FSlateColor CanBeUnlockedButtonColor;
 
 	UPROPERTY()
+	class UCharacterSkillTooltipWidget* Tooltip;
+	
+	UPROPERTY()
 	class UCharacterSkillNodeWidget* SelectedSkillNode;
-	
-	
-	
 	
 	void RefreshPage(struct FCharacterStats* Stat);
 	void ReleaseSkillNodeButtons(UCharacterSkillNodeWidget* Excluded);
 	bool CanSkillBeAcquired(class UCharacterSkillNodeWidget* SkillNode);
+	void RefreshTooltip(int SkillID);
 	
 };

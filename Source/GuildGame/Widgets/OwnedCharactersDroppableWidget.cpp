@@ -51,6 +51,7 @@ bool UOwnedCharactersDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWid
 						{
 							if(GameMode->OwnedCharacters.Find(NewWidget->Stat) == INDEX_NONE)
 							{
+								NewWidget->Stat->bIsOwned = true;
 								GameMode->OwnedCharacters.Add(NewWidget->Stat);
 								//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Team array count  %d"), GameMode->OwnedCharacters.Num()));
 							}

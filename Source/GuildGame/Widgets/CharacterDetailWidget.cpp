@@ -5,6 +5,7 @@
 
 #include "CharacterSkillsWidget.h"
 #include "Components/Button.h"
+#include "Components/ScaleBox.h"
 #include "Components/TextBlock.h"
 #include "GuildGame/Managers/ImageManager.h"
 #include "GuildGame/Managers/WidgetManager.h"
@@ -16,7 +17,8 @@ void UCharacterDetailWidget::NativeConstruct()
     
     if(SkillsButton)
     {
-        SkillsButton->OnClicked.AddUniqueDynamic(this, &UCharacterDetailWidget::OpenSkillsWidget);
+        SkillsButton->SetVisibility(ESlateVisibility::Hidden);
+       // SkillsButton->OnClicked.AddUniqueDynamic(this, &UCharacterDetailWidget::OpenSkillsWidget);
     }
 }
 
@@ -40,29 +42,40 @@ void UCharacterDetailWidget::RefreshPage(FCharacterStats* Stat)
        }
        if(BaseDamageText)
        {
-           BaseDamageText->SetText(FText::FromString("Base Damage :" +FString::FromInt(Stat->BaseDamage)));
+           BaseDamageText->SetText(FText::FromString("Base Damage :" + FString::FromInt(Stat->BaseDamage)));
        }
 
+       if(SkillsButtonText)
+       {
+           SkillsButtonText->SetText(FText::FromString("Skills:" + FString::FromInt(Stat->SpendableSkillPoints)));
+       }
        
 
        if(Portrait)
        {
            ImageManager::SetPortraitTextureByClass(Stat->ClassType, Portrait);
        }
+
+       OpenSkillsWidget();
    }
 }
 
 void UCharacterDetailWidget::OpenSkillsWidget()
 {
-    if(CharacterStat == nullptr) return;;
+    if(CharacterStat == nullptr) return;
     
      UUserWidget* SkillsPage = WidgetManager::GetSkillsWidgetByType(CharacterStat->ClassType, this);
      if(SkillsPage)
      {
          SkillsPage->SetVisibility(ESlateVisibility::Visible);
-         if(SkillsPage->IsInViewport() == false)
+         // if(SkillsPage->IsInViewport() == false)
+         // {
+         //     SkillsPage->AddToViewport();
+         // }
+         if(SkillsPanelParent)
          {
-             SkillsPage->AddToViewport();
+            SkillsPanelParent->ClearChildren();
+   	   	    SkillsPanelParent->AddChild(SkillsPage);
          }
      }
      UCharacterSkillsWidget* SkillsWidget =  Cast<UCharacterSkillsWidget>(SkillsPage);
@@ -71,3 +84,5 @@ void UCharacterDetailWidget::OpenSkillsWidget()
          SkillsWidget->RefreshPage(CharacterStat);
      }
 }
+
+

@@ -96,6 +96,10 @@ FString WidgetManager::GetWidgetRowName(const EWidgetKeys Key)
     {
         return FString(TEXT("KnightSkills"));
     }
+    else if(Key == EWidgetKeys::CharacterSkillTooltip)
+    {
+        return FString(TEXT("CharacterSkillTooltip"));
+    }
     
 
     return FString(TEXT("EMPTY"));

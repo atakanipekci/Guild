@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "Blueprint/UserWidget.h"
 #include "BuildingUpgradeNode.generated.h"
 
@@ -17,4 +18,14 @@ class GUILDGAME_API UBuildingUpgradeNode : public UUserWidget
 	public:
 	UPROPERTY(meta = (BindWidget))
 	class UImage* UpgradeBg;
+
+	UPROPERTY(meta = (BindWidget))
+	class UImage* Portrait;
+
+	UPROPERTY()
+	class UBuildingUpgradeWidgetBase* OwnerWidget;
+
+	int Index;
+
+	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 };

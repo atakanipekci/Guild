@@ -44,11 +44,18 @@ void UBuildingUpgradeWidgetBase::RefreshPage()
 
 				if(BuildingStats->UpgradeLevel > i + 1)
 				{
-					Upgrades[i]->SetIsEnabled(true);
+					if(Upgrades[i]->Portrait)
+					{
+						Upgrades[i]->Portrait->SetOpacity(1.0f);
+					}
+					
 				}
 				else
 				{
-					Upgrades[i]->SetIsEnabled(false);
+					if(Upgrades[i]->Portrait)
+					{
+						Upgrades[i]->Portrait->SetOpacity(0.5f);
+					}
 					if(BuildingStats->UpgradeLevel == i + 1)
 					{
 						if(Upgrades[i]->UpgradeBg)
@@ -64,7 +71,7 @@ void UBuildingUpgradeWidgetBase::RefreshPage(FBuildingStatsBase* Stat)
 {
 	if(Stat)
 	{
-		BuildingStats = Stat; 
+		BuildingStats = Stat;
 	}
 	RefreshPage();
 }

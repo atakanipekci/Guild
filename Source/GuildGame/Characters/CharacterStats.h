@@ -38,6 +38,8 @@ struct FCharacterStats : public FTableRowBase
 	TArray<int> SkillIDs;
 
 	int SpendableSkillPoints = 0;
+
+	bool bIsOwned = false;
 	
 	int UniqueID;
 	
@@ -58,6 +60,7 @@ struct FCharacterStats : public FTableRowBase
 		TownNpcBehaviourState = StructForCopy.TownNpcBehaviourState;
 		SkillIDs = StructForCopy.SkillIDs;
 		SpendableSkillPoints = StructForCopy.SpendableSkillPoints;
+		bIsOwned = StructForCopy.bIsOwned;
 		
 		if(StructForCopy.UniqueID >= 0)
 		{

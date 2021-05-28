@@ -18,8 +18,8 @@ class GUILDGAME_API CharacterManager
 {
 public:
     static void SetMovableGrids(class AGGCharacter* Character);
-    static void SetTargetableGrids(class AGGCharacter* Character);
-    static void SetDamageableGrids(class AGGCharacter* Character);
+    static void SetTargetableGrids(class AGGCharacter* Character, const struct FSkillData* SkillData);
+    static void SetDamageableGrids(class AGGCharacter* Character, const class CharacterSkill*, int Index);
     static bool CanAttackTo(const class AGGCharacter*, const class AGGCharacter* );
     static class GridManager* CharGridManager;
 

@@ -6,6 +6,8 @@
 #include "GGLogHelper.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
+#include "GuildGame/GuildGameGameModeBase.h"
+#include "GuildGame/Characters/GGCharacter.h"
 #include "GuildGame/GridSystem/GridFloor.h"
 
 GridManager::GridManager(FVector2D StartPos, float GridSize, int ColumnCount, int RowCount)
@@ -144,6 +146,11 @@ FVector GridManager::GetGridBottomLeft(int Index) const
     return GetGridCenter(Index) + FVector(-GridSize/2,-GridSize/2,0);
 }
 
+float GridManager::GetDistBetween(int Index1, int Index2) const
+{
+    return FVector::Dist(GetGridCenter(Index1), GetGridCenter(Index2));
+}
+
 void GridManager::SetGridState(int Index, EGridState NewState)
 {
     if(GGGrids.Num() <= 0)
@@ -161,19 +168,31 @@ bool GridManager::GetGridsFromCenter(int Index, int ARowCount, int AColumnCount,
     {
         return false;  
     }
-    GridsResult->Reserve(ARowCount*AColumnCount);
 
     int RowIndex = Index/this->ColumnCount;
     int ColIndex = Index%this->ColumnCount;
     int ColStart = ColIndex - AColumnCount/2;
+    if(ColStart<0)
+    {
+        AColumnCount += ColStart; 
+        ColStart = 0;
+    }
     int RowStart = RowIndex - ARowCount/2;
     int StartIndex = RowStart*this->ColumnCount + ColStart;
 
+    GridsResult->Reserve(ARowCount*AColumnCount);
+    
     for(int i = 0; i < AColumnCount; i++)
     {
+        if(ColStart + i >= ColumnCount)
+        {
+            break;
+        }
+        
         for(int j = 0; j < ARowCount; j++)
         {
             int result = StartIndex + (j*this->ColumnCount) +  i;
+            
             if(result >= 0 && result < ColumnCount*RowCount)
             {
                 GridsResult->Add(&GGGrids[result]);
@@ -264,7 +283,7 @@ bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<Grid*>* Gr
                         if(path)
                         {
                             float PathDist = path->GetPathLength();
-                            if(PathDist<Dist && path->IsValid())
+                            if(PathDist<=Dist && path->IsValid())
                             {
                                 GridsResult->Add(&GGGrids[result]);
                             }
@@ -273,7 +292,7 @@ bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<Grid*>* Gr
                     else
                     {
                         float EuclidDist = FVector::Dist(start,end);
-                        if(EuclidDist < Dist)
+                        if(EuclidDist <= Dist)
                         {
                             GridsResult->Add(&GGGrids[result]);
                         }
@@ -283,6 +302,133 @@ bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<Grid*>* Gr
         }
     }
     return true;
+}
+
+int GridManager::GetIntercept(TArray<Grid*>* Grids1, TArray<Grid*>* Grids2, TArray<Grid*>* GridsResult)
+{
+    if(Grids1 == nullptr || Grids2 == nullptr)
+    {
+        return 0;
+    }
+
+    int Result = 0;
+
+    for (auto Element : *Grids1)
+    {
+        for (auto Element2 : *Grids2)
+        {
+            if(Element == Element2)
+            {
+                Result++;
+                if(GridsResult != nullptr)
+                {
+                    GridsResult->Add(Element);
+                }
+            }
+        }
+    }
+
+    return Result;
+}
+
+bool GridManager::DoesInclude(TArray<Grid*>* Grids, int Index)
+{
+    if(Grids == nullptr)
+    {
+        return false;
+    }
+
+    if(Index < 0 || Index >= ColumnCount*RowCount)
+    {
+        return false;
+    }
+
+    for (auto Element : *Grids)
+    {
+        if(Element)
+        {
+            if(Element == &GGGrids[Index])
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+int GridManager::GetClosestInArray(TArray<Grid*>* Grids, int Index) const
+{
+    if(Grids == nullptr)
+    {
+        return 0;
+    }
+
+    if(Index < 0 || Index >= ColumnCount*RowCount)
+    {
+        return 0;
+    }
+
+    int Result = 0;
+    float MinDist = 999999999;
+    float Dist = 0;
+
+    for (int i = 0; i < Grids->Num(); i++)
+    {
+        Grid* Element = (*Grids)[i];
+        if(Element)
+        {
+            Dist = GetDistBetween(Element->Index, Index);
+            if(Dist < MinDist)
+            {
+                MinDist = Dist;
+                Result = Element->Index;
+            }
+        }
+    }
+
+    return Result;
+}
+
+bool GridManager::GetCharactersInArray(TArray<Grid*>* Grids, TArray<AGGCharacter*>* Characters) const
+{
+    if(Grids == nullptr || Characters == nullptr)
+    {
+        return false;
+    }
+
+    if(AttachedFloor == nullptr)
+    {
+        return false;
+    }
+
+    AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(AttachedFloor));
+
+    if(GameMode == nullptr)
+    {
+        return false;
+    }
+
+    bool Result = false;
+    
+    for (auto Grid : *Grids)
+    {
+        if(Grid)
+        {
+            for (auto Char : GameMode->GetCharacterList())
+            {
+                if(Char)
+                {
+                    if(Char->GetCurrentIndex() == Grid->Index)
+                    {
+                        Characters->Add(Char);
+                        Result = true;
+                    }
+                }
+            }
+        }
+    }
+    return Result;
 }
 
 FVector GridManager::GetPositionToPlace(int Index, int ARowCount, int AColumnCount) const

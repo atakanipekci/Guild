@@ -21,7 +21,7 @@ public:
 	class BattleControllerState* GetActiveState() const;
 	void SetState(int StateIndex);
 	void ChangeStateTo(int StateIndex);
-	void UpdateSelectedGrid(bool DrawPathTo = true);
+	bool UpdateSelectedGrid(bool DrawPathTo = true);
 	void DrawPath(int StartIndex, int EndIndex) const;
 	void SetGridFloor(class AGridFloor* Grid);
 	class AGridFloor* GetGridFloor() const;
@@ -30,11 +30,16 @@ public:
 	void SetSelectedCharacter(class AGGCharacter*);
 	class AGGCharacter* GetSelectedCharacter() const;
 	class AGGCharacter* GetCharacterFromMousePos() const;
+	int GetSelectedGridIndex()
+	{
+		return SelectedGridIndex;
+	}
 	
 
 
 private:
 	class AGGCharacter* SelectedCharacter = nullptr;
+	UPROPERTY()
 	class AGridFloor* GridFloor = nullptr;
 	int SelectedGridIndex = -1;
 	class BattleControllerState* ActiveState;

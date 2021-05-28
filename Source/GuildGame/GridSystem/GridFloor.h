@@ -95,12 +95,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TMap<ESplineMeshType, FSplineMeshDetails> PathSplineMap;
 
-	USceneComponent* RootComponent;
+	UPROPERTY()
+	USceneComponent* CustomRootComponent;
 private:
 	UPROPERTY(EditAnywhere)
 	int GridFloorTypeCount = 3;
 	
 	GridManager* FloorGridManager;
+	UPROPERTY()
 	ASplineActor* PathActor = nullptr;
 
 	void UpdateGridStatesWithTrace();
@@ -129,9 +131,11 @@ public:
 
 	float GetPathLength(int StartIndex, int EndIndex);
 
-	bool UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType = EISMType::Movement) const;
+	bool UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType = EISMType::Movement, bool ClearAll = true) const;
 
 	void ClearGridMeshes();
+
+	void ClearGridMesh(EISMType);
 
 	void ClearPath();
 

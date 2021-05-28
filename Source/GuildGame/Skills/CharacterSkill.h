@@ -8,7 +8,7 @@
 #include "SkillEffect.h"
 #include "Engine/DataTable.h"
 #include "SkillShape.h"
-#include "CharacterSkills.generated.h"
+#include "CharacterSkill.generated.h"
 
 
 
@@ -27,6 +27,12 @@ struct FSkillData : public FTableRowBase
 	float Range;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MinRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool DiagonalRange = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ESkillTargetingType TargetingType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -42,11 +48,21 @@ struct FSkillData : public FTableRowBase
 /**
  * 
  */
-class GUILDGAME_API CharacterSkills
+class GUILDGAME_API CharacterSkill
 {
 public:
-	CharacterSkills(const FSkillData&);
-	~CharacterSkills();
+	CharacterSkill(const FSkillData&);
+	~CharacterSkill();
+	void ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& TargetCharacters);
+	FSkillData& GetSkillData()
+	{
+		return SkillData;
+	}
+
+	SkillShape* GetShape() const
+	{
+		return Shape;
+	}
 private:
 	FSkillData SkillData;
 	SkillShape* Shape;

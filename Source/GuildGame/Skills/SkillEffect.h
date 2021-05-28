@@ -58,6 +58,10 @@ class GUILDGAME_API SkillEffect
 public:
 	virtual bool ApplyEffectToCharacter(AGGCharacter*) = 0;
 	virtual ~SkillEffect() = default;
+	const FEffectData& GetEffectData() const
+	{
+		return Data;
+	}
 protected:
 	FEffectData Data;
 };

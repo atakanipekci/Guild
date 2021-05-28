@@ -5,6 +5,7 @@
 #include "BattlePlayerController.h"
 #include "GuildGame/Characters/GGCharacter.h"
 #include "GuildGame/GridSystem/GridFloor.h"
+#include "GGLogHelper.h"
 
 ControllerStateDefault::ControllerStateDefault(ABattlePlayerController* Controller)
 {
@@ -196,7 +197,26 @@ void ControllerStateCastingSkill::Update()
 		return;
 	}
 
-	PlayerController->UpdateSelectedGrid(false);
+	if(PlayerController->UpdateSelectedGrid(false))
+	{
+		if(PlayerController->GetSelectedCharacter())
+		{
+			if(PlayerController->GetGridFloor() && PlayerController->GetGridFloor()->GetGridManager())
+			{
+				GridManager* GridMan = PlayerController->GetGridFloor()->GetGridManager();
+				TArray<Grid*>* Targetables = PlayerController->GetSelectedCharacter()->GetTargetableGrids();
+				AGGCharacter* Char = PlayerController->GetSelectedCharacter();
+				if(GridMan->DoesInclude(Targetables, PlayerController->GetSelectedGridIndex()))
+				{
+					Char->ShowDamageableGrids(PlayerController->GetSelectedGridIndex());
+				}
+				else
+				{
+					Char->ShowDamageableGrids(GridMan->GetClosestInArray(Targetables, PlayerController->GetSelectedGridIndex()));
+				}
+			}
+		}
+	}
 }
 
 void ControllerStateCastingSkill::LeftClickHandler()
@@ -205,10 +225,26 @@ void ControllerStateCastingSkill::LeftClickHandler()
 
 void ControllerStateCastingSkill::LeftClickReleaseHandler()
 {
-	if (PlayerController == nullptr)
+	if (PlayerController != nullptr && PlayerController->GetSelectedCharacter() != nullptr)
 	{
-		return;
+		AGGCharacter* SelectedCharacter = PlayerController->GetSelectedCharacter();
+		if(SelectedCharacter)
+		{
+			if(PlayerController->GetGridFloor())
+			{
+				GridManager* GridMan = PlayerController->GetGridFloor()->GetGridManager();
+				if(GridMan)
+				{
+					TArray<AGGCharacter*> Targets;
+					GridMan->GetCharactersInArray(SelectedCharacter->GetDamageableGrids(), &Targets);
+					SelectedCharacter->CastSkill(Targets);
+				}
+			}
+		}	
 	}
+
+	//PlayerController->GetSelectedCharacter()
+	
 }
 
 void ControllerStateCastingSkill::RightClickHandler()
@@ -241,6 +277,12 @@ void ControllerStateCastingSkill::ChangeTo()
 	if(SelectedCharacter)
 	{
 		SelectedCharacter->ShowTargetableGrids();
+		TArray<Grid*>* Targetables = PlayerController->GetSelectedCharacter()->GetTargetableGrids();
+		if(PlayerController->GetGridFloor() && PlayerController->GetGridFloor()->GetGridManager())
+		{
+			GridManager* GridMan = PlayerController->GetGridFloor()->GetGridManager();
+			SelectedCharacter->ShowDamageableGrids(GridMan->GetClosestInArray(Targetables, PlayerController->GetSelectedGridIndex()));
+		}	
 	}
 }
 

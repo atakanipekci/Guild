@@ -13,7 +13,7 @@
 #include "CharacterStatsComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GuildGame/GridSystem/GridFloor.h"
-#include "GuildGame/Skills/CharacterSkills.h"
+#include "GuildGame/Skills/CharacterSkill.h"
 #include "GuildGame/Widgets/BattleHealthBarWidget.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -110,7 +110,7 @@ void AGGCharacter::SetStats(const FCharacterStats& Stats)
     	 		FSkillData* SkillData = GameInstance->CharacterSkillsTable->FindRow<FSkillData>(FName(Name),"Skill File Row Missing", true);
 				if(SkillData)
 				{
-					Skills.Add(new CharacterSkills(*SkillData));
+					Skills.Add(new CharacterSkill(*SkillData));
 				}
 			}
 		}
@@ -142,14 +142,14 @@ void AGGCharacter::UpdateMovableGrids()
 	CharacterManager::SetMovableGrids(this);
 }
 
-void AGGCharacter::UpdateTargetableGrids()
+void AGGCharacter::UpdateTargetableGrids(const FSkillData* SkillData)
 {
-	CharacterManager::SetTargetableGrids(this);
+	CharacterManager::SetTargetableGrids(this, SkillData);
 }
 
-void AGGCharacter::UpdateDamageableGrids()
+void AGGCharacter::UpdateDamageableGrids(const CharacterSkill* Skill, int CenterIndex)
 {
-	CharacterManager::SetDamageableGrids(this);
+	CharacterManager::SetDamageableGrids(this, Skill, CenterIndex);
 }
 
 void AGGCharacter::AttackTo(AGGCharacter* Target)
@@ -271,13 +271,36 @@ float AGGCharacter::Heal(float HealAmount, AGGCharacter* Healer)
 
 void AGGCharacter::ShowTargetableGrids()
 {
-	UpdateTargetableGrids();
+	UpdateTargetableGrids(&Skills[CurrentSkillIndex]->GetSkillData());
 	GridManager* GridMan = CharacterManager::CharGridManager;
 	if(GridMan && GridMan->GetAttachedFloor())
 	{
+		GridMan->GetAttachedFloor()->ClearGridMesh(EISMType::Target);
 		GridMan->GetAttachedFloor()->UpdateGridMeshes(TargetableGrids, EISMType::Target);
 	}
 	
+}
+
+void AGGCharacter::ShowDamageableGrids(int CenterIndex)
+{	
+	UpdateDamageableGrids(Skills[CurrentSkillIndex], CenterIndex);
+	
+	GridManager* GridMan = CharacterManager::CharGridManager;
+	if(GridMan && GridMan->GetAttachedFloor())
+	{
+		GridMan->GetAttachedFloor()->ClearGridMesh(EISMType::Damage);
+		GridMan->GetAttachedFloor()->UpdateGridMeshes(DamageableGrids, EISMType::Damage, false);
+	}
+}
+
+void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
+{
+	if(CurrentSkillIndex > 0 && Skills.Num() > 0 && CurrentSkillIndex < Skills.Num() && Skills[CurrentSkillIndex] == nullptr)
+	{
+		return;
+	}
+
+	Skills[CurrentSkillIndex]->ApplyEffects(this, TargetCharacters);
 }
 
 void AGGCharacter::UpdateHealthBar()

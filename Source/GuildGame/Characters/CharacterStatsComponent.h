@@ -48,6 +48,10 @@ public:
 	void SetCurrentHealth(int Amount)
 	{
 		Stats.CurrentHealth = Amount;
+		if(Stats.CurrentHealth > Stats.MaxHealth)
+		{
+			Stats.CurrentHealth = Stats.MaxHealth;
+		}
 	}
 	
 	float GetMovementRange() const

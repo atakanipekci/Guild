@@ -30,9 +30,6 @@ class GUILDGAME_API UCharacterSkillNodeWidget : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 	class UButton* SkillButton;
 
-	
-
-
 	bool bIsConstructorCalledOnce = false;
 	FButtonStyle ButtonStyle;
 

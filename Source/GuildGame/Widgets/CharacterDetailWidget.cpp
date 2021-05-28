@@ -15,11 +15,11 @@ void UCharacterDetailWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     
-    if(SkillsButton)
-    {
-        SkillsButton->SetVisibility(ESlateVisibility::Hidden);
-       // SkillsButton->OnClicked.AddUniqueDynamic(this, &UCharacterDetailWidget::OpenSkillsWidget);
-    }
+    // if(SkillsButton)
+    // {
+    //     SkillsButton->SetVisibility(ESlateVisibility::Hidden);
+    //    // SkillsButton->OnClicked.AddUniqueDynamic(this, &UCharacterDetailWidget::OpenSkillsWidget);
+    // }
 }
 
 void UCharacterDetailWidget::RefreshPage(FCharacterStats* Stat)
@@ -45,10 +45,10 @@ void UCharacterDetailWidget::RefreshPage(FCharacterStats* Stat)
            BaseDamageText->SetText(FText::FromString("Base Damage :" + FString::FromInt(Stat->BaseDamage)));
        }
 
-       if(SkillsButtonText)
-       {
-           SkillsButtonText->SetText(FText::FromString("Skills:" + FString::FromInt(Stat->SpendableSkillPoints)));
-       }
+       // if(SkillsButtonText)
+       // {
+       //     SkillsButtonText->SetText(FText::FromString("Skills:" + FString::FromInt(Stat->SpendableSkillPoints)));
+       // }
        
 
        if(Portrait)

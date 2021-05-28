@@ -43,12 +43,16 @@ public:
 	void SetStats(const FCharacterStats&);
 	void MoveTo(FVector);
 	void UpdateMovableGrids();
-	void UpdateTargetableGrids();
-	void UpdateDamageableGrids();
+	void UpdateTargetableGrids(const struct FSkillData*);
+	void UpdateDamageableGrids( const class CharacterSkill* Skill, int CenterIndex);
 	void AttackTo(AGGCharacter* Target);
 	void SetSelected();
 	void Deselect();
 	void SetCurrentIndex(int NewIndex);
+	int GetCurrentIndex()
+	{
+		return CurrentGridIndex;
+	}
 	float GetDefaultMovementRange()const;
 	float GetDefaultDamageRange()const;
 	int GetBaseDamage()const;
@@ -58,6 +62,9 @@ public:
 	float TakeDefaultDamage(float DamageAmount, AActor* Dealer);
 	float Heal(float HealAmount, AGGCharacter* Healer);
 	void ShowTargetableGrids();
+	void ShowDamageableGrids(int CenterIndex);
+
+	void CastSkill(TArray<AGGCharacter*>& TargetCharacters);
 
 	void UpdateHealthBar();
 	class UCharacterAnimInstance* GetAnimInstance();
@@ -84,5 +91,6 @@ private:
 	class UBattleHealthBarWidget* HealthBarWidget;
 	
 	int CurrentGridIndex;
-	TArray<class CharacterSkills*> Skills;
+	TArray<class CharacterSkill*> Skills;
+	int CurrentSkillIndex = 0;
 };

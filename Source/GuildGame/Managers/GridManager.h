@@ -26,11 +26,16 @@ public:
 	FVector GetGridLeftMid(int Index)const;
 	FVector GetGridTopLeft(int Index)const;
 	FVector GetGridBottomLeft(int Index)const;
+	float GetDistBetween(int Index1, int Index2) const; 
 	void SetGridState(int Index, EGridState NewState);
 	bool IsPlaceable(TArray<Grid*>* GridsToPlace, EGridState RequiredState) const;
 	bool GetGridsFromCenter(int Index, int ARowCount, int AColumnCount,  TArray<Grid*>* GridsResult);
 	bool GetNeighbours(int Index, int ARowCount, int AColumnCount, TArray<Grid*>* GridsResult);
 	bool GetGridsInRange(int CenterIndex, float Dist, TArray<Grid*>* GridsResult, bool UsePathfinding = true);
+	int GetIntercept(TArray<Grid*>* Grids1, TArray<Grid*>* Grids2, TArray<Grid*>* GridsResult = nullptr);
+	bool DoesInclude(TArray<Grid*>* Grids, int Index);
+	int GetClosestInArray(TArray<Grid*>* Grids, int Index) const;
+	bool GetCharactersInArray(TArray<Grid*>* Grids, TArray<class AGGCharacter*>* Characters) const;
 	FVector GetPositionToPlace(int Index, int RowCount, int ColumnCount) const;
 	bool SetGridStates(TArray<Grid*>* GridsToSet, EGridState NewState);
 	void SetStartPos(FVector2D& NewPos)
@@ -44,6 +49,7 @@ private:
 	int ColumnCount;
 	int RowCount;
 	int GridSize;
+	UPROPERTY()
 	class AGridFloor* AttachedFloor = nullptr;
 public:
 	

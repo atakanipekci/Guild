@@ -34,6 +34,7 @@ void AGuildGameGameModeBase::BeginPlay()
      				Char->SetStats(*Element);
      				Char->SetCurrentIndex(Count);
 					GridMan->SetGridState(Count, EGridState::Obstacle);
+     				Characters.Add(Char);
      			}
      		}
      		Count+=2;

@@ -18,4 +18,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	TSubclassOf<class AGGCharacter> BattleCharactersBP;
+	const TArray<class AGGCharacter*>& GetCharacterList() const
+	{
+		return Characters;
+	}
+private:
+	TArray<class AGGCharacter*> Characters;
 };

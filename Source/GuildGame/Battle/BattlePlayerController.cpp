@@ -17,7 +17,7 @@ ABattlePlayerController::ABattlePlayerController()
 	bEnableTouchEvents = true;
 	PrimaryActorTick.bCanEverTick = true;
 	States.Add(new ControllerStateDefault(this));
-	States.Add(new ControllerStateBasicAttack(this));
+	States.Add(new ControllerStateCastingSkill(this));
 	if(States.Num() != 0)
 	{
 		ActiveState = States[0];
@@ -86,17 +86,17 @@ void ABattlePlayerController::ChangeStateTo(int StateIndex)
 	ActiveState->ChangeTo();
 }
 
-void ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)
+bool ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)
 {
 	if(GridFloor == nullptr)
 	{
-		return;
+		return false;
 	}
 	
 	GridManager* GridMan =  GridFloor->GetGridManager();
 	if(GridMan == nullptr)
 	{
-		return;
+		return false;
 	}
 	
 	FHitResult TraceResult(ForceInit);
@@ -105,7 +105,7 @@ void ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)
 	if(TraceResult.GetActor() == nullptr)
 	{
 		GridFloor->UpdateSelectedGrid(GridMan->GetGridBottomLeft(0), false);
-		return;
+		return false;
 	}
 
 	int GridIndex = GridMan->WorldToGrid(TraceResult.ImpactPoint);
@@ -114,7 +114,7 @@ void ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)
 	if(GridIndex < 0 || GridIndex > MaxIndex)
 	{
 		GridFloor->UpdateSelectedGrid(GridMan->GetGridBottomLeft(0), false);
-		return;
+		return false;
 	}
 	
 	if(GridIndex!=SelectedGridIndex)
@@ -128,7 +128,9 @@ void ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)
 			int end = SelectedGridIndex;
 			GridFloor->DrawPath(start,end);
 		}
+		return true;
 	}
+	return false;
 }
 
 void ABattlePlayerController::DrawPath(int StartIndex, int EndIndex) const

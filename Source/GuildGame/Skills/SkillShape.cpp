@@ -12,8 +12,9 @@ bool ShapeCircle::GetGridsInShape(GridManager* GridManager, int CenterIndex, TAr
 	{
 		return false;
 	}
+	GridsResult->Empty();
 
-	GridManager->GetGridsInRange(CenterIndex,Radius,GridsResult,false);
+	GridManager->GetGridsInRange(CenterIndex, GridManager->GetGridSize()*Radius, GridsResult,false);
 	return true;
 }
 
@@ -30,6 +31,8 @@ bool ShapeRectangle::GetGridsInShape(GridManager* GridManager, int CenterIndex, 
 		return false;
 	}
 
-	GridManager->GetNeighbours(CenterIndex, Row, Col, GridsResult);
+	GridsResult->Empty();
+	
+	GridManager->GetGridsFromCenter(CenterIndex, Row*2+1, Col*2+1, GridsResult);
 	return true;
 }

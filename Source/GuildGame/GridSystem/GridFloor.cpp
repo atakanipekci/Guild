@@ -18,18 +18,18 @@ AGridFloor::AGridFloor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	RootComponent = CreateDefaultSubobject<USceneComponent>("Root");
-	SetRootComponent(RootComponent);
+	CustomRootComponent = CreateDefaultSubobject<USceneComponent>("Root");
+	SetRootComponent(CustomRootComponent);
 	SelectionMesh = CreateDefaultSubobject<UProceduralMeshComponent>("SelectionMesh");
-	SelectionMesh->SetupAttachment(RootComponent);
+	SelectionMesh->SetupAttachment(CustomRootComponent);
 	GridMesh = CreateDefaultSubobject<UProceduralMeshComponent>("CustomMesh");
-	GridMesh->SetupAttachment(RootComponent);
+	GridMesh->SetupAttachment(CustomRootComponent);
 	MovementGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("Moveable Grids");
-	MovementGridMesh->SetupAttachment(RootComponent);
+	MovementGridMesh->SetupAttachment(CustomRootComponent);
 	TargetGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("Targetable Grids");
-	TargetGridMesh->SetupAttachment(RootComponent);
+	TargetGridMesh->SetupAttachment(CustomRootComponent);
 	DamageGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("Damageable Grids");
-	DamageGridMesh->SetupAttachment(RootComponent);
+	DamageGridMesh->SetupAttachment(CustomRootComponent);
 	MovementGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	TargetGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	DamageGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -340,37 +340,39 @@ float AGridFloor::GetPathLength(int StartIndex, int EndIndex)
 	return -1;
 }
 
-bool AGridFloor::UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType MeshType) const
+bool AGridFloor::UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType MeshType, bool ClearAll) const
 {
-
-	for(int i = 1; i < GridFloorTypeCount; i++)
+	if(ClearAll)
 	{
-		switch (i)
+		for(int i = 1; i < GridFloorTypeCount; i++)
 		{
-			case EISMType::Movement:
-				if(MovementGridMesh)
-				{
-					MovementGridMesh->ClearInstances();
-				}
-			break;
-					
-			case EISMType::Target:
-				if(TargetGridMesh)
-				{
-					TargetGridMesh->ClearInstances();
-				}
-			break;
+			switch (i)
+			{
+				case EISMType::Movement:
+					if(MovementGridMesh)
+					{
+						MovementGridMesh->ClearInstances();
+					}
+				break;
+						
+				case EISMType::Target:
+					if(TargetGridMesh)
+					{
+						TargetGridMesh->ClearInstances();
+					}
+				break;
 
-			case EISMType::Damage:
-				if(DamageGridMesh)
-				{
-					DamageGridMesh->ClearInstances();
-				}
-			break;
+				case EISMType::Damage:
+					if(DamageGridMesh)
+					{
+						DamageGridMesh->ClearInstances();
+					}
+				break;
 
-			default:
-			break;
-		}
+				default:
+				break;
+			}
+		}	
 	}
 	FVector Pos;
 	for(int i = 0; i < GridsToUpdate.Num(); i++)
@@ -423,6 +425,27 @@ void AGridFloor::ClearGridMeshes()
 	if(DamageGridMesh)
 	{
 		DamageGridMesh->ClearInstances();
+	}
+}
+
+void AGridFloor::ClearGridMesh(EISMType Type)
+{
+	switch (Type)
+	{
+		case EISMType::Damage:
+			DamageGridMesh->ClearInstances();
+			break;
+
+		case EISMType::Movement:
+			MovementGridMesh->ClearInstances();
+			break;
+
+		case EISMType::Target:
+			TargetGridMesh->ClearInstances();
+			break;
+
+		default:
+			break;
 	}
 }
 

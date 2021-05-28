@@ -12,11 +12,14 @@ void UCharacterSkillNodeWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if(SkillButton)
+	
+	if(bIsConstructorCalledOnce == false && SkillButton)
 	{
 		SkillButton->OnClicked.AddUniqueDynamic(this, &UCharacterSkillNodeWidget::OnPressed);
 		ButtonStyle = SkillButton->WidgetStyle;
 	}
+
+	bIsConstructorCalledOnce = true;
 
 }
 
@@ -24,6 +27,14 @@ void UCharacterSkillNodeWidget::NativeTick(const FGeometry& MyGeometry, float In
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
+}
+
+void UCharacterSkillNodeWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	if(OwnerWidget)
+	{
+		OwnerWidget->RefreshTooltip(SkillID);
+	}
 }
 
 void UCharacterSkillNodeWidget::OnPressed()
@@ -36,8 +47,8 @@ void UCharacterSkillNodeWidget::OnPressed()
 			OwnerWidget->SelectedSkillNode = this;
 		}
 		bIsPressed = true;
-		SkillButton->WidgetStyle.Normal = ButtonStyle.Pressed;
-		SkillButton->WidgetStyle.Hovered = ButtonStyle.Pressed;
+		SkillButton->WidgetStyle.SetNormal(ButtonStyle.Pressed);
+		SkillButton->WidgetStyle.SetHovered(ButtonStyle.Pressed);
 	}
 }
 
@@ -46,19 +57,23 @@ void UCharacterSkillNodeWidget::ReleaseButton()
 	if(SkillButton && bIsPressed == true)
 	{
 		bIsPressed = false;
-		SkillButton->WidgetStyle.Normal = ButtonStyle.Normal;
-		SkillButton->WidgetStyle.Hovered = ButtonStyle.Hovered;
+		ResetButtonStyle(true, true, false);
 		SetSkillNodeState(NodeState);
 	}
 }
 
-void UCharacterSkillNodeWidget::ResetButtonStyle()
+void UCharacterSkillNodeWidget::ResetButtonStyle(bool Normal, bool Hover, bool Pressed)
 {
 	if(SkillButton == nullptr) return;
-	
-	SkillButton->WidgetStyle.Normal = ButtonStyle.Normal;
-	SkillButton->WidgetStyle.Hovered = ButtonStyle.Hovered;
-	SkillButton->WidgetStyle.Pressed = ButtonStyle.Pressed;
+
+	if(Normal)
+		SkillButton->WidgetStyle.SetNormal(ButtonStyle.Normal);
+
+	if(Hover)
+		SkillButton->WidgetStyle.SetHovered(ButtonStyle.Hovered);
+
+	if(Pressed)
+		SkillButton->WidgetStyle.SetPressed(ButtonStyle.Pressed);
 }
 
 void UCharacterSkillNodeWidget::SetSkillNodeState(ESkillNodeState State)
@@ -69,11 +84,9 @@ void UCharacterSkillNodeWidget::SetSkillNodeState(ESkillNodeState State)
 
 	if(State == ESkillNodeState::Locked)
 	{
-		FLinearColor Color = FLinearColor::White;
-		Color.A = 0.5f;
-		Portrait->SetColorAndOpacity(Color);
+		Portrait->SetOpacity(0.5f);
 		
-		SkillButton->WidgetStyle.Normal = ButtonStyle.Normal;
+		ResetButtonStyle(true, false, false);
 
 		FLinearColor LineColor = ButtonStyle.Normal.GetTint(FWidgetStyle());
 		LineColor.A = 0.5f;
@@ -87,11 +100,9 @@ void UCharacterSkillNodeWidget::SetSkillNodeState(ESkillNodeState State)
 	}
 	else if(State == ESkillNodeState::Unlocked)
 	{
-		FLinearColor Color = FLinearColor::White;
-		Color.A = 1;
-		Portrait->SetColorAndOpacity(Color);
+		Portrait->SetOpacity(1.0f);
 
-		SkillButton->WidgetStyle.Normal = ButtonStyle.Normal;
+		ResetButtonStyle(true, false, false);
 
 		FLinearColor LineColor = ButtonStyle.Normal.GetTint(FWidgetStyle());
 		LineColor.A = 1.0f;
@@ -105,13 +116,13 @@ void UCharacterSkillNodeWidget::SetSkillNodeState(ESkillNodeState State)
 	}
 	else if(State == ESkillNodeState::CanBeUnlocked)
 	{
-		FLinearColor Color = FLinearColor::White;
-		Color.A = 0.5f;
-		Portrait->SetColorAndOpacity(Color);
+		Portrait->SetOpacity(0.5f);
 
-		SkillButton->WidgetStyle.Normal.TintColor = OwnerWidget->CanBeUnlockedButtonColor;
+		SkillButton->WidgetStyle.Normal.SetResourceObject(CanBeUnlockedButtonBrush.GetResourceObject());
+		SkillButton->WidgetStyle.Normal.SetImageSize(ButtonStyle.Normal.ImageSize);
+		SkillButton->WidgetStyle.Normal.TintColor = CanBeUnlockedButtonBrush.TintColor;
 
-		FLinearColor LineColor = OwnerWidget->CanBeUnlockedButtonColor.GetColor(FWidgetStyle());
+		FLinearColor LineColor = CanBeUnlockedButtonBrush.TintColor.GetColor(FWidgetStyle());
 		LineColor.A = 0.5f;
 		for (int i = 0; i < Lines.Num(); ++i)
 		{
@@ -124,8 +135,8 @@ void UCharacterSkillNodeWidget::SetSkillNodeState(ESkillNodeState State)
 
 	if(bIsPressed)
 	{
-		SkillButton->WidgetStyle.Normal = ButtonStyle.Pressed;
-		SkillButton->WidgetStyle.Hovered = ButtonStyle.Pressed;
+		SkillButton->WidgetStyle.SetNormal(ButtonStyle.Pressed);
+		SkillButton->WidgetStyle.SetHovered(ButtonStyle.Pressed);
 	}
 	
 }

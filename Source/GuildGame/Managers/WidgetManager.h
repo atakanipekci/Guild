@@ -29,7 +29,8 @@ enum class EWidgetKeys: uint8
 	TownHud,
 	RecruitBuildingUpgTooltip,
 	KnightSkills,
-	MageSkills
+	MageSkills,
+	CharacterSkillTooltip
 };
 
 UENUM()

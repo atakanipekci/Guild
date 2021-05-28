@@ -16,15 +16,15 @@ class GUILDGAME_API URecruitBuildingUpgTooltipWidget : public UUserWidget
 
 	public:
 	virtual void NativeConstruct() override;
-	void Refresh(struct FRecruitBuildingUpgradeStats* UpgStats, struct FRecruitBuildingUpgradeStats* PrevUpgStats, int UpgradeLevel);
-	struct FRecruitBuildingUpgradeStats* RecruitBuildingUpgradeData;
-	struct FRecruitBuildingUpgradeStats* PrevRecruitBuildingUpgradeData;
+	void Refresh(struct FRecruitBuildingUpgradeStats& UpgStats, struct FRecruitBuildingUpgradeStats& PrevUpgStats, int UpgradeLevel);
+	
 
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* UpgradeLevelText;
 
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* UpgradeDescText;
+	
 
 	
 };

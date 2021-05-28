@@ -135,9 +135,21 @@ void UTownHudWidget::UpdateUI()
 
         if(DayText)
         {
-            FString DayString = "DAY ";
-            DayString.AppendInt(GameInstance->Day);
-            DayText->SetText(FText::FromString(DayString));
+            const int Day = GameInstance->Day;
+            
+            const FText CostLocalizedText = NSLOCTEXT("CommonWords", "Day:", "DAY {Day}");
+		    FFormatNamedArguments Args;
+		    Args.Add("Day", Day);
+		    
+		    const FText FormattedText = FText::Format(
+		    	CostLocalizedText,
+		    	Args
+		    );
+            DayText->SetText(FormattedText);
+            
+            // FString DayString = "DAY ";
+            // DayString.AppendInt(GameInstance->Day);
+            // DayText->SetText(FText::FromString(DayString));
         }
         
     }

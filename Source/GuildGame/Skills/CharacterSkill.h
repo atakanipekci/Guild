@@ -11,6 +11,21 @@
 #include "CharacterSkill.generated.h"
 
 
+USTRUCT(BlueprintType)
+struct FCharSkillFileDataTable : public FTableRowBase
+{
+    GENERATED_BODY()
+ 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int SkillID;
+ 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* SkillImage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Desc;
+
+};
 
 USTRUCT()
 struct FSkillData : public FTableRowBase
@@ -63,6 +78,8 @@ public:
 	{
 		return Shape;
 	}
+	static FCharSkillFileDataTable* GetSkillFiles(int SkillID, UWorld* World);
+
 private:
 	FSkillData SkillData;
 	SkillShape* Shape;

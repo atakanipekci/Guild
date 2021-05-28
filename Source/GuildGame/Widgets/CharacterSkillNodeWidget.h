@@ -22,6 +22,7 @@ class GUILDGAME_API UCharacterSkillNodeWidget : public UUserWidget
 
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	
 	UFUNCTION()
 	void OnPressed();
@@ -29,14 +30,15 @@ class GUILDGAME_API UCharacterSkillNodeWidget : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 	class UButton* SkillButton;
 
-	UPROPERTY(meta = (BindWidget))
-	class UImage* Portrait;
-
+	bool bIsConstructorCalledOnce = false;
 	FButtonStyle ButtonStyle;
 
 public:
 
 	ESkillNodeState NodeState;
+
+	UPROPERTY(meta = (BindWidget))
+	class UImage* Portrait;
 	
 	UPROPERTY(EditAnywhere)
 	int UnlockSkillPointCost;
@@ -46,6 +48,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	int SkillID;
+
+	UPROPERTY(EditAnywhere)
+	FSlateBrush CanBeUnlockedButtonBrush;
 	
 	bool bIsPressed;
 
@@ -56,7 +61,7 @@ public:
 	TArray<class UCharacterSkillLineWidget*> Lines;
 
 	void ReleaseButton();
-	void ResetButtonStyle();
+	void ResetButtonStyle(bool Normal, bool Hover, bool Pressed);
 
 	void SetSkillNodeState(ESkillNodeState State);
 

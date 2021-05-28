@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BuildingUpgradeWidgetBase.h"
+
 #include "RecruitBuildingUpgradeWidget.generated.h"
 
 /**
@@ -17,5 +18,10 @@ class GUILDGAME_API URecruitBuildingUpgradeWidget : public UBuildingUpgradeWidge
 	public:
 	virtual void NativeConstruct() override;
 
-	 TArray<struct FTableRowBase*> TableRows;
+	TArray<struct FTableRowBase*> TableRows;
+
+	UPROPERTY()
+	class URecruitBuildingUpgTooltipWidget* Tooltip;
+	
+	virtual void RefreshTooltip(int NodeIndex) ;
 };

@@ -21,6 +21,10 @@ struct FCharSkillFileDataTable : public FTableRowBase
  	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* SkillImage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Desc;
+
 };
 
 USTRUCT()

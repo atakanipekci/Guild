@@ -16,11 +16,14 @@ class GUILDGAME_API UCharacterSkillTooltipWidget : public UUserWidget
 
 public:
 	
-	void Refresh(struct FSkillData&);
+	void Refresh(struct FSkillData&, UTexture* Image, FText* Desc);
 
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* SkillName;
+	class URichTextBlock* SkillName;
 
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* DescText;
+	class URichTextBlock* DescText;
+
+	UPROPERTY(meta = (BindWidget))
+	class UImage* SkillImage;
 };

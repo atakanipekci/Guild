@@ -32,6 +32,9 @@ class GUILDGAME_API UCharacterSkillsWidget : public UUserWidget
 	
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* CostText;
+	
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* CostTitleText;
 
 
 
@@ -42,6 +45,10 @@ class GUILDGAME_API UCharacterSkillsWidget : public UUserWidget
 	TArray<class UCharacterSkillLineWidget*> Lines;
 
 	TMap<int, struct FSkillData*> SkillsMap;
+	UPROPERTY()
+	TMap<int, UTexture*> SkillsImageMap;
+
+	TMap<int, FText*> DescMap;
 
 	UFUNCTION()
 	void AcquireSkill();

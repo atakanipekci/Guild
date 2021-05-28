@@ -42,6 +42,9 @@ void UCharacterSkillsWidget::AcquireSkill()
 			CostText->SetVisibility(ESlateVisibility::Hidden);
 			AcquireSkillButton->SetVisibility(ESlateVisibility::Hidden);
 
+			if(CostTitleText)
+				CostTitleText->SetVisibility(ESlateVisibility::Hidden);
+
 			RefreshSkillNodes();
 		}
 	}
@@ -56,9 +59,10 @@ void UCharacterSkillsWidget::RefreshSkillsArray()
 	}
 
 	if(CostText)
-	{
 		CostText->SetVisibility(ESlateVisibility::Hidden);
-	}
+
+	if(CostTitleText)
+		CostTitleText->SetVisibility(ESlateVisibility::Hidden);
 	
     if(SkillsPanel)
 	{
@@ -79,6 +83,9 @@ void UCharacterSkillsWidget::RefreshSkillsArray()
     	
         SkillNodes.Empty();
     	SkillsMap.Empty();
+    	SkillsImageMap.Empty();
+    	DescMap.Empty();
+    	
     	UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
 	    if(GameInstance == nullptr || GameInstance->CharacterSkillsFileTable == nullptr)
@@ -97,6 +104,16 @@ void UCharacterSkillsWidget::RefreshSkillsArray()
 
 				if(SkillData)
 					SkillsMap.Add(ChildWidget->SkillID, new FSkillData(*SkillData));
+
+
+				FCharSkillFileDataTable* SkillFile = GameInstance->CharacterSkillsFileTable->FindRow<FCharSkillFileDataTable>(FName(FString::FromInt(ChildWidget->SkillID)),"Skill File Row Missing", true);
+
+				if(SkillFile)
+					SkillsImageMap.Add(ChildWidget->SkillID, SkillFile->SkillImage);
+
+				if(SkillFile)
+					DescMap.Add(ChildWidget->SkillID, &SkillFile->Desc);
+				
 				
 				ChildWidget->Lines.Empty();
 				for (int j = 0; j < Lines.Num(); ++j)
@@ -111,6 +128,7 @@ void UCharacterSkillsWidget::RefreshSkillsArray()
 				}
 				SkillNodes.Add(ChildWidget);
 				ChildWidget->SetToolTip(Tooltip);
+				// ChildWidget->SetCursor(EMouseCursor::None);
 				ChildWidget->OwnerWidget = this;
 				ChildWidget->bIsPressed = false;
 				if(ChildWidget->Portrait)
@@ -135,7 +153,7 @@ void UCharacterSkillsWidget::RefreshSkillNodes()
 {
 	if(SkillPoints && CharacterStat && AcquireSkillButton)
 	{
-		SkillPoints->SetText(FText::FromString(FString::Printf(TEXT("Points To Spend %d"), CharacterStat->SpendableSkillPoints)));
+		SkillPoints->SetText(FText::AsNumber(CharacterStat->SpendableSkillPoints));
 
 		if(CharacterStat->bIsOwned == false)
 		{
@@ -205,25 +223,44 @@ void UCharacterSkillsWidget::ReleaseSkillNodeButtons(UCharacterSkillNodeWidget* 
 {
 	if(Excluded && AcquireSkillButton && CostText)
 	{
+		const int Cost = Excluded->UnlockSkillPointCost;
+		// FText CostLocalizedText = NSLOCTEXT("CommonWords", "Cost:", "Cost: {Cost}");
+		// FFormatNamedArguments Args;
+		// Args.Add("Cost", Cost);
+		//
+		// FText FormattedText = FText::Format(
+		// 	CostLocalizedText,
+		// 	Args
+		// );
+		
 		if(Excluded->NodeState == ESkillNodeState::CanBeUnlocked)
 		{
 			AcquireSkillButton->SetVisibility(ESlateVisibility::Visible);
 			AcquireSkillButton->SetIsEnabled(true);
 			CostText->SetVisibility(ESlateVisibility::Visible);
-			CostText->SetText(FText::FromString(FString::Printf(TEXT("Cost: %d"), Excluded->UnlockSkillPointCost)));
+			CostText->SetText(FText::AsNumber(Cost));
+
+			if(CostTitleText)
+				CostTitleText->SetVisibility(ESlateVisibility::Visible);
 		}
 		else if(Excluded->NodeState == ESkillNodeState::Unlocked)
 		{
 			AcquireSkillButton->SetVisibility(ESlateVisibility::Hidden);
 			AcquireSkillButton->SetIsEnabled(true);
 			CostText->SetVisibility(ESlateVisibility::Hidden);
+
+			if(CostTitleText)
+				CostTitleText->SetVisibility(ESlateVisibility::Hidden);
 		}
 		else if(Excluded->NodeState == ESkillNodeState::Locked)
 		{
 			AcquireSkillButton->SetVisibility(ESlateVisibility::Visible);
 			AcquireSkillButton->SetIsEnabled(false);
 			CostText->SetVisibility(ESlateVisibility::Visible);
-			CostText->SetText(FText::FromString(FString::Printf(TEXT("Cost: %d"), Excluded->UnlockSkillPointCost)));
+			CostText->SetText(FText::AsNumber(Cost));
+
+			if(CostTitleText)
+				CostTitleText->SetVisibility(ESlateVisibility::Visible);
 		}
 		
 		if(CharacterStat && CharacterStat->bIsOwned == false)
@@ -267,11 +304,13 @@ void UCharacterSkillsWidget::RefreshTooltip(int SkillID)
 	if(Tooltip)
 	{
 		FSkillData** Skill = SkillsMap.Find(SkillID);
-		if(Skill)
+		UTexture** SkillImage = SkillsImageMap.Find(SkillID);
+		FText** Desc = DescMap.Find(SkillID);
+		if(Skill && SkillImage && Desc)
 		{
 			if(*Skill)
 			{
-				Tooltip->Refresh(**Skill);
+				Tooltip->Refresh(**Skill, *SkillImage, *Desc);
 			}
 		}
 	}

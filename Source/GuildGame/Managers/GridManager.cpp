@@ -131,9 +131,19 @@ FVector GridManager::GetGridLeftMid(int Index) const
     return  GetGridCenter(Index) + FVector(0,-GridSize/2,0);
 }
 
+FVector GridManager::GetGridRightMid(int Index) const
+{
+    return  GetGridCenter(Index) + FVector(0,+GridSize/2,0);
+}
+
 FVector GridManager::GetGridTopLeft(int Index) const
 {
     return GetGridCenter(Index) + FVector(GridSize/2,-GridSize/2,0);
+}
+
+FVector GridManager::GetGridBottomMid(int Index) const
+{
+    return  GetGridCenter(Index) + FVector(-GridSize/2,0,0);
 }
 
 FVector GridManager::GetGridBottomLeft(int Index) const

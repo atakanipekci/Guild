@@ -24,7 +24,9 @@ public:
 	FVector GetGridCenter(int Index)const;
 	FVector GetGridTopMid(int Index)const;
 	FVector GetGridLeftMid(int Index)const;
+	FVector GetGridRightMid(int Index) const;
 	FVector GetGridTopLeft(int Index)const;
+	FVector GetGridBottomMid(int Index) const;
 	FVector GetGridBottomLeft(int Index)const;
 	float GetDistBetween(int Index1, int Index2) const; 
 	void SetGridState(int Index, EGridState NewState);

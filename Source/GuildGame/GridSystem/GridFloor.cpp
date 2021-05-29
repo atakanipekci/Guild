@@ -22,23 +22,38 @@ AGridFloor::AGridFloor()
 	SetRootComponent(CustomRootComponent);
 	SelectionMesh = CreateDefaultSubobject<UProceduralMeshComponent>("SelectionMesh");
 	SelectionMesh->SetupAttachment(CustomRootComponent);
+	MovementProcMesh = CreateDefaultSubobject<UProceduralMeshComponent>("MovementProcMesh");
+	MovementProcMesh->SetupAttachment(CustomRootComponent);
+	TargetProcMesh = CreateDefaultSubobject<UProceduralMeshComponent>("TargetProcMesh");
+	TargetProcMesh->SetupAttachment(CustomRootComponent);
+	DamageProcMesh = CreateDefaultSubobject<UProceduralMeshComponent>("DamageProcMesh");
+	DamageProcMesh->SetupAttachment(CustomRootComponent);
 	GridMesh = CreateDefaultSubobject<UProceduralMeshComponent>("CustomMesh");
 	GridMesh->SetupAttachment(CustomRootComponent);
-	MovementGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("Moveable Grids");
-	MovementGridMesh->SetupAttachment(CustomRootComponent);
-	TargetGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("Targetable Grids");
-	TargetGridMesh->SetupAttachment(CustomRootComponent);
-	DamageGridMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>("Damageable Grids");
-	DamageGridMesh->SetupAttachment(CustomRootComponent);
-	MovementGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	TargetGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	DamageGridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SelectionMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MovementProcMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	TargetProcMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DamageProcMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GridMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);	
 }
 
 AGridFloor::~AGridFloor()
 {
+	/*if(MovementProcMesh)
+	{
+		MovementProcMesh->ClearAllMeshSections();
+		//MovementProcMesh->DestroyComponent();
+	}
+	if(TargetProcMesh)
+	{
+		TargetProcMesh->ClearAllMeshSections();
+		//TargetProcMesh->DestroyComponent();
+	}
+	if(DamageProcMesh)
+	{
+		DamageProcMesh->ClearAllMeshSections();
+		//DamageProcMesh->DestroyComponent();
+	}*/
 	delete FloorGridManager;
 }
 
@@ -184,8 +199,11 @@ void AGridFloor::OnConstruction(const FTransform& Transform)
 
 	if(SelectedGridMaterial)
 	{
-		SelectionMesh->SetMaterial(0, SelectedGridMaterial);
+		if(SelectionMesh)
+			SelectionMesh->SetMaterial(0, SelectedGridMaterial);
 	}
+
+	ConstructProcMeshes();
 	
 	UMaterialInstanceDynamic* LineMaterialInstance = CreateMaterialInstance(LineColor, LineOpacity);
 	UMaterialInstanceDynamic* GridMaterialInstance =SelectionMesh->CreateAndSetMaterialInstanceDynamic(0);
@@ -225,65 +243,6 @@ void AGridFloor::OnConstruction(const FTransform& Transform)
 	CreateLine(FVector(0,GridSize/2,0), FVector(GridSize,GridSize/2,0),GridSize,SelectionVertices, SelectionTriangles);
 	SelectionMesh->CreateMeshSection_LinearColor(0,SelectionVertices,SelectionTriangles,TArray<FVector>(), TArray<FVector2D>(), TArray<FLinearColor>(), TArray<FProcMeshTangent>(),false);
 	SelectionMesh->SetVisibility(false);
-
-	UInstancedStaticMeshComponent* ISMPointer;
-	FISMDetails* ISMDetails;
-	for(int i = 0; i < ISMMap.Num(); i++ )
-	{
-		switch (i)
-		{
-			case 0:
-				ISMDetails = ISMMap.Find(EISMType::Movement);
-				ISMPointer = MovementGridMesh;
-			break;
-				
-			case 1:
-				ISMDetails = ISMMap.Find(EISMType::Target);
-				ISMPointer = TargetGridMesh;
-			break;
-
-			case 2:
-				ISMDetails = ISMMap.Find(EISMType::Damage);
-				ISMPointer = DamageGridMesh;
-				break;
-
-			default:
-				ISMDetails = ISMMap.Find(EISMType::Movement);
-				ISMPointer = TargetGridMesh;
-			break;
-		}
-
-		if(ISMPointer == nullptr || ISMDetails == nullptr || ISMDetails->Mesh == nullptr || ISMDetails->Material == nullptr)
-		{
-			if(ISMPointer == nullptr)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL ISM POINTER");
-			}
-			if(ISMDetails == nullptr)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL ISM DETAILS");
-			}
-			if(ISMDetails->Mesh == nullptr)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL ISM MESH");
-			}
-			if(ISMDetails->Material == nullptr)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL ISM MAT");
-			}
-			continue;
-		}
-
-		ISMPointer->SetStaticMesh(ISMDetails->Mesh);
-		ISMPointer->ClearInstances();
-		ISMPointer->SetMaterial(0, ISMDetails->Material);
-		UMaterialInstanceDynamic* InstancedMaterial =ISMPointer->CreateAndSetMaterialInstanceDynamic(0);
-		if(InstancedMaterial != nullptr)
-		{
-			InstancedMaterial->SetVectorParameterValue(FName("Color"), ISMDetails->Color);
-			InstancedMaterial->SetScalarParameterValue(FName("Opacity"), ISMDetails->Opacity);
-		}		
-	}
 }
 
 void AGridFloor::UpdateSelectedGrid(FVector NewPos, bool IsVisible)
@@ -340,7 +299,7 @@ float AGridFloor::GetPathLength(int StartIndex, int EndIndex)
 	return -1;
 }
 
-bool AGridFloor::UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType MeshType, bool ClearAll) const
+bool AGridFloor::UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType MeshType, bool ClearAll)
 {
 	if(ClearAll)
 	{
@@ -349,23 +308,23 @@ bool AGridFloor::UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType MeshTyp
 			switch (i)
 			{
 				case EISMType::Movement:
-					if(MovementGridMesh)
+					if(MovementProcMesh)
 					{
-						MovementGridMesh->ClearInstances();
+						MovementProcMesh->ClearAllMeshSections();
 					}
 				break;
 						
 				case EISMType::Target:
-					if(TargetGridMesh)
+					if(TargetProcMesh)
 					{
-						TargetGridMesh->ClearInstances();
+						TargetProcMesh->ClearAllMeshSections();
 					}
 				break;
 
 				case EISMType::Damage:
-					if(DamageGridMesh)
+					if(DamageProcMesh)
 					{
-						DamageGridMesh->ClearInstances();
+						DamageProcMesh->ClearAllMeshSections();
 					}
 				break;
 
@@ -374,45 +333,22 @@ bool AGridFloor::UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType MeshTyp
 			}
 		}	
 	}
-	FVector Pos;
-	for(int i = 0; i < GridsToUpdate.Num(); i++)
-	{
-		Pos.Set(FloorGridManager->GetGridCenter(GridsToUpdate[i]->Index).X,FloorGridManager->GetGridCenter(GridsToUpdate[i]->Index).Y, GetActorLocation().Z - 5);
-		switch(MeshType)
-		{
-			case EISMType::Movement:
-			if(MovementGridMesh)
-			{
-				MovementGridMesh->AddInstanceWorldSpace(FTransform{Pos});
-			}
-			break;
-
-			case EISMType::Target:
-			if(TargetGridMesh)
-			{
-				TargetGridMesh->AddInstanceWorldSpace(FTransform{Pos});
-			}
-			break;
-
-			case EISMType::Damage:
-			if(DamageGridMesh)
-			{
-				DamageGridMesh->AddInstanceWorldSpace(FTransform{Pos});
-			}
-			break;
-
-			default:
-				MovementGridMesh->AddInstanceWorldSpace(FTransform{Pos});
-			break;
-		}
-	}
+	
+	CreateProceduralGridArea(MeshType,GridsToUpdate);
 
 	return true;
 }
 
 void AGridFloor::ClearGridMeshes()
 {
-	if(MovementGridMesh)
+	if(MovementProcMesh)
+		MovementProcMesh->ClearAllMeshSections();
+	if(TargetProcMesh)
+		TargetProcMesh->ClearAllMeshSections();
+	if(DamageProcMesh)
+		DamageProcMesh->ClearAllMeshSections();
+		
+	/*if(MovementGridMesh)
 	{
 		MovementGridMesh->ClearInstances();
 	}
@@ -425,7 +361,7 @@ void AGridFloor::ClearGridMeshes()
 	if(DamageGridMesh)
 	{
 		DamageGridMesh->ClearInstances();
-	}
+	}*/
 }
 
 void AGridFloor::ClearGridMesh(EISMType Type)
@@ -433,15 +369,21 @@ void AGridFloor::ClearGridMesh(EISMType Type)
 	switch (Type)
 	{
 		case EISMType::Damage:
-			DamageGridMesh->ClearInstances();
+			//DamageGridMesh->ClearInstances();
+			if(MovementProcMesh)
+				MovementProcMesh->ClearAllMeshSections();
 			break;
 
 		case EISMType::Movement:
-			MovementGridMesh->ClearInstances();
+			//MovementGridMesh->ClearInstances();
+			if(TargetProcMesh)
+				TargetProcMesh->ClearAllMeshSections();
 			break;
 
 		case EISMType::Target:
-			TargetGridMesh->ClearInstances();
+			//TargetGridMesh->ClearInstances();
+			if(DamageProcMesh)
+				DamageProcMesh->ClearAllMeshSections();
 			break;
 
 		default:
@@ -457,6 +399,171 @@ void AGridFloor::ClearPath()
 	}
 	PathActor->ClearNodes();
 	PathActor->UpdateSpline();
+}
+
+void AGridFloor::ConstructProcMeshes()
+{
+	if(SelectedGridMaterial)
+	{
+		if(MovementProcMesh)
+			MovementProcMesh->SetMaterial(0, SelectedGridMaterial);
+
+		if(TargetProcMesh)
+			TargetProcMesh->SetMaterial(0, SelectedGridMaterial);
+
+		if(DamageProcMesh)
+			DamageProcMesh->SetMaterial(0, SelectedGridMaterial);
+	}
+
+	
+	for(int i = 1; i < GridFloorTypeCount; i++)
+	{
+		switch(i)
+		{
+			case EISMType::Movement:
+				SetProcMaterials(EISMType::Movement);
+				break;
+
+			case EISMType::Target:
+				SetProcMaterials(EISMType::Target);
+				break;
+
+			case EISMType::Damage:
+				SetProcMaterials(EISMType::Damage);
+				break;
+
+			default:
+				break;
+		}
+	}
+}
+
+void AGridFloor::SetProcMaterials(EISMType Type)
+{
+	UProceduralMeshComponent* Mesh = nullptr;
+	switch (Type)
+	{
+		case EISMType::Movement:
+			Mesh = MovementProcMesh;
+			if(Mesh)
+				Mesh->SetCustomDepthStencilValue(2);
+			break;
+
+		case EISMType::Target:
+			Mesh = TargetProcMesh;
+			if(Mesh)
+				Mesh->SetCustomDepthStencilValue(3);
+			break;
+
+		case EISMType::Damage:
+			Mesh = DamageProcMesh;
+			if(Mesh)
+				Mesh->SetCustomDepthStencilValue(4);
+			break;
+
+		default:
+			break;
+	}
+	
+	if(Mesh == nullptr)
+	{
+		return;
+	}
+
+	if(Mesh)
+	{
+		UMaterialInstanceDynamic* MaterialInstance =Mesh->CreateAndSetMaterialInstanceDynamic(0);
+
+		if(MaterialInstance != nullptr)
+		{
+			MaterialInstance->SetVectorParameterValue(FName("Color"), ISMMap.Find(Type)->Color);
+			MaterialInstance->SetScalarParameterValue(FName("Opacity"), ISMMap.Find(Type)->Opacity);
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL MAT");
+		}
+		Mesh->SetRenderCustomDepth(true);
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL MESH");
+	}
+	
+	
+}
+
+void AGridFloor::CreateProceduralGridArea(EISMType Type, TArray<Grid*>& Grids)
+{
+	if(GetGridManager() == nullptr)
+	{
+		return;
+	}
+	UProceduralMeshComponent* ProcMesh = nullptr;
+	switch (Type)
+	{
+		case EISMType::Movement:
+			ProcMesh = MovementProcMesh;
+			if(ProcMesh)
+				ProcMesh->SetCustomDepthStencilValue(2);
+			break;
+
+		case EISMType::Target:
+			ProcMesh = TargetProcMesh;
+			if(ProcMesh)
+				ProcMesh->SetCustomDepthStencilValue(3);
+			break;
+
+		case EISMType::Damage:
+			ProcMesh = DamageProcMesh;
+			if(ProcMesh)
+				ProcMesh->SetCustomDepthStencilValue(4);
+			break;
+
+		default:
+			ProcMesh = MovementProcMesh;
+			if(ProcMesh)
+				ProcMesh->SetCustomDepthStencilValue(2);
+			break;
+	}
+
+	if(ProcMesh == nullptr)
+	{
+		return;
+	}
+
+	ProcMesh->ClearAllMeshSections();
+	
+	TArray<FVector> LineVertices;
+	TArray<int> LineTriangles;
+
+	for (auto Element : Grids)
+	{
+		if(Element)
+		{
+			FVector Start = FloorGridManager->GetGridLeftMid(Element->Index) - this->GetActorLocation();
+			Start.Z = this->GetActorLocation().Z;
+			FVector End = FloorGridManager->GetGridRightMid(Element->Index)  - this->GetActorLocation();
+			End.Z = this->GetActorLocation().Z;
+			CreateLine(Start,End,GridSize,LineVertices, LineTriangles);
+		}
+	}
+
+	ProcMesh->CreateMeshSection_LinearColor(0,LineVertices,LineTriangles,TArray<FVector>(), TArray<FVector2D>(), TArray<FLinearColor>(), TArray<FProcMeshTangent>(),false);
+	ProcMesh->SetVisibility(true);
+
+	ProcMesh->SetRenderCustomDepth(true);
+	//ProcMesh->SetCustomDepthStencilValue(2);
+
+	
+	UMaterialInstanceDynamic* MatInstance =ProcMesh->CreateAndSetMaterialInstanceDynamic(0);
+
+	if(MatInstance != nullptr)
+	{
+		MatInstance->SetVectorParameterValue(FName("Color"), ISMMap.Find(Type)->Color);
+		MatInstance->SetScalarParameterValue(FName("Opacity"), ISMMap.Find(Type)->Opacity);
+	}
+	
 }
 
 

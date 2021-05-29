@@ -75,19 +75,19 @@ public:
 	UProceduralMeshComponent* GridMesh;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UProceduralMeshComponent* MovementProcMesh;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UProceduralMeshComponent* TargetProcMesh;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UProceduralMeshComponent* DamageProcMesh;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	UMaterialInterface* LineMaterial;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	UMaterialInterface* SelectedGridMaterial;
-	
-	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	UInstancedStaticMeshComponent* MovementGridMesh;
-
-	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	UInstancedStaticMeshComponent* TargetGridMesh;
-
-	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	UInstancedStaticMeshComponent* DamageGridMesh;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TMap<EISMType,FISMDetails> ISMMap;
@@ -131,13 +131,19 @@ public:
 
 	float GetPathLength(int StartIndex, int EndIndex);
 
-	bool UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType = EISMType::Movement, bool ClearAll = true) const;
+	bool UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType = EISMType::Movement, bool ClearAll = true);
 
 	void ClearGridMeshes();
 
 	void ClearGridMesh(EISMType);
 
 	void ClearPath();
+
+	void ConstructProcMeshes();
+
+	void CreateProceduralGridArea(EISMType Type, TArray<Grid*>& Grids);
+
+	void SetProcMaterials(EISMType Type);
 
 	//void CreatePath(int StartIndex, int EndIndex);
 };

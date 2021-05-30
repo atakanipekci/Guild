@@ -82,7 +82,6 @@ public:
 	void SetAnimState(ECharacterAnimState AnimState);
 	void PlayCharacterMontage(UAnimMontage* Montage);
 
-
 private:
 	TArray<Grid*> MovableGrids;
 	TArray<Grid*> TargetableGrids;

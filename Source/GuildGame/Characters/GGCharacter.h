@@ -2,15 +2,16 @@
 
 #pragma once
 
-#include "GuildGame/Managers/CharacterManager.h"
 #include "CoreMinimal.h"
 
+#include "CharacterStats.h"
 #include "GGCharacterBase.h"
 #include "GuildGame/GridSystem/Grid.h"
-#include "GameFramework/Character.h"
 //#include "GuildGame/Skills/CharacterSkills.h"
 
 #include "GGCharacter.generated.h"
+
+enum class ECharacterAnimState : uint8;
 
 enum class ECharacterStatus : uint8
 {
@@ -40,7 +41,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	void SetStats(const FCharacterStats&);
+	void SetStats(const struct FCharacterStats&);
+	void SetFile(const struct FCharFileDataTable&);
 	void MoveTo(FVector);
 	void UpdateMovableGrids();
 	void UpdateTargetableGrids(const struct FSkillData*);
@@ -65,9 +67,14 @@ public:
 	void ShowDamageableGrids(int CenterIndex);
 
 	void CastSkill(TArray<AGGCharacter*>& TargetCharacters);
+	virtual void OnAttackHitsEnemy() override;
+	virtual void OnDeath() override;
 
 	void UpdateHealthBar();
 	class UCharacterAnimInstance* GetAnimInstance();
+
+	void SetAnimState(ECharacterAnimState AnimState);
+	void PlayCharacterMontage(UAnimMontage* Montage);
 
 
 private:
@@ -93,4 +100,8 @@ private:
 	int CurrentGridIndex;
 	TArray<class CharacterSkill*> Skills;
 	int CurrentSkillIndex = 0;
+
+	TArray<AGGCharacter*> SelectedTargetCharacters;
+
+	struct FCharFileDataTable CharFile;
 };

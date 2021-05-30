@@ -28,10 +28,22 @@ void AGuildGameGameModeBase::BeginPlay()
 				AGGCharacter* Char = CharacterManager::SpawnCharacter<AGGCharacter,AGGCharacter>(BattleCharactersBP,Element->ClassType,
            										Location, FRotator::ZeroRotator, GetWorld());
 
+
+     			FCharFileDataTable* CharFiles = nullptr;
+     			if(Element)
+     			{
+     				const FName RowName = *(CharacterManager::GetCharFileRowName(Element->ClassType));
+					CharFiles = GameInstance->CharacterFileTable->FindRow<FCharFileDataTable>(RowName, "Character File Row Missing", true);
+     			}
+
      			if(Char)
      			{
-     				Char->GetAnimInstance();//This initializes Anim Instance
-     				Char->SetStats(*Element);
+     				if(Element)
+     					Char->SetStats(*Element);
+
+     				if(CharFiles)
+     					Char->SetFile(*CharFiles);
+
      				Char->SetCurrentIndex(Count);
 					GridMan->SetGridState(Count, EGridState::Obstacle);
      				Characters.Add(Char);

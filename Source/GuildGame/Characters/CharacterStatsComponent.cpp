@@ -40,7 +40,7 @@ void UCharacterStatsComponent::SetStats(const FCharacterStats& NewStats)
 	Stats = NewStats;
 }
 
-void UCharacterStatsComponent::ChangeHealth(int Amount)
+bool UCharacterStatsComponent::ChangeHealth(int Amount)
 {
 	LOG("Health : %d", GetCurrentHealth());
 	SetCurrentHealth(GetCurrentHealth()+Amount);
@@ -50,9 +50,11 @@ void UCharacterStatsComponent::ChangeHealth(int Amount)
 		AGGCharacter* Char = Cast<AGGCharacter> (this->GetOwner());
 		if(Char)
 		{
-			Char->Destroy();
+			Char->OnDeath();
+			return true;
 		}
 	}
+	return  false;
 }
 
 const TArray<int>& UCharacterStatsComponent::GetSkillIDs() const

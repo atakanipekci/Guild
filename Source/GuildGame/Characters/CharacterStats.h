@@ -57,9 +57,33 @@ struct FCharFileDataTable : public FTableRowBase
 	TSubclassOf<UAnimInstance> AnimationBP;
 
  	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UAnimMontage* GetHitMontage;
+	TArray<UAnimMontage*> TakeHitMontage;
  	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UAnimMontage* DeathMontage;
+	TArray<UAnimMontage*> DeathMontage;
+
+ 	UAnimMontage* GetRandomTakeHitMontage()
+ 	{
+ 		if(TakeHitMontage.Num() > 0)
+ 		{
+ 			int Index = 0;
+ 			Index = FMath::RandRange(0, TakeHitMontage.Num() - 1);
+ 			return TakeHitMontage[Index];
+ 		}
+
+ 		return  nullptr;
+ 	}
+
+ 	UAnimMontage* GetRandomDeathMontage()
+ 	{
+ 		if(DeathMontage.Num() > 0)
+ 		{
+ 			int Index = 0;
+ 			Index = FMath::RandRange(0, DeathMontage.Num() - 1);
+ 			return DeathMontage[Index];
+ 		}
+
+ 		return  nullptr;
+ 	}
 };
 
 USTRUCT()

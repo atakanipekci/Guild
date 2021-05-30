@@ -14,6 +14,7 @@
 #include "GuildGameInstance.h"
 #include "Components/WidgetComponent.h"
 #include "GuildGame/GridSystem/GridFloor.h"
+#include "GuildGame/Managers/TimedEventManager.h"
 #include "GuildGame/Skills/CharacterSkill.h"
 #include "GuildGame/Widgets/BattleHealthBarWidget.h"
 
@@ -258,7 +259,7 @@ float AGGCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 		bool bIsDead = StatsComponent->ChangeHealth(-DamageAmount);
 		if(bIsDead == false)
 		{
-			PlayCharacterMontage(CharFile.GetHitMontage);
+			PlayCharacterMontage(CharFile.GetRandomTakeHitMontage());
 		}
 		UpdateHealthBar();
 	}
@@ -326,7 +327,10 @@ void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 			FVector Dir =  TargetCharacters[0]->GetActorLocation() - GetActorLocation();
 			Dir.Z = 0;
 			FRotator Rot = FRotationMatrix::MakeFromX(Dir).Rotator();
-			SetActorRotation(Rot);
+
+			ATimedEventManager::Rotate(this, Rot, 0.2f, GetWorld());
+
+			//SetActorRotation(Rot);
 		}
 		
 		PlayCharacterMontage(SkillFiles->SkillMontage);
@@ -352,7 +356,7 @@ void AGGCharacter::OnDeath()
 {
 	Super::OnDeath();
 
-	PlayCharacterMontage(CharFile.DeathMontage);
+	PlayCharacterMontage(CharFile.GetRandomDeathMontage());
 }
 
 void AGGCharacter::UpdateHealthBar()

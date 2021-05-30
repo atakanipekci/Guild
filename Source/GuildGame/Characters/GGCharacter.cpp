@@ -278,19 +278,24 @@ void AGGCharacter::ShowTargetableGrids()
 		GridMan->GetAttachedFloor()->ClearGridMesh(EISMType::Target);
 		GridMan->GetAttachedFloor()->UpdateGridMeshes(TargetableGrids, EISMType::Target);
 	}
-	
 }
 
-void AGGCharacter::ShowDamageableGrids(int CenterIndex)
+void AGGCharacter::ShowDamageableGrids(int CenterIndex, bool CreateNew)
 {	
 	UpdateDamageableGrids(Skills[CurrentSkillIndex], CenterIndex);
 	
 	GridManager* GridMan = CharacterManager::CharGridManager;
-	if(GridMan && GridMan->GetAttachedFloor())
+	if(GridMan && GridMan->GetAttachedFloor() && CreateNew)
 	{
 		GridMan->GetAttachedFloor()->ClearGridMesh(EISMType::Damage);
 		GridMan->GetAttachedFloor()->UpdateGridMeshes(DamageableGrids, EISMType::Damage, false);
 	}
+	else if(CreateNew == false && GridMan && GridMan->GetAttachedFloor())
+	{
+		FVector PosDif = GridMan->GetGridCenter(CenterIndex) - GridMan->GetGridCenter(CurrentTargetGridIndex);
+		GridMan->GetAttachedFloor()->SetProcMeshPosition(EISMType::Damage, PosDif);
+	}
+	CurrentTargetGridIndex = CenterIndex;
 }
 
 void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)

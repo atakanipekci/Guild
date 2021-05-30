@@ -145,5 +145,7 @@ public:
 
 	void SetProcMaterials(EISMType Type);
 
+	void SetProcMeshPosition(EISMType Type, FVector&);
+
 	//void CreatePath(int StartIndex, int EndIndex);
 };

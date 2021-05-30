@@ -49,9 +49,14 @@ public:
 	void SetSelected();
 	void Deselect();
 	void SetCurrentIndex(int NewIndex);
-	int GetCurrentIndex()
+	int GetCurrentIndex() const
 	{
 		return CurrentGridIndex;
+	}
+
+	int GetCurrentTargetIndex() const
+	{
+		return CurrentTargetGridIndex;
 	}
 	float GetDefaultMovementRange()const;
 	float GetDefaultDamageRange()const;
@@ -62,7 +67,7 @@ public:
 	float TakeDefaultDamage(float DamageAmount, AActor* Dealer);
 	float Heal(float HealAmount, AGGCharacter* Healer);
 	void ShowTargetableGrids();
-	void ShowDamageableGrids(int CenterIndex);
+	void ShowDamageableGrids(int CenterIndex, bool CreateNew = true);
 
 	void CastSkill(TArray<AGGCharacter*>& TargetCharacters);
 
@@ -93,4 +98,6 @@ private:
 	int CurrentGridIndex;
 	TArray<class CharacterSkill*> Skills;
 	int CurrentSkillIndex = 0;
+
+	int CurrentTargetGridIndex = 0;
 };

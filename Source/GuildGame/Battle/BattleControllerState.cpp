@@ -208,11 +208,11 @@ void ControllerStateCastingSkill::Update()
 				AGGCharacter* Char = PlayerController->GetSelectedCharacter();
 				if(GridMan->DoesInclude(Targetables, PlayerController->GetSelectedGridIndex()))
 				{
-					Char->ShowDamageableGrids(PlayerController->GetSelectedGridIndex());
+					Char->ShowDamageableGrids(PlayerController->GetSelectedGridIndex(), false);
 				}
 				else
 				{
-					Char->ShowDamageableGrids(GridMan->GetClosestInArray(Targetables, PlayerController->GetSelectedGridIndex()));
+					Char->ShowDamageableGrids(GridMan->GetClosestInArray(Targetables, PlayerController->GetSelectedGridIndex()), false);
 				}
 			}
 		}

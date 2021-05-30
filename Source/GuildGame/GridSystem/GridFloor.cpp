@@ -303,35 +303,7 @@ bool AGridFloor::UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType MeshTyp
 {
 	if(ClearAll)
 	{
-		for(int i = 1; i < GridFloorTypeCount; i++)
-		{
-			switch (i)
-			{
-				case EISMType::Movement:
-					if(MovementProcMesh)
-					{
-						MovementProcMesh->ClearAllMeshSections();
-					}
-				break;
-						
-				case EISMType::Target:
-					if(TargetProcMesh)
-					{
-						TargetProcMesh->ClearAllMeshSections();
-					}
-				break;
-
-				case EISMType::Damage:
-					if(DamageProcMesh)
-					{
-						DamageProcMesh->ClearAllMeshSections();
-					}
-				break;
-
-				default:
-				break;
-			}
-		}	
+		ClearGridMeshes();	
 	}
 	
 	CreateProceduralGridArea(MeshType,GridsToUpdate);
@@ -341,27 +313,11 @@ bool AGridFloor::UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType MeshTyp
 
 void AGridFloor::ClearGridMeshes()
 {
-	if(MovementProcMesh)
-		MovementProcMesh->ClearAllMeshSections();
-	if(TargetProcMesh)
-		TargetProcMesh->ClearAllMeshSections();
-	if(DamageProcMesh)
-		DamageProcMesh->ClearAllMeshSections();
-		
-	/*if(MovementGridMesh)
-	{
-		MovementGridMesh->ClearInstances();
-	}
-		
-	if(TargetGridMesh)
-	{
-		TargetGridMesh->ClearInstances();
-	}
 
-	if(DamageGridMesh)
+	for(int i = 1; i < GridFloorTypeCount; i++)
 	{
-		DamageGridMesh->ClearInstances();
-	}*/
+		ClearGridMesh(static_cast<EISMType>(i));
+	}
 }
 
 void AGridFloor::ClearGridMesh(EISMType Type)
@@ -371,19 +327,28 @@ void AGridFloor::ClearGridMesh(EISMType Type)
 		case EISMType::Damage:
 			//DamageGridMesh->ClearInstances();
 			if(MovementProcMesh)
+			{
 				MovementProcMesh->ClearAllMeshSections();
+				MovementProcMesh->SetRelativeLocation(FVector::ZeroVector);
+			}
 			break;
 
 		case EISMType::Movement:
 			//MovementGridMesh->ClearInstances();
 			if(TargetProcMesh)
+			{
 				TargetProcMesh->ClearAllMeshSections();
+				TargetProcMesh->SetRelativeLocation(FVector::ZeroVector);
+			}
 			break;
 
 		case EISMType::Target:
 			//TargetGridMesh->ClearInstances();
 			if(DamageProcMesh)
+			{
 				DamageProcMesh->ClearAllMeshSections();
+				DamageProcMesh->SetRelativeLocation(FVector::ZeroVector);
+			}
 			break;
 
 		default:
@@ -490,6 +455,37 @@ void AGridFloor::SetProcMaterials(EISMType Type)
 		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL MESH");
 	}
 	
+	
+}
+
+void AGridFloor::SetProcMeshPosition(EISMType Type, FVector& AddPosition)
+{
+	UProceduralMeshComponent* ProcMesh = nullptr;
+	switch (Type)
+	{
+		case EISMType::Movement:
+			ProcMesh = MovementProcMesh;
+			break;
+
+		case EISMType::Target:
+			ProcMesh = TargetProcMesh;
+			break;
+
+		case EISMType::Damage:
+			ProcMesh = DamageProcMesh;
+			break;
+
+		default:
+			ProcMesh = MovementProcMesh;
+			break;
+	}
+
+	if(ProcMesh == nullptr)
+	{
+		return;
+	}
+
+	ProcMesh->SetRelativeLocation(ProcMesh->GetRelativeLocation()+AddPosition);
 	
 }
 

@@ -6,16 +6,16 @@
 
 #include "AIController.h"
 #include "CharacterAnimInstance.h"
+#include "GuildGame/Managers/CharacterManager.h"
 #include "GuildGame/Battle/BattleAIController.h"
-#include "GuildGame/Battle/BattlePlayerController.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CharacterStatsComponent.h"
+#include "GuildGameInstance.h"
 #include "Components/WidgetComponent.h"
 #include "GuildGame/GridSystem/GridFloor.h"
 #include "GuildGame/Skills/CharacterSkill.h"
 #include "GuildGame/Widgets/BattleHealthBarWidget.h"
-#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AGGCharacter::AGGCharacter()
@@ -79,7 +79,7 @@ void AGGCharacter::BeginPlay()
 	{
 		PlayerController->SetSelectedCharacter(this);
 	}*/
-
+	
 	if(HealthBarComponent)
 	{
 		HealthBarWidget = Cast<UBattleHealthBarWidget>(HealthBarComponent->GetUserWidgetObject());
@@ -108,13 +108,23 @@ void AGGCharacter::SetStats(const FCharacterStats& Stats)
     			FString Name;
     			Name.AppendInt(Element);
     	 		FSkillData* SkillData = GameInstance->CharacterSkillsTable->FindRow<FSkillData>(FName(Name),"Skill File Row Missing", true);
+
 				if(SkillData)
 				{
-					Skills.Add(new CharacterSkill(*SkillData));
+    				FCharSkillFileDataTable* SkillFile = CharacterSkill::GetSkillFilesFromTable(SkillData->SkillID, GetWorld());
+					if(SkillFile)
+					{
+						Skills.Add(new CharacterSkill(*SkillData, *SkillFile));
+					}
 				}
 			}
 		}
 	}
+}
+
+void AGGCharacter::SetFile(const FCharFileDataTable& File)
+{
+	CharFile = File;
 }
 
 void AGGCharacter::MoveTo(FVector TargetPos)
@@ -130,10 +140,7 @@ void AGGCharacter::MoveTo(FVector TargetPos)
 			GridMan->GetAttachedFloor()->ClearPath();
 		}
 		AIController->MoveToLocation(TargetPos,5,false,true,false,true,0,false);
-		if(AnimInstance)
-		{
-			AnimInstance->ChangeAnimState(ECharacterAnimState::Run);
-		}
+		SetAnimState(ECharacterAnimState::Run);
 	}
 }
 
@@ -248,7 +255,11 @@ float AGGCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 {
 	if(StatsComponent)
 	{
-		StatsComponent->ChangeHealth(-DamageAmount);
+		bool bIsDead = StatsComponent->ChangeHealth(-DamageAmount);
+		if(bIsDead == false)
+		{
+			PlayCharacterMontage(CharFile.GetHitMontage);
+		}
 		UpdateHealthBar();
 	}
 	return DamageAmount;
@@ -300,12 +311,48 @@ void AGGCharacter::ShowDamageableGrids(int CenterIndex, bool CreateNew)
 
 void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 {
-	if(CurrentSkillIndex > 0 && Skills.Num() > 0 && CurrentSkillIndex < Skills.Num() && Skills[CurrentSkillIndex] == nullptr)
+	if(CurrentSkillIndex >= Skills.Num() || CurrentSkillIndex < 0 || Skills[CurrentSkillIndex] == nullptr)
 	{
 		return;
 	}
 
-	Skills[CurrentSkillIndex]->ApplyEffects(this, TargetCharacters);
+	SelectedTargetCharacters = TargetCharacters;
+	
+	FCharSkillFileDataTable* SkillFiles = &(Skills[CurrentSkillIndex]->GetSkillFiles());
+	if(SkillFiles )
+	{
+		if(TargetCharacters.Num() > 0)
+		{
+			FVector Dir =  TargetCharacters[0]->GetActorLocation() - GetActorLocation();
+			Dir.Z = 0;
+			FRotator Rot = FRotationMatrix::MakeFromX(Dir).Rotator();
+			SetActorRotation(Rot);
+		}
+		
+		PlayCharacterMontage(SkillFiles->SkillMontage);
+	}
+}
+
+void AGGCharacter::OnAttackHitsEnemy()
+{
+	Super::OnAttackHitsEnemy();
+
+	if(CurrentSkillIndex >= Skills.Num()|| CurrentSkillIndex < 0 || Skills[CurrentSkillIndex] == nullptr)
+	{
+		return;
+	}
+
+	if(SelectedTargetCharacters.Num() > 0)
+	{
+		Skills[CurrentSkillIndex]->ApplyEffects(this, SelectedTargetCharacters);
+	}
+}
+
+void AGGCharacter::OnDeath()
+{
+	Super::OnDeath();
+
+	PlayCharacterMontage(CharFile.DeathMontage);
 }
 
 void AGGCharacter::UpdateHealthBar()
@@ -318,15 +365,40 @@ void AGGCharacter::UpdateHealthBar()
 
 UCharacterAnimInstance* AGGCharacter::GetAnimInstance()
 {
+	return  AnimInstance;
+}
+
+void AGGCharacter::PrepareAnimInstance()
+{
 	if(AnimInstance == nullptr)
 	{
 		USkeletalMeshComponent* Skeletal = GetMesh();
 		if(Skeletal)
 		{
 			AnimInstance = Cast<UCharacterAnimInstance>(Skeletal->GetAnimInstance());
+
+			if(AnimInstance)
+			{
+				AnimInstance->SetOwnerCharacter(this);
+			}
 		}
 	}
+}
 
-	return  AnimInstance;
+void AGGCharacter::SetAnimState(ECharacterAnimState AnimState)
+{
+	if(AnimInstance)
+	{
+		AnimInstance->ChangeAnimState(AnimState);
+	}
+}
+
+void AGGCharacter::PlayCharacterMontage(UAnimMontage* Montage)
+{
+	UE_LOG(LogTemp, Warning, TEXT("PlayCharacterMontage1"));
+	if(AnimInstance == nullptr) return;;
+
+	UE_LOG(LogTemp, Warning, TEXT("PlayCharacterMontage2"));
+	AnimInstance->PlayMontage(Montage);
 }
 

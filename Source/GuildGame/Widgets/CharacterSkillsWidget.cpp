@@ -6,6 +6,7 @@
 #include "CharacterSkillLineWidget.h"
 #include "CharacterSkillNodeWidget.h"
 #include "CharacterSkillTooltipWidget.h"
+#include "GuildGameInstance.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
 #include "Components/Image.h"
@@ -13,6 +14,7 @@
 #include "GuildGame/Characters/CharacterStats.h"
 #include "GuildGame/Managers/WidgetManager.h"
 #include "GuildGame/Skills/CharacterSkill.h"
+#include "Kismet/GameplayStatics.h"
 
 void UCharacterSkillsWidget::NativeConstruct()
 {
@@ -133,7 +135,7 @@ void UCharacterSkillsWidget::RefreshSkillsArray()
 				ChildWidget->bIsPressed = false;
 				if(ChildWidget->Portrait)
 				{
-					FCharSkillFileDataTable* SkillFiles = CharacterSkill::GetSkillFiles(ChildWidget->SkillID, GetWorld());
+					FCharSkillFileDataTable* SkillFiles = CharacterSkill::GetSkillFilesFromTable(ChildWidget->SkillID, GetWorld());
 					if(SkillFiles)
 					{
 						const FVector2D ImageSize = ChildWidget->Portrait->Brush.GetImageSize();

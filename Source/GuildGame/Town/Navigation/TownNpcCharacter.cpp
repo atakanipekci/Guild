@@ -59,6 +59,20 @@ void ATownNpcCharacter::BeginPlay()
  //        WeaponComponents[1]->AttachToComponent(SkeletalMesh, FAttachmentTransformRules::KeepRelativeTransform, TEXT("hand_l"));
 	// }
 
+	if(AnimInstance == nullptr)
+	{
+		USkeletalMeshComponent* Skeletal = GetMesh();
+		if(Skeletal)
+		{
+			AnimInstance = Cast<UCharacterAnimInstance>(Skeletal->GetAnimInstance());
+
+			if(AnimInstance)
+			{
+				AnimInstance->SetOwnerCharacter(this);
+			}
+		}
+	}
+
 }
 
 void ATownNpcCharacter::MoveToLocation(FVector TargetLocation)
@@ -114,15 +128,6 @@ void ATownNpcCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 UCharacterAnimInstance* ATownNpcCharacter::GetAnimInstance()
 {
-	if(AnimInstance == nullptr)
-	{
-		USkeletalMeshComponent* Skeletal = GetMesh();
-		if(Skeletal)
-		{
-			AnimInstance = Cast<UCharacterAnimInstance>(Skeletal->GetAnimInstance());
-		}
-	}
-
 	return  AnimInstance;
 }
 

@@ -32,3 +32,11 @@ void AGGCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
+void AGGCharacterBase::OnAttackHitsEnemy()
+{
+}
+
+void AGGCharacterBase::OnDeath()
+{
+}
+

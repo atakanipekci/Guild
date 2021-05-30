@@ -27,4 +27,14 @@ class GUILDGAME_API UCharacterAnimInstance : public UAnimInstance
 	ECharacterAnimState AnimState;
 	UFUNCTION(BlueprintCallable)
 	void ChangeAnimState(ECharacterAnimState State);
+
+	void PlayMontage(UAnimMontage* Montage);
+
+	UPROPERTY()
+	class AGGCharacterBase* OwnerChar;
+	
+	void SetOwnerCharacter(class AGGCharacterBase*);
+
+	UFUNCTION(BlueprintCallable)
+	void OnAttackHitsEnemy();
 };

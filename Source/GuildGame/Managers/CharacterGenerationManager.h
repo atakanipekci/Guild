@@ -2,10 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
-#include "GuildGame/Town/Navigation/TownNpcManager.h"
 
 #include "CharacterGenerationManager.generated.h"
 
+struct FCharacterStats;
+enum class ECharacterClassType : uint8;
 UENUM()
 enum class ECharacterTiers: uint8
 {

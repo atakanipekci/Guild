@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "GuildGameInstance.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "GuildGame/Characters/CharacterStats.h"
 #include "GuildGame/Characters/GGCharacter.h"
-#include "GuildGame/Town/Navigation/TownNpcManager.h"
 #include "Kismet/GameplayStatics.h"
 
 enum class ECharacterClassType: uint8;
@@ -77,6 +77,7 @@ T* CharacterManager::SpawnCharacter(TSubclassOf<E> BPClass, ECharacterClassType 
                         WeaponMesh->RegisterComponent();
                         WeaponMesh->SetRelativeLocation(CharFiles->WeaponData.RelativeLocationRightHandWeapon);
                         WeaponMesh->SetRelativeRotation(CharFiles->WeaponData.RelativeRotationRightHandWeapon);
+                        WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 
                         if(SpawnedCharBase) SpawnedCharBase->SetWeaponMesh(WeaponMesh, true, false);
@@ -89,6 +90,7 @@ T* CharacterManager::SpawnCharacter(TSubclassOf<E> BPClass, ECharacterClassType 
                         WeaponMesh->RegisterComponent();
                         WeaponMesh->SetRelativeLocation(CharFiles->WeaponData.RelativeLocationRightHandWeapon);
                         WeaponMesh->SetRelativeRotation(CharFiles->WeaponData.RelativeRotationRightHandWeapon);
+                        WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
                         if(SpawnedCharBase) SpawnedCharBase->SetWeaponMesh(WeaponMesh, true, true);
                     }
@@ -101,6 +103,7 @@ T* CharacterManager::SpawnCharacter(TSubclassOf<E> BPClass, ECharacterClassType 
                         WeaponMesh->RegisterComponent();
                         WeaponMesh->SetRelativeLocation(CharFiles->WeaponData.RelativeLocationLeftHandWeapon);
                         WeaponMesh->SetRelativeRotation(CharFiles->WeaponData.RelativeRotationLeftHandWeapon);
+                        WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
                         if(SpawnedCharBase) SpawnedCharBase->SetWeaponMesh(WeaponMesh, false, false);
                     }
@@ -113,6 +116,7 @@ T* CharacterManager::SpawnCharacter(TSubclassOf<E> BPClass, ECharacterClassType 
                         WeaponMesh->RegisterComponent();
                         WeaponMesh->SetRelativeLocation(CharFiles->WeaponData.RelativeLocationLeftHandWeapon);
                         WeaponMesh->SetRelativeRotation(CharFiles->WeaponData.RelativeRotationRightHandWeapon);
+                        WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
                         if(SpawnedCharBase) SpawnedCharBase->SetWeaponMesh(WeaponMesh, false, true);
                     }

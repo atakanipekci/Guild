@@ -23,6 +23,9 @@ struct FCharSkillFileDataTable : public FTableRowBase
 	UTexture2D* SkillImage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UAnimMontage* SkillMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText Desc;
 
 };
@@ -66,22 +69,27 @@ struct FSkillData : public FTableRowBase
 class GUILDGAME_API CharacterSkill
 {
 public:
-	CharacterSkill(const FSkillData&);
+	CharacterSkill(const FSkillData&, const FCharSkillFileDataTable&);
 	~CharacterSkill();
 	void ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& TargetCharacters);
 	FSkillData& GetSkillData()
 	{
 		return SkillData;
 	}
+	FCharSkillFileDataTable& GetSkillFiles()
+	{
+		return SkillFile;
+	}
 
 	SkillShape* GetShape() const
 	{
 		return Shape;
 	}
-	static FCharSkillFileDataTable* GetSkillFiles(int SkillID, UWorld* World);
+	static FCharSkillFileDataTable* GetSkillFilesFromTable(int SkillID, UWorld* World);
 
 private:
 	FSkillData SkillData;
+	FCharSkillFileDataTable SkillFile;
 	SkillShape* Shape;
 	TArray<SkillEffect*> SkillEffects;
 };

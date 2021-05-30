@@ -28,7 +28,7 @@ public:
 
 	void SetStats(const FCharacterStats&);
 
-	void ChangeHealth(int Amount);
+	bool ChangeHealth(int Amount);
 
 	int GetMaxHealth() const
 	{

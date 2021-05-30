@@ -6,10 +6,14 @@
 #include "ShapeFactory.h"
 #include "EffectFactory.h"
 #include "GGLogHelper.h"
+#include "GuildGameInstance.h"
+#include "Kismet/GameplayStatics.h"
 
-CharacterSkill::CharacterSkill(const FSkillData& Data)
+CharacterSkill::CharacterSkill(const FSkillData& Data, const FCharSkillFileDataTable& File)
 {
 	SkillData = Data;
+	SkillFile = File;
+	
 	Shape = ShapeFactory::CreateShape(Data.ShapeType, Data.ShapeParameters);
 	for (auto Element : Data.EffectData)
 	{
@@ -76,7 +80,8 @@ void CharacterSkill::ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& T
 	}
 }
 
-FCharSkillFileDataTable* CharacterSkill::GetSkillFiles(int SkillID, UWorld* World)
+
+FCharSkillFileDataTable* CharacterSkill::GetSkillFilesFromTable(int SkillID, UWorld* World)
 {
  if(World == nullptr) return nullptr;
     

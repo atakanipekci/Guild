@@ -40,7 +40,6 @@ void TownNpcManager::SpawnOnClick()
             RandLocation, FRotator::ZeroRotator,TownGameMode->GetWorld());
         if(SpawnedCharacter)
         {
-            SpawnedCharacter->GetAnimInstance();//This initializes Anim Instance
             MoveNpcToDestination(SpawnedCharacter);
         }
     }
@@ -56,7 +55,6 @@ void TownNpcManager::SpawnNpcToRandomLocation(int UniqueID, ENpcBehaviourStates 
             RandLocation, FRotator::ZeroRotator,TownGameMode->GetWorld());
         if(SpawnedCharacter)
         {
-            SpawnedCharacter->GetAnimInstance();//This initializes Anim Instance
             SpawnedNpCs.Add(UniqueID, SpawnedCharacter);
             MoveNpcToDestination(SpawnedCharacter);
             SpawnedCharacter->SetBehaviourState(State);

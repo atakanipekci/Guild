@@ -228,7 +228,7 @@ void ControllerStateCastingSkill::LeftClickReleaseHandler()
 	if (PlayerController != nullptr && PlayerController->GetSelectedCharacter() != nullptr)
 	{
 		AGGCharacter* SelectedCharacter = PlayerController->GetSelectedCharacter();
-		if(SelectedCharacter)
+		if(SelectedCharacter && SelectedCharacter->GetStatus() != ECharacterStatus::Casting)
 		{
 			if(PlayerController->GetGridFloor())
 			{

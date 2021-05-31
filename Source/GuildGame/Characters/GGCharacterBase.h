@@ -28,6 +28,7 @@ public:
 
 	virtual void OnAttackHitsEnemy();
 	virtual void OnDeath();
+	virtual void OnCastingSkillEnds();
 
 
 	UPROPERTY(EditAnywhere)

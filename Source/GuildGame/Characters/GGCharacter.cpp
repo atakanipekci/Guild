@@ -13,6 +13,7 @@
 #include "CharacterStatsComponent.h"
 #include "GuildGameInstance.h"
 #include "Components/WidgetComponent.h"
+#include "GuildGame/Battle/BattlePlayerController.h"
 #include "GuildGame/GridSystem/GridFloor.h"
 #include "GuildGame/Managers/TimedEventManager.h"
 #include "GuildGame/Skills/CharacterSkill.h"
@@ -322,17 +323,18 @@ void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 	FCharSkillFileDataTable* SkillFiles = &(Skills[CurrentSkillIndex]->GetSkillFiles());
 	if(SkillFiles )
 	{
-		if(TargetCharacters.Num() > 0)
+		GridManager* GridMan = CharacterManager::CharGridManager;
+		if(GridMan && GridMan->GetAttachedFloor())
 		{
-			FVector Dir =  TargetCharacters[0]->GetActorLocation() - GetActorLocation();
+			FVector SelectedGridPos = GridMan->GetGridCenter(CurrentTargetGridIndex);
+			FVector Dir =  SelectedGridPos - GetActorLocation();
 			Dir.Z = 0;
 			FRotator Rot = FRotationMatrix::MakeFromX(Dir).Rotator();
 
 			ATimedEventManager::Rotate(this, Rot, 0.2f, GetWorld());
-
-			//SetActorRotation(Rot);
 		}
-		
+
+		SetStatus(ECharacterStatus::Casting);
 		PlayCharacterMontage(SkillFiles->SkillMontage);
 	}
 }
@@ -356,7 +358,20 @@ void AGGCharacter::OnDeath()
 {
 	Super::OnDeath();
 
+	SetStatus(ECharacterStatus::Dead);
 	PlayCharacterMontage(CharFile.GetRandomDeathMontage());
+}
+
+void AGGCharacter::OnCastingSkillEnds()
+{
+	Super::OnCastingSkillEnds();
+
+	ABattlePlayerController* PlayerController = Cast<ABattlePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	if (PlayerController != nullptr)
+	{
+		SetStatus(ECharacterStatus::Idle);
+		PlayerController->ChangeStateTo(0);
+	}
 }
 
 void AGGCharacter::UpdateHealthBar()

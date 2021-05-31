@@ -8,15 +8,12 @@
 
 void ATownNpcAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
-    UE_LOG(LogTemp, Warning, TEXT("AI COMPLETE "));
      ATownNpcCharacter* Char = Cast<ATownNpcCharacter>(GetCharacter());
     if(Char)
     {
         if(Char->CurrentBehaviourState == ENpcBehaviourStates::WalkingAround)
         {
-            UCharacterAnimInstance* AnimInstance = Char->GetAnimInstance();
-            if(AnimInstance)
-			    AnimInstance->ChangeAnimState(ECharacterAnimState::Idle);
+            Char->SetAnimState(ECharacterAnimState::Idle);
             //Char->MoveToRandomLocation();
         }
     }

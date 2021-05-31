@@ -33,3 +33,11 @@ void UCharacterAnimInstance::OnAttackHitsEnemy()
 		OwnerChar->OnAttackHitsEnemy();
 	}
 }
+
+void UCharacterAnimInstance::OnCastingSkillEnds()
+{
+	if(OwnerChar)
+	{
+		OwnerChar->OnCastingSkillEnds();
+	}
+}

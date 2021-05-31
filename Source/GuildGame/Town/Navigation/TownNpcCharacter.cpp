@@ -83,8 +83,7 @@ void ATownNpcCharacter::MoveToLocation(FVector TargetLocation)
 	{
 		AIController->MoveToLocation(TargetLocation);
 
-		if(AnimInstance)
-			AnimInstance->ChangeAnimState(ECharacterAnimState::Run);
+		SetAnimState(ECharacterAnimState::Run);
 	//	UE_LOG(LogTemp, Warning, TEXT("IS FOLLIWIGN A PATH == %d "), AIController->IsFollowingAPath());
 	}
 }
@@ -110,6 +109,14 @@ void ATownNpcCharacter::MoveToRandomLocation()
 
 void ATownNpcCharacter::SetBehaviourState(ENpcBehaviourStates State)
 {
+}
+
+void ATownNpcCharacter::SetAnimState(ECharacterAnimState AnimState)
+{
+	if(AnimInstance)
+	{
+		AnimInstance->ChangeAnimState(AnimState);
+	}
 }
 
 // Called every frame

@@ -16,7 +16,9 @@ enum class ECharacterAnimState : uint8;
 enum class ECharacterStatus : uint8
 {
 	Idle = 0,
-	Moving = 1
+	Moving = 1,
+	Dead = 2,
+	Casting = 3
 };
 
 UCLASS()
@@ -74,6 +76,7 @@ public:
 	void CastSkill(TArray<AGGCharacter*>& TargetCharacters);
 	virtual void OnAttackHitsEnemy() override;
 	virtual void OnDeath() override;
+	virtual void OnCastingSkillEnds() override;
 
 	void UpdateHealthBar();
 	class UCharacterAnimInstance* GetAnimInstance();

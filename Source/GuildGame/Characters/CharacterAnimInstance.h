@@ -37,4 +37,7 @@ class GUILDGAME_API UCharacterAnimInstance : public UAnimInstance
 
 	UFUNCTION(BlueprintCallable)
 	void OnAttackHitsEnemy();
+	UFUNCTION(BlueprintCallable)
+	void OnCastingSkillEnds();
+	
 };

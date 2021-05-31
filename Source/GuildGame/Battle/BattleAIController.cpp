@@ -15,10 +15,7 @@ void ABattleAIController::OnMoveCompleted(FAIRequestID Id, const FPathFollowingR
         if(Char->GetStatus() == ECharacterStatus::Moving)
         {
             Char->SetStatus(ECharacterStatus::Idle);
-
-            UCharacterAnimInstance* AnimInstance = Char->GetAnimInstance();
-            if(AnimInstance)
-			    AnimInstance->ChangeAnimState(ECharacterAnimState::Idle);
+            Char->SetAnimState(ECharacterAnimState::Idle);
         }
     }
 }

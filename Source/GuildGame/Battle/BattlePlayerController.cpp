@@ -156,7 +156,7 @@ AGridFloor* ABattlePlayerController::GetGridFloor() const
 void ABattlePlayerController::SelectCharAtMousePos()
 {
 	AGGCharacter* Char = GetCharacterFromMousePos();
-	if(Char)
+	if(Char && Char->GetStatus() != ECharacterStatus::Dead)
 	{
 		SetSelectedCharacter(Char);
 	}

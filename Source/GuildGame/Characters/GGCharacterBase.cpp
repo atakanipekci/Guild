@@ -40,3 +40,7 @@ void AGGCharacterBase::OnDeath()
 {
 }
 
+void AGGCharacterBase::OnCastingSkillEnds()
+{
+}
+

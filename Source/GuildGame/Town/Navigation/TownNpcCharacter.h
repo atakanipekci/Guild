@@ -8,6 +8,7 @@
 
 #include "TownNpcCharacter.generated.h"
 
+enum class ECharacterAnimState : uint8;
 UENUM()
 enum class ENpcBehaviourStates: uint8
 {
@@ -53,5 +54,6 @@ public:
 	UPROPERTY()
 	UCharacterMovementComponent* MovementComponent;
 
+	void SetAnimState(ECharacterAnimState AnimState);
 
 };

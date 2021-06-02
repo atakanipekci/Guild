@@ -11,6 +11,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CharacterStatsComponent.h"
+#include "GGLogHelper.h"
 #include "GuildGameInstance.h"
 #include "Components/WidgetComponent.h"
 #include "GuildGame/Battle/BattlePlayerController.h"
@@ -141,7 +142,7 @@ void AGGCharacter::MoveTo(FVector TargetPos)
 			GridMan->GetAttachedFloor()->ClearGridMeshes();
 			GridMan->GetAttachedFloor()->ClearPath();
 		}
-		AIController->MoveToLocation(TargetPos,5,false,true,false,true,0,false);
+		AIController->MoveToLocation(TargetPos,5,false,true,true,true,0,true);
 		SetAnimState(ECharacterAnimState::Run);
 	}
 }
@@ -239,6 +240,7 @@ ECharacterStatus AGGCharacter::GetStatus() const
 void AGGCharacter::SetStatus(ECharacterStatus NewStatus)
 {
 	Status = NewStatus;
+	LOG("Status = %d", NewStatus);
 	GridManager* GridMan = CharacterManager::CharGridManager;
 	if(Status == ECharacterStatus::Idle)
 	{
@@ -249,6 +251,15 @@ void AGGCharacter::SetStatus(ECharacterStatus NewStatus)
 		}
 		
      	CurrentGridIndex = GridMan->WorldToGrid(GetActorLocation());
+	}
+
+	if(Status == ECharacterStatus::Moving || Status == ECharacterStatus::Casting)
+	{
+	LOG("22Status = %d", NewStatus);
+		if(GridMan && GridMan->GetAttachedFloor())
+		{
+			GridMan->GetAttachedFloor()->ClearGridMeshes();
+		}
 	}
 }
 
@@ -294,16 +305,22 @@ void AGGCharacter::ShowTargetableGrids()
 }
 
 void AGGCharacter::ShowDamageableGrids(int CenterIndex, bool CreateNew)
-{	
+{
+	int Count = DamageableGrids.Num();
 	UpdateDamageableGrids(Skills[CurrentSkillIndex], CenterIndex);
+	int NewCount = DamageableGrids.Num();
+
+	CreateNew = true;
 	
 	GridManager* GridMan = CharacterManager::CharGridManager;
 	if(GridMan && GridMan->GetAttachedFloor() && CreateNew)
 	{
 		GridMan->GetAttachedFloor()->ClearGridMesh(EISMType::Damage);
+		GridMan->GetAttachedFloor()->ClearGridMesh(EISMType::Target);
+		GridMan->GetAttachedFloor()->UpdateGridMeshes(TargetableGrids, EISMType::Target, false, &DamageableGrids);
 		GridMan->GetAttachedFloor()->UpdateGridMeshes(DamageableGrids, EISMType::Damage, false);
 	}
-	else if(CreateNew == false && GridMan && GridMan->GetAttachedFloor())
+	else if(GridMan && GridMan->GetAttachedFloor())
 	{
 		FVector PosDif = GridMan->GetGridCenter(CenterIndex) - GridMan->GetGridCenter(CurrentTargetGridIndex);
 		GridMan->GetAttachedFloor()->SetProcMeshPosition(EISMType::Damage, PosDif);

@@ -9,6 +9,7 @@
 #include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Characters/GGCharacter.h"
 #include "GuildGame/GridSystem/GridFloor.h"
+#include "Kismet/GameplayStatics.h"
 
 GridManager::GridManager(FVector2D StartPos, float GridSize, int ColumnCount, int RowCount)
 {

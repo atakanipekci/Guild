@@ -67,11 +67,11 @@ void AGridFloor::UpdateGridStatesWithTrace()
 		{
 			FVector pos = FloorGridManager->GetGridCenter(i + j*ColumnCount);
 			pos.Z = GetActorLocation().Z;
-			//DrawDebugSphere(GetWorld(), pos, MySphereCollision.GetSphereRadius(), 1, FColor::Purple, true);
 			//ecc_gametracechannel1 should be gridobstacle channel.
 			bool isHit = GetWorld()->SweepSingleByChannel(OutHit,pos,pos,FQuat::Identity,ECC_GameTraceChannel1,MySphereCollision);
 			if(isHit)
 			{
+				DrawDebugSphere(GetWorld(), pos, MySphereCollision.GetSphereRadius(), 12, FColor::Purple, true);
 				FloorGridManager->SetGridState(i + j*ColumnCount, EGridState::Obstacle);
 			}
 		}
@@ -135,7 +135,7 @@ void AGridFloor::BeginPlay()
 				PathActor->AddNode(FVector{static_cast<float>(i*200),0,0});
 			}*/
 			PathActor->UpdateSpline();
-			PathActor->SetActorScale3D(FVector{0.25,0.25,0.1});
+			PathActor->SetActorScale3D(FVector{0.05,0.05,0.001});
 		}
 	}
 	
@@ -159,7 +159,11 @@ UMaterialInstanceDynamic* AGridFloor::CreateMaterialInstance(FLinearColor Color,
 	if(GridMat != nullptr)
 	{
 		GridMat->SetVectorParameterValue(FName("Color"), Color);
+		GridMat->SetVectorParameterValue(FName("Glow Color"), Color);
 		GridMat->SetScalarParameterValue(FName("Opacity"), Opacity);
+		GridMat->SetScalarParameterValue(FName("Glow Strength"), LineGlowStrength);
+		//GridMat->SetScalarParameterValue(FName("Edge Sharpness"), 30);
+		//GridMat->SetScalarParameterValue(FName("Edge Subtraction"), 0.1);
 	}
 
 	return GridMat;
@@ -169,7 +173,7 @@ UMaterialInstanceDynamic* AGridFloor::CreateMaterialInstance(FLinearColor Color,
 }
 
 void AGridFloor::CreateLine(FVector Start, FVector End, float Thickness, TArray<FVector>& Vertices,
-	TArray<int>& Triangles)
+	TArray<int>& Triangles, TArray<FVector2D>* UVs)
 {
 	float HalfThickness = Thickness/2;
 
@@ -188,6 +192,13 @@ void AGridFloor::CreateLine(FVector Start, FVector End, float Thickness, TArray<
 	Vertices.Add(End + ThicknessDirection*HalfThickness);
 	Vertices.Add(Start - ThicknessDirection*HalfThickness);
 	Vertices.Add(End - ThicknessDirection*HalfThickness);
+	if(UVs)
+	{
+		UVs->Add(FVector2D(0,0));
+		UVs->Add(FVector2D(0,1));
+		UVs->Add(FVector2D(1,0));
+		UVs->Add(FVector2D(1,1));
+	}
 }
 
 void AGridFloor::OnConstruction(const FTransform& Transform)
@@ -206,12 +217,16 @@ void AGridFloor::OnConstruction(const FTransform& Transform)
 	ConstructProcMeshes();
 	
 	UMaterialInstanceDynamic* LineMaterialInstance = CreateMaterialInstance(LineColor, LineOpacity);
-	UMaterialInstanceDynamic* GridMaterialInstance =SelectionMesh->CreateAndSetMaterialInstanceDynamic(0);
+	SelectionGridMatInst = SelectionMesh->CreateAndSetMaterialInstanceDynamic(0);
 
-	if(GridMaterialInstance != nullptr)
+	if(SelectionGridMatInst != nullptr)
 	{
-		GridMaterialInstance->SetVectorParameterValue(FName("Color"), SelectedGridColor);
-		GridMaterialInstance->SetScalarParameterValue(FName("Opacity"), GridOpacity);
+		SelectionGridMatInst->SetVectorParameterValue(FName("Color"), SelectedGridColor);
+		SelectionGridMatInst->SetVectorParameterValue(FName("Glow Color"), SelectedGridColor);
+		SelectionGridMatInst->SetScalarParameterValue(FName("Opacity"), GridOpacity);
+		SelectionGridMatInst->SetScalarParameterValue(FName("Glow Strength"), SelectedGridGlowStrength);
+		//SelectionGridMatInst->SetScalarParameterValue(FName("Edge Sharpness"), 30);
+		//SelectionGridMatInst->SetScalarParameterValue(FName("Edge Subtraction"), 0.1);
 	}
 	else
 	{
@@ -220,6 +235,7 @@ void AGridFloor::OnConstruction(const FTransform& Transform)
 
 	TArray<FVector> LineVertices;
 	TArray<int> LineTriangles;
+	TArray<FVector2D> UVs;
 	for(int i = 0; i <= RowCount; i++)
 	{
 		float LineStart = i*GridSize;
@@ -240,8 +256,8 @@ void AGridFloor::OnConstruction(const FTransform& Transform)
 
 	TArray<FVector> SelectionVertices;
 	TArray<int> SelectionTriangles;
-	CreateLine(FVector(0,GridSize/2,0), FVector(GridSize,GridSize/2,0),GridSize,SelectionVertices, SelectionTriangles);
-	SelectionMesh->CreateMeshSection_LinearColor(0,SelectionVertices,SelectionTriangles,TArray<FVector>(), TArray<FVector2D>(), TArray<FLinearColor>(), TArray<FProcMeshTangent>(),false);
+	CreateLine(FVector(0,GridSize/2,0), FVector(GridSize,GridSize/2,0),GridSize,SelectionVertices, SelectionTriangles, &UVs);
+	SelectionMesh->CreateMeshSection_LinearColor(0,SelectionVertices,SelectionTriangles,TArray<FVector>(), UVs, TArray<FLinearColor>(), TArray<FProcMeshTangent>(),false);
 	SelectionMesh->SetVisibility(false);
 }
 
@@ -255,6 +271,7 @@ void AGridFloor::UpdateSelectedGrid(FVector NewPos, bool IsVisible)
 
 	SelectionMesh->SetWorldLocation(FVector(NewPos.X, NewPos.Y, GetActorLocation().Z));
 	SelectionMesh->SetVisibility(IsVisible);
+	//SelectionMesh->SetRenderCustomDepth(true);
 	
 }
 
@@ -278,7 +295,7 @@ void AGridFloor::DrawPath(int StartIndex, int EndIndex)
 			for(int i = 0; i < path->PathPoints.Num(); i++)
 			{
 				FVector aa = path->PathPoints[i];
-				aa.Z = 50;
+				aa.Z = 70;
 				PathActor->AddNode(aa);
 				//LOG("i : %d", FloorGridManager->WorldToGrid(path->PathPoints[i]));
 			}
@@ -299,14 +316,14 @@ float AGridFloor::GetPathLength(int StartIndex, int EndIndex)
 	return -1;
 }
 
-bool AGridFloor::UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType MeshType, bool ClearAll)
+bool AGridFloor::UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType MeshType, bool ClearAll, TArray<Grid*>* ExcludeList)
 {
 	if(ClearAll)
 	{
 		ClearGridMeshes();	
 	}
 	
-	CreateProceduralGridArea(MeshType,GridsToUpdate);
+	CreateProceduralGridArea(MeshType,GridsToUpdate, ExcludeList);
 
 	return true;
 }
@@ -314,7 +331,7 @@ bool AGridFloor::UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType MeshTyp
 void AGridFloor::ClearGridMeshes()
 {
 
-	for(int i = 1; i < GridFloorTypeCount; i++)
+	for(int i = 0; i < GridFloorTypeCount; i++)
 	{
 		ClearGridMesh(static_cast<EISMType>(i));
 	}
@@ -324,7 +341,7 @@ void AGridFloor::ClearGridMesh(EISMType Type)
 {
 	switch (Type)
 	{
-		case EISMType::Damage:
+		case EISMType::Movement:
 			//DamageGridMesh->ClearInstances();
 			if(MovementProcMesh)
 			{
@@ -333,7 +350,7 @@ void AGridFloor::ClearGridMesh(EISMType Type)
 			}
 			break;
 
-		case EISMType::Movement:
+		case EISMType::Target:
 			//MovementGridMesh->ClearInstances();
 			if(TargetProcMesh)
 			{
@@ -342,7 +359,7 @@ void AGridFloor::ClearGridMesh(EISMType Type)
 			}
 			break;
 
-		case EISMType::Target:
+		case EISMType::Damage:
 			//TargetGridMesh->ClearInstances();
 			if(DamageProcMesh)
 			{
@@ -381,7 +398,7 @@ void AGridFloor::ConstructProcMeshes()
 	}
 
 	
-	for(int i = 1; i < GridFloorTypeCount; i++)
+	for(int i = 0; i < GridFloorTypeCount; i++)
 	{
 		switch(i)
 		{
@@ -410,20 +427,20 @@ void AGridFloor::SetProcMaterials(EISMType Type)
 	{
 		case EISMType::Movement:
 			Mesh = MovementProcMesh;
-			if(Mesh)
-				Mesh->SetCustomDepthStencilValue(2);
+			/*if(Mesh)
+				Mesh->SetCustomDepthStencilValue(ISMMap.Find(Type)->StencilValue);*/
 			break;
 
 		case EISMType::Target:
 			Mesh = TargetProcMesh;
-			if(Mesh)
-				Mesh->SetCustomDepthStencilValue(3);
+			/*if(Mesh)
+				Mesh->SetCustomDepthStencilValue(ISMMap.Find(Type)->StencilValue);*/
 			break;
 
 		case EISMType::Damage:
 			Mesh = DamageProcMesh;
-			if(Mesh)
-				Mesh->SetCustomDepthStencilValue(4);
+			/*if(Mesh)
+				Mesh->SetCustomDepthStencilValue(ISMMap.Find(Type)->StencilValue);*/
 			break;
 
 		default:
@@ -442,13 +459,17 @@ void AGridFloor::SetProcMaterials(EISMType Type)
 		if(MaterialInstance != nullptr)
 		{
 			MaterialInstance->SetVectorParameterValue(FName("Color"), ISMMap.Find(Type)->Color);
+			MaterialInstance->SetVectorParameterValue(FName("Glow Color"), ISMMap.Find(Type)->Color);
 			MaterialInstance->SetScalarParameterValue(FName("Opacity"), ISMMap.Find(Type)->Opacity);
+			MaterialInstance->SetScalarParameterValue(FName("Glow Strength"), ISMMap.Find(Type)->GlowStrength);
+			//MaterialInstance->SetScalarParameterValue(FName("Edge Sharpness"), 10);
+			//MaterialInstance->SetScalarParameterValue(FName("Edge Subtraction"), 0.1);
 		}
 		else
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, "NULL MAT");
 		}
-		Mesh->SetRenderCustomDepth(true);
+		//Mesh->SetRenderCustomDepth(true);
 	}
 	else
 	{
@@ -489,37 +510,74 @@ void AGridFloor::SetProcMeshPosition(EISMType Type, FVector& AddPosition)
 	
 }
 
-void AGridFloor::CreateProceduralGridArea(EISMType Type, TArray<Grid*>& Grids)
+void AGridFloor::CreateProceduralGridArea(EISMType Type, TArray<Grid*>& Grids, TArray<Grid*>* ExcludeList)
 {
 	if(GetGridManager() == nullptr)
 	{
 		return;
 	}
 	UProceduralMeshComponent* ProcMesh = nullptr;
+	UMaterialInstanceDynamic* MatInstance = nullptr;
 	switch (Type)
 	{
 		case EISMType::Movement:
 			ProcMesh = MovementProcMesh;
-			if(ProcMesh)
-				ProcMesh->SetCustomDepthStencilValue(2);
+			if(MovementGridMatInst == nullptr && ProcMesh)
+			{
+				MovementGridMatInst = ProcMesh->CreateAndSetMaterialInstanceDynamic(0);
+				MovementGridMatInst->SetVectorParameterValue(FName("Color"), ISMMap.Find(Type)->Color);
+				MovementGridMatInst->SetVectorParameterValue(FName("Glow Color"), ISMMap.Find(Type)->Color);
+				MovementGridMatInst->SetScalarParameterValue(FName("Opacity"), ISMMap.Find(Type)->Opacity);
+				MovementGridMatInst->SetScalarParameterValue(FName("Glow Strength"), ISMMap.Find(Type)->GlowStrength);
+			}
+			MatInstance = MovementGridMatInst;
+			/*if(ProcMesh)
+				ProcMesh->SetCustomDepthStencilValue(ISMMap.Find(Type)->StencilValue);*/
 			break;
 
 		case EISMType::Target:
 			ProcMesh = TargetProcMesh;
-			if(ProcMesh)
-				ProcMesh->SetCustomDepthStencilValue(3);
+			if(TargetGridMatInst == nullptr && ProcMesh)
+			{
+				TargetGridMatInst = ProcMesh->CreateAndSetMaterialInstanceDynamic(0);
+				TargetGridMatInst->SetVectorParameterValue(FName("Color"), ISMMap.Find(Type)->Color);
+				TargetGridMatInst->SetVectorParameterValue(FName("Glow Color"), ISMMap.Find(Type)->Color);
+				TargetGridMatInst->SetScalarParameterValue(FName("Opacity"), ISMMap.Find(Type)->Opacity);
+				TargetGridMatInst->SetScalarParameterValue(FName("Glow Strength"), ISMMap.Find(Type)->GlowStrength);
+			}
+			MatInstance = TargetGridMatInst;
+			/*if(ProcMesh)
+				ProcMesh->SetCustomDepthStencilValue(ISMMap.Find(Type)->StencilValue);*/
 			break;
 
 		case EISMType::Damage:
 			ProcMesh = DamageProcMesh;
-			if(ProcMesh)
-				ProcMesh->SetCustomDepthStencilValue(4);
+			if(DamageGridMatInst == nullptr && ProcMesh)
+			{
+				DamageGridMatInst = ProcMesh->CreateAndSetMaterialInstanceDynamic(0);
+				DamageGridMatInst->SetVectorParameterValue(FName("Color"), ISMMap.Find(Type)->Color);
+				DamageGridMatInst->SetVectorParameterValue(FName("Glow Color"), ISMMap.Find(Type)->Color);
+				DamageGridMatInst->SetScalarParameterValue(FName("Opacity"), ISMMap.Find(Type)->Opacity);
+				DamageGridMatInst->SetScalarParameterValue(FName("Glow Strength"), ISMMap.Find(Type)->GlowStrength);
+			}
+			MatInstance = DamageGridMatInst;
+			/*if(ProcMesh)
+				ProcMesh->SetCustomDepthStencilValue(ISMMap.Find(Type)->StencilValue);*/
 			break;
 
 		default:
 			ProcMesh = MovementProcMesh;
-			if(ProcMesh)
-				ProcMesh->SetCustomDepthStencilValue(2);
+			if(MovementGridMatInst == nullptr && ProcMesh)
+			{
+				MovementGridMatInst = ProcMesh->CreateAndSetMaterialInstanceDynamic(0);
+				MovementGridMatInst->SetVectorParameterValue(FName("Color"), ISMMap.Find(Type)->Color);
+				MovementGridMatInst->SetVectorParameterValue(FName("Glow Color"), ISMMap.Find(Type)->Color);
+				MovementGridMatInst->SetScalarParameterValue(FName("Opacity"), ISMMap.Find(Type)->Opacity);
+				MovementGridMatInst->SetScalarParameterValue(FName("Glow Strength"), ISMMap.Find(Type)->GlowStrength);
+			}
+			MatInstance = MovementGridMatInst;
+			/*if(ProcMesh)
+				ProcMesh->SetCustomDepthStencilValue(ISMMap.Find(Type)->StencilValue);*/
 			break;
 	}
 
@@ -532,33 +590,59 @@ void AGridFloor::CreateProceduralGridArea(EISMType Type, TArray<Grid*>& Grids)
 	
 	TArray<FVector> LineVertices;
 	TArray<int> LineTriangles;
+	TArray<FVector2D> UVs;
+
+	TArray<Grid*> InterceptingGrids;
+	
+	if(ExcludeList)
+	{
+		FloorGridManager->GetIntercept(&Grids, ExcludeList, &InterceptingGrids);
+	}
 
 	for (auto Element : Grids)
 	{
 		if(Element)
 		{
+			bool flag = false;
+			for (auto Intercept : InterceptingGrids)
+			{
+				if(Intercept == Element)
+				{
+					flag = true;
+					break;
+				}
+			}
+
+			if(flag)
+			{
+				continue;
+			}
+			
 			FVector Start = FloorGridManager->GetGridLeftMid(Element->Index) - this->GetActorLocation();
-			Start.Z = this->GetActorLocation().Z;
+			Start.Z = this->GetActorLocation().Z + ISMMap.Find(Type)->Z;
 			FVector End = FloorGridManager->GetGridRightMid(Element->Index)  - this->GetActorLocation();
-			End.Z = this->GetActorLocation().Z;
-			CreateLine(Start,End,GridSize,LineVertices, LineTriangles);
+			End.Z = this->GetActorLocation().Z + ISMMap.Find(Type)->Z;
+			CreateLine(Start,End,GridSize,LineVertices, LineTriangles, &UVs);
 		}
 	}
 
-	ProcMesh->CreateMeshSection_LinearColor(0,LineVertices,LineTriangles,TArray<FVector>(), TArray<FVector2D>(), TArray<FLinearColor>(), TArray<FProcMeshTangent>(),false);
+	ProcMesh->CreateMeshSection_LinearColor(0,LineVertices,LineTriangles,TArray<FVector>(), UVs, TArray<FLinearColor>(), TArray<FProcMeshTangent>(),false);
 	ProcMesh->SetVisibility(true);
 
-	ProcMesh->SetRenderCustomDepth(true);
+	//ProcMesh->SetRenderCustomDepth(true);
 	//ProcMesh->SetCustomDepthStencilValue(2);
 
-	
-	UMaterialInstanceDynamic* MatInstance =ProcMesh->CreateAndSetMaterialInstanceDynamic(0);
+	if(SelectionMesh)
+		SelectionMesh->SetCustomDepthStencilValue(ProcMesh->CustomDepthStencilValue);
 
-	if(MatInstance != nullptr)
+
+	
+	if(SelectionGridMatInst)
 	{
-		MatInstance->SetVectorParameterValue(FName("Color"), ISMMap.Find(Type)->Color);
-		MatInstance->SetScalarParameterValue(FName("Opacity"), ISMMap.Find(Type)->Opacity);
+		SelectionGridMatInst->SetVectorParameterValue(FName("Color"), ISMMap.Find(Type)->Color);
+		SelectionGridMatInst->SetVectorParameterValue(FName("Glow Color"), ISMMap.Find(Type)->Color);
 	}
+	
 	
 }
 

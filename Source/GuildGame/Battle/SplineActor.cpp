@@ -63,7 +63,10 @@ void ASplineActor::UpdateSpline()
 		USceneComponent* comp = SplineComponent->GetChildComponent(i);
 		//comp->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 		//comp->UnregisterComponent();
-		comp->DestroyComponent();
+		if(comp)
+		{
+			comp->DestroyComponent();
+		}
 		//SplineComponent->GetChildComponent(i)->DestroyComponent();
 	}
 	if(SplineComponent && SplineMeshMap.Num() > 0)
@@ -143,6 +146,11 @@ void ASplineActor::UpdateSpline()
 			SplineMesh->SetStaticMesh(StaticMesh);
 			SplineMesh->SetForwardAxis(ForwardAxis, true);
 			SplineMesh->SetMaterial(0, Material);
+
+			SplineComponent->SetSplinePointType(SplineCount,ESplinePointType::Linear,false);
+
+			//SplineMesh->SetRenderCustomDepth(true);
+			//SplineMesh->SetCustomDepthStencilValue(5);
 
 
 			// initialize the object

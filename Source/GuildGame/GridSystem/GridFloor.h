@@ -34,6 +34,15 @@ struct FISMDetails : public FTableRowBase
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	float Opacity;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	float Z;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	float GlowStrength = 30;
+
+	//UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	//int StencilValue;
 };
 
 UCLASS()
@@ -63,6 +72,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	FLinearColor SelectedGridColor;
 
+	UPROPERTY(EditAnywhere)
+	float LineGlowStrength = 30;
+
+	UPROPERTY(EditAnywhere)
+	float SelectedGridGlowStrength = 30;
+	
 	UPROPERTY(EditAnywhere)
 	float LineOpacity;
 	UPROPERTY(EditAnywhere)
@@ -105,6 +120,12 @@ private:
 	UPROPERTY()
 	ASplineActor* PathActor = nullptr;
 
+	UMaterialInstanceDynamic* SelectionGridMatInst;
+	
+	UMaterialInstanceDynamic* MovementGridMatInst;
+	UMaterialInstanceDynamic* TargetGridMatInst;
+	UMaterialInstanceDynamic* DamageGridMatInst;
+
 	void UpdateGridStatesWithTrace();
 
 public:
@@ -121,7 +142,7 @@ public:
 
 	UMaterialInstanceDynamic* CreateMaterialInstance(FLinearColor Color, float Opacity);
 
-	void CreateLine(FVector Start, FVector End, float Thickness, TArray<FVector>& Vertices, TArray<int>& Triangles);
+	void CreateLine(FVector Start, FVector End, float Thickness, TArray<FVector>& Vertices, TArray<int>& Triangles, TArray<FVector2D>* = nullptr);
 
 	virtual void OnConstruction(const FTransform& Transform) override;
 
@@ -131,7 +152,7 @@ public:
 
 	float GetPathLength(int StartIndex, int EndIndex);
 
-	bool UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType = EISMType::Movement, bool ClearAll = true);
+	bool UpdateGridMeshes(TArray<Grid*>& GridsToUpdate, EISMType = EISMType::Movement, bool ClearAll = true, TArray<Grid*>* ExcludeList = nullptr);
 
 	void ClearGridMeshes();
 
@@ -141,7 +162,7 @@ public:
 
 	void ConstructProcMeshes();
 
-	void CreateProceduralGridArea(EISMType Type, TArray<Grid*>& Grids);
+	void CreateProceduralGridArea(EISMType Type, TArray<Grid*>& Grids, TArray<Grid*>* ExcludeList = nullptr);
 
 	void SetProcMaterials(EISMType Type);
 

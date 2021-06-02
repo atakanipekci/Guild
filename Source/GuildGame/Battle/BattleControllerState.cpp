@@ -199,7 +199,7 @@ void ControllerStateCastingSkill::Update()
 
 	if(PlayerController->UpdateSelectedGrid(false))
 	{
-		if(PlayerController->GetSelectedCharacter())
+		if(PlayerController->GetSelectedCharacter() && PlayerController->GetSelectedCharacter()->GetStatus() == ECharacterStatus::Idle)
 		{
 			if(PlayerController->GetGridFloor() && PlayerController->GetGridFloor()->GetGridManager())
 			{

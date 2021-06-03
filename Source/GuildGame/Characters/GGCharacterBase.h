@@ -26,9 +26,12 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual void OnAttackHitsEnemy();
+	virtual void OnAttackHitsEnemies();
+	virtual void OnAttackHitsEnemy(AActor* TargetToHit) ;
 	virtual void OnDeath();
 	virtual void OnCastingSkillEnds();
+	virtual void ThrowProjectileRightHand();
+	virtual void ThrowProjectileLeftHand();
 
 
 	UPROPERTY(EditAnywhere)

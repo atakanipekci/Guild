@@ -18,6 +18,7 @@
 #include "GuildGame/GridSystem/GridFloor.h"
 #include "GuildGame/Managers/TimedEventManager.h"
 #include "GuildGame/Skills/CharacterSkill.h"
+#include "GuildGame/VFX/Projectiles/Projectile.h"
 #include "GuildGame/Widgets/BattleHealthBarWidget.h"
 
 // Sets default values
@@ -47,7 +48,7 @@ AGGCharacter::AGGCharacter()
      	//CurrentGridIndex = GridMan->WorldToGrid(GetActorLocation());
     }
 
-	
+	SplineComponent = CreateDefaultSubobject<USplineComponent>("Spline");
 }
 
 AGGCharacter::~AGGCharacter()
@@ -95,6 +96,8 @@ void AGGCharacter::BeginPlay()
 void AGGCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
 }
 
 void AGGCharacter::SetStats(const FCharacterStats& Stats)
@@ -330,14 +333,15 @@ void AGGCharacter::ShowDamageableGrids(int CenterIndex, bool CreateNew)
 
 void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 {
-	if(CurrentSkillIndex >= Skills.Num() || CurrentSkillIndex < 0 || Skills[CurrentSkillIndex] == nullptr)
-	{
-		return;
-	}
+	CharacterSkill* CurrentSkill = GetCurrentSkill();
+
+	if(CurrentSkill== nullptr) return;
+
+	//UpdateTrajectoryPath();
 
 	SelectedTargetCharacters = TargetCharacters;
 	
-	FCharSkillFileDataTable* SkillFiles = &(Skills[CurrentSkillIndex]->GetSkillFiles());
+	FCharSkillFileDataTable* SkillFiles = &(CurrentSkill->GetSkillFiles());
 	if(SkillFiles )
 	{
 		GridManager* GridMan = CharacterManager::CharGridManager;
@@ -349,26 +353,54 @@ void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 			FRotator Rot = FRotationMatrix::MakeFromX(Dir).Rotator();
 
 			ATimedEventManager::Rotate(this, Rot, 0.2f, GetWorld());
+
+			GridMan->GetAttachedFloor()->ClearTrajectory();
 		}
 
+		FString TimerKey = CurrentSkill->GetSkillData().SkillName;
+		FTimedEvent TimedEvent;
+		TimedEvent.BindDynamic(this, &AGGCharacter::OnCastingSkillEnds);
+		ATimedEventManager::CallEventWithDelay(this, TimerKey, TimedEvent, 10, GetWorld());
+		
 		SetStatus(ECharacterStatus::Casting);
 		PlayCharacterMontage(SkillFiles->SkillMontage);
 	}
 }
 
-void AGGCharacter::OnAttackHitsEnemy()
+void AGGCharacter::OnAttackHitsEnemies()
 {
-	Super::OnAttackHitsEnemy();
+	Super::OnAttackHitsEnemies();
 
-	if(CurrentSkillIndex >= Skills.Num()|| CurrentSkillIndex < 0 || Skills[CurrentSkillIndex] == nullptr)
-	{
-		return;
-	}
+	CharacterSkill* CurrentSkill = GetCurrentSkill();
+
+	if(CurrentSkill == nullptr) return;
 
 	if(SelectedTargetCharacters.Num() > 0)
 	{
-		Skills[CurrentSkillIndex]->ApplyEffects(this, SelectedTargetCharacters);
+		CurrentSkill->ApplyEffects(this, SelectedTargetCharacters);
 	}
+}
+
+void AGGCharacter::OnAttackHitsEnemy(AActor* TargetToHit)
+{
+	Super::OnAttackHitsEnemy(TargetToHit);
+
+	if(TargetToHit == nullptr) return;;
+	
+	CharacterSkill* CurrentSkill = GetCurrentSkill();
+
+	if(CurrentSkill == nullptr) return;
+
+	TArray<AGGCharacter*> Enemies;
+
+	AGGCharacter* CharacterToHit = static_cast<AGGCharacter*>(TargetToHit);
+	
+	if(CharacterToHit && SelectedTargetCharacters.Contains(TargetToHit))
+	{
+		Enemies.Add(CharacterToHit);
+		CurrentSkill->ApplyEffects(this, Enemies);
+	}
+	
 }
 
 void AGGCharacter::OnDeath()
@@ -383,12 +415,68 @@ void AGGCharacter::OnCastingSkillEnds()
 {
 	Super::OnCastingSkillEnds();
 
+	CharacterSkill* CurrentSkill = GetCurrentSkill();
+
+	if(CurrentSkill != nullptr)
+	{
+		FString TimerKey = Skills[CurrentSkillIndex]->GetSkillData().SkillName;
+		ATimedEventManager::RemoveEventData(TimerKey, false);
+	}
+
 	ABattlePlayerController* PlayerController = Cast<ABattlePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	if (PlayerController != nullptr)
 	{
 		SetStatus(ECharacterStatus::Idle);
 		PlayerController->ChangeStateTo(0);
 	}
+}
+
+AActor* AGGCharacter::CreateProjectile(FName SocketName)
+{
+	CharacterSkill* CurrentSkill = GetCurrentSkill();
+
+	if(CurrentSkill== nullptr) return nullptr;
+
+	USkeletalMeshComponent* SkeletalMesh = Cast<USkeletalMeshComponent>(GetComponentByClass(USkeletalMeshComponent::StaticClass()));
+	if(SelectedTargetCharacters.Num() > 0 && SkeletalMesh)
+	{
+		FCharSkillFileDataTable* SkillFiles = &(CurrentSkill->GetSkillFiles());
+		if(SkillFiles)
+		{
+			if(SkillFiles->ProjectileBP)
+			{
+				const FVector SocketLocation = SkeletalMesh->GetSocketLocation(SocketName);
+				const FRotator SocketRotation = SkeletalMesh->GetSocketRotation(SocketName);
+				AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(SkillFiles->ProjectileBP, SocketLocation, FRotator::ZeroRotator, FActorSpawnParameters());
+				if(Projectile)
+				{
+					Projectile->SelectedTargetCharacters = SelectedTargetCharacters;
+					Projectile->OwnerCharacter = this;
+
+					//FRotator Rot = Dir.Rotation();
+					//Projectile->SetActorRotation(Rot);
+					// FVector TargetLocation = SelectedTargetCharacters[0]->GetActorLocation();
+					FVector TargetLocation = GetTargetTrajectoryLocation();
+					Projectile->Angle = SkillFiles->ProjectileAngle;
+					Projectile->SetVelocityViaTarget(TargetLocation);
+					
+					return Projectile;
+				}
+			}
+		}
+	}
+	
+	return nullptr;
+}
+
+void AGGCharacter::ThrowProjectileRightHand()
+{
+	AActor* Projectile = CreateProjectile("hand_r_spell");
+}
+
+void AGGCharacter::ThrowProjectileLeftHand()
+{
+	AActor* Projectile = CreateProjectile("hand_l_spell");
 }
 
 void AGGCharacter::UpdateHealthBar()
@@ -436,5 +524,42 @@ void AGGCharacter::PlayCharacterMontage(UAnimMontage* Montage)
 
 	UE_LOG(LogTemp, Warning, TEXT("PlayCharacterMontage2"));
 	AnimInstance->PlayMontage(Montage);
+}
+
+CharacterSkill* AGGCharacter::GetCurrentSkill()
+{
+	if(CurrentSkillIndex >= Skills.Num()|| CurrentSkillIndex < 0 || Skills[CurrentSkillIndex] == nullptr)
+	{
+		return nullptr;
+	}
+
+	return Skills[CurrentSkillIndex];
+}
+
+FVector AGGCharacter::GetTargetTrajectoryLocation()
+{
+	GridManager* GridMan = CharacterManager::CharGridManager;
+
+	FVector TargetLocation = FVector::ZeroVector;
+	if(GridMan && GridMan->GetAttachedFloor())
+	{
+		TargetLocation = GridMan->GetGridCenter(CurrentTargetGridIndex)  + FVector(0, 0, 40);;
+	}
+	return  TargetLocation;
+}
+
+FVector AGGCharacter::GetStartTrajectoryLocation()
+{
+	return  GetActorLocation() + FVector(0, 0, 20);
+}
+
+AGGCharacter* AGGCharacter::GetCharacterAtTargetGridIndex()
+{
+	GridManager* GridManager = CharacterManager::CharGridManager;
+	if(GridManager)
+	{
+		return GridManager->GetCharacterByGridIndex(CurrentTargetGridIndex);
+	}
+	return nullptr;
 }
 

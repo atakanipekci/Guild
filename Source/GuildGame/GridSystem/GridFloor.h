@@ -110,6 +110,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TMap<ESplineMeshType, FSplineMeshDetails> PathSplineMap;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TMap<ESplineMeshType, FSplineMeshDetails> TrajectoryTrueSplineMap;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TMap<ESplineMeshType, FSplineMeshDetails> TrajectoryFalseSplineMap;
+
 	UPROPERTY()
 	USceneComponent* CustomRootComponent;
 private:
@@ -119,6 +124,8 @@ private:
 	GridManager* FloorGridManager;
 	UPROPERTY()
 	ASplineActor* PathActor = nullptr;
+	UPROPERTY()
+	ASplineActor* TrajectorySplineActor = nullptr;
 
 	UMaterialInstanceDynamic* SelectionGridMatInst;
 	
@@ -169,4 +176,7 @@ public:
 	void SetProcMeshPosition(EISMType Type, FVector&);
 
 	//void CreatePath(int StartIndex, int EndIndex);
+
+	void DrawTrajectory(AGGCharacter* Character);
+	void ClearTrajectory();
 };

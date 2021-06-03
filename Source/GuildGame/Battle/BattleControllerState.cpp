@@ -6,6 +6,7 @@
 #include "GuildGame/Characters/GGCharacter.h"
 #include "GuildGame/GridSystem/GridFloor.h"
 #include "GGLogHelper.h"
+#include "Kismet/GameplayStaticsTypes.h"
 
 ControllerStateDefault::ControllerStateDefault(ABattlePlayerController* Controller)
 {
@@ -206,14 +207,21 @@ void ControllerStateCastingSkill::Update()
 				GridManager* GridMan = PlayerController->GetGridFloor()->GetGridManager();
 				TArray<Grid*>* Targetables = PlayerController->GetSelectedCharacter()->GetTargetableGrids();
 				AGGCharacter* Char = PlayerController->GetSelectedCharacter();
-				if(GridMan->DoesInclude(Targetables, PlayerController->GetSelectedGridIndex()))
+
+				if(Char)
 				{
-					Char->ShowDamageableGrids(PlayerController->GetSelectedGridIndex(), false);
+					if(GridMan->DoesInclude(Targetables, PlayerController->GetSelectedGridIndex()))
+					{
+						Char->ShowDamageableGrids(PlayerController->GetSelectedGridIndex(), false);
+					}
+					else
+					{
+						Char->ShowDamageableGrids(GridMan->GetClosestInArray(Targetables, PlayerController->GetSelectedGridIndex()), false);
+					}
+
+					PlayerController->GetGridFloor()->DrawTrajectory(Char);
 				}
-				else
-				{
-					Char->ShowDamageableGrids(GridMan->GetClosestInArray(Targetables, PlayerController->GetSelectedGridIndex()), false);
-				}
+				
 			}
 		}
 	}
@@ -235,9 +243,13 @@ void ControllerStateCastingSkill::LeftClickReleaseHandler()
 				GridManager* GridMan = PlayerController->GetGridFloor()->GetGridManager();
 				if(GridMan)
 				{
-					TArray<AGGCharacter*> Targets;
-					GridMan->GetCharactersInArray(SelectedCharacter->GetDamageableGrids(), &Targets);
-					SelectedCharacter->CastSkill(Targets);
+					FPredictProjectilePathResult Result;
+					if(GridManager::CanAttackTargetGrid(SelectedCharacter, Result))
+					{
+						TArray<AGGCharacter*> Targets;
+						GridMan->GetCharactersInArray(SelectedCharacter->GetDamageableGrids(), &Targets);
+						SelectedCharacter->CastSkill(Targets);
+					}
 				}
 			}
 		}	
@@ -277,12 +289,14 @@ void ControllerStateCastingSkill::ChangeTo()
 	if(SelectedCharacter)
 	{
 		SelectedCharacter->ShowTargetableGrids();
-		TArray<Grid*>* Targetables = PlayerController->GetSelectedCharacter()->GetTargetableGrids();
+		TArray<Grid*>* Targetables = SelectedCharacter->GetTargetableGrids();
 		if(PlayerController->GetGridFloor() && PlayerController->GetGridFloor()->GetGridManager())
 		{
 			GridManager* GridMan = PlayerController->GetGridFloor()->GetGridManager();
 			SelectedCharacter->ShowDamageableGrids(GridMan->GetClosestInArray(Targetables, PlayerController->GetSelectedGridIndex()));
-		}	
+
+			PlayerController->GetGridFloor()->DrawTrajectory(SelectedCharacter);
+		}
 	}
 }
 
@@ -296,6 +310,7 @@ void ControllerStateCastingSkill::ChangeFrom()
 	if(PlayerController->GetGridFloor())
 	{
 		PlayerController->GetGridFloor()->ClearGridMeshes();
+		PlayerController->GetGridFloor()->ClearTrajectory();
 	}
 }
 

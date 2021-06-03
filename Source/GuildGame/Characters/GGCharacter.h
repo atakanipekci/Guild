@@ -74,9 +74,16 @@ public:
 	void ShowDamageableGrids(int CenterIndex, bool CreateNew = true);
 
 	void CastSkill(TArray<AGGCharacter*>& TargetCharacters);
-	virtual void OnAttackHitsEnemy() override;
+	virtual void OnAttackHitsEnemies() override;
+	virtual void OnAttackHitsEnemy(AActor* TargetToHit) override;
 	virtual void OnDeath() override;
+	UFUNCTION()
 	virtual void OnCastingSkillEnds() override;
+
+	
+	AActor* CreateProjectile(FName SocketName);
+	virtual void ThrowProjectileRightHand() override;
+	virtual void ThrowProjectileLeftHand() override;
 
 	void UpdateHealthBar();
 	class UCharacterAnimInstance* GetAnimInstance();
@@ -84,6 +91,13 @@ public:
 
 	void SetAnimState(ECharacterAnimState AnimState);
 	void PlayCharacterMontage(UAnimMontage* Montage);
+
+	class CharacterSkill* GetCurrentSkill();
+
+	FVector GetTargetTrajectoryLocation();
+	FVector GetStartTrajectoryLocation();
+
+	AGGCharacter* GetCharacterAtTargetGridIndex();
 
 private:
 	TArray<Grid*> MovableGrids;
@@ -97,13 +111,15 @@ private:
 	UPROPERTY()
 	class UCharacterAnimInstance* AnimInstance;
 	
-	
 	UPROPERTY(EditAnywhere)
 	class USceneComponent* SceneComponent;
 	UPROPERTY(EditAnywhere)
 	class UWidgetComponent* HealthBarComponent;
 	UPROPERTY()
 	class UBattleHealthBarWidget* HealthBarWidget;
+
+	UPROPERTY()
+	class USplineComponent* SplineComponent;
 	
 	int CurrentGridIndex;
 	TArray<class CharacterSkill*> Skills;
@@ -112,6 +128,8 @@ private:
 	int CurrentTargetGridIndex = 0;
 
 	TArray<AGGCharacter*> SelectedTargetCharacters;
+
+	
 
 	struct FCharFileDataTable CharFile;
 };

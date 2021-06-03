@@ -54,7 +54,26 @@ void ATimedEventManager::Tick(float DeltaTime)
 			}
 		}
 	}
-			
+
+	TArray<FString> KeysToRemove;
+	for (const TPair<FString, FTimerEventData>& Pair : TimedEventMap)
+    {
+      if(TimedEventMap.Contains(Pair.Key))
+      {
+     	FTimerEventData& EventData = TimedEventMap[Pair.Key];
+	    EventData.Timer += DeltaTime;
+
+     	if(EventData.Timer >= EventData.Duration || EventData.OwnerActor == nullptr)
+		{
+			KeysToRemove.Add(Pair.Key);
+		}
+      }
+    }
+
+	for (int i = 0; i < KeysToRemove.Num(); ++i)
+	{
+		RemoveEventData(KeysToRemove[i], true);
+	}
 }
 
 void ATimedEventManager::CreateTimedEvent(UWorld* World)
@@ -85,7 +104,6 @@ void ATimedEventManager::Rotate(AActor* ActorToRotate, FRotator TargetRotation, 
 		}
 	}
 
-
 	FTargetRotationData NewData;
 	NewData.OwnerActor = ActorToRotate;
 	NewData.StartRotation = ActorToRotate->GetActorRotation();
@@ -94,6 +112,46 @@ void ATimedEventManager::Rotate(AActor* ActorToRotate, FRotator TargetRotation, 
 	NewData.Timer = 0;
 	
 	ManagerInstance->RotationData.Add(NewData);
+}
+
+void ATimedEventManager::CallEventWithDelay(AActor* EventActor, FString Key, FTimedEvent& EventToCall, float Duration, UWorld* World)
+{
+	if(EventActor == nullptr || World == nullptr) return;
 	
+	CreateTimedEvent(World);
+
+	if(ManagerInstance == nullptr) return;
+
+	if(RemoveEventData(Key, true) == false)
+	{
+		FTimerEventData EventData;
+		EventData.Duration = Duration;
+		EventData.Timer = 0;
+		EventData.OwnerActor = EventActor;
+		EventData.OnTimeEnds = EventToCall;
+		ManagerInstance->TimedEventMap.Add(Key, EventData);
+	}
+}
+
+bool ATimedEventManager::RemoveEventData(FString Key, bool bCallEvent)
+{
+	if(ManagerInstance == nullptr) return false;
+
+	if(ManagerInstance->TimedEventMap.Contains(Key))
+	{
+		FTimerEventData EventData;
+		ManagerInstance->TimedEventMap.RemoveAndCopyValue(Key, EventData);
+
+		if(bCallEvent && EventData.OwnerActor)
+		{
+			if(EventData.OnTimeEnds.IsBound())
+			{
+				EventData.OnTimeEnds.Execute();
+			}
+		}
+		
+		return  true;
+	}
+	return false;
 }
 

@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "TimedEventManager.generated.h"
 
+DECLARE_DYNAMIC_DELEGATE(FTimedEvent);
+
 enum class ETimedEventType : uint8
 {
 	Rotation,
@@ -26,11 +28,24 @@ struct FTargetRotationData
 	float Timer;
 };
 
+USTRUCT()
+struct FTimerEventData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	AActor* OwnerActor;
+	FTimedEvent OnTimeEnds;
+	float Duration;
+	float Timer;
+};
+
 UCLASS()
 class GUILDGAME_API ATimedEventManager : public AActor
 {
 	GENERATED_BODY()
 	
+	static void CreateTimedEvent(UWorld* World);
 public:	
 	// Sets default values for this actor's properties
 	ATimedEventManager();
@@ -44,12 +59,14 @@ public:
 	
 	static ATimedEventManager* ManagerInstance;
 	TArray<FTargetRotationData> RotationData;
+	TMap<FString, FTimerEventData> TimedEventMap;
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	
-	static void CreateTimedEvent(UWorld* World);
 	static void Rotate(AActor* ActorToRotate, FRotator TargetRotation, float Duration, UWorld* World);
+	static void CallEventWithDelay(AActor* EventActor, FString Key, FTimedEvent& EventToCall, float Duration, UWorld* World);
+	static bool RemoveEventData(FString Key, bool bCallEvent);
 	
 };

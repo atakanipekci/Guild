@@ -32,7 +32,12 @@ void AGGCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
-void AGGCharacterBase::OnAttackHitsEnemy()
+void AGGCharacterBase::OnAttackHitsEnemies()
+{
+}
+
+
+void AGGCharacterBase::OnAttackHitsEnemy(AActor* TargetToHit)
 {
 }
 
@@ -41,6 +46,14 @@ void AGGCharacterBase::OnDeath()
 }
 
 void AGGCharacterBase::OnCastingSkillEnds()
+{
+}
+
+void AGGCharacterBase::ThrowProjectileRightHand()
+{
+}
+
+void AGGCharacterBase::ThrowProjectileLeftHand()
 {
 }
 

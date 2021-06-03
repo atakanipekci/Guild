@@ -36,8 +36,14 @@ class GUILDGAME_API UCharacterAnimInstance : public UAnimInstance
 	void SetOwnerCharacter(class AGGCharacterBase*);
 
 	UFUNCTION(BlueprintCallable)
-	void OnAttackHitsEnemy();
+	void OnAttackHitsEnemiesInArea();
 	UFUNCTION(BlueprintCallable)
 	void OnCastingSkillEnds();
+	
+	UFUNCTION(BlueprintCallable)
+	void ThrowProjectileRightHand();
+	
+	UFUNCTION(BlueprintCallable)
+	void ThrowProjectileLeftHand();
 	
 };

@@ -78,6 +78,7 @@ void AGridFloor::UpdateGridStatesWithTrace()
 	}
 }
 
+
 GridManager* AGridFloor::GetGridManager() const
 {
 	return FloorGridManager;
@@ -137,6 +138,18 @@ void AGridFloor::BeginPlay()
 			PathActor->UpdateSpline();
 			PathActor->SetActorScale3D(FVector{0.05,0.05,0.001});
 		}
+
+		FActorSpawnParameters SpawnParams2;
+		TrajectorySplineActor = static_cast<ASplineActor*>(World->SpawnActor<ASplineActor>(FVector{0,0,0},FRotator{},SpawnParams2));
+
+		if(TrajectorySplineActor)
+		{
+			TrajectorySplineActor->SetActorScale3D(FVector{0.1,0.1,0.1});
+			TrajectorySplineActor->ClearNodes();
+			// TrajectorySplineActor->SplineMeshMap = TrajectorySplineMap;
+			TrajectorySplineActor->UpdateSpline();
+		}
+
 	}
 	
 }
@@ -644,6 +657,47 @@ void AGridFloor::CreateProceduralGridArea(EISMType Type, TArray<Grid*>& Grids, T
 	}
 	
 	
+}
+
+void AGridFloor::DrawTrajectory(AGGCharacter* Character)
+{
+	if (Character == nullptr)
+	{
+		return;
+	}
+	
+	FPredictProjectilePathResult ProjectileResult;
+
+	bool bCanAttacked = GridManager::CanAttackTargetGrid(Character, ProjectileResult);
+
+	if(bCanAttacked)
+	{
+		TrajectorySplineActor->SplineMeshMap = TrajectoryTrueSplineMap;
+	}
+	else
+	{
+		TrajectorySplineActor->SplineMeshMap = TrajectoryFalseSplineMap;
+	}
+	
+	if(TrajectorySplineActor)
+	{
+		TrajectorySplineActor->ClearNodes();
+		for(int i = 0; i < ProjectileResult.PathData.Num(); i++)
+		{
+			TrajectorySplineActor->AddNode(ProjectileResult.PathData[i].Location);
+		}
+		TrajectorySplineActor->UpdateSpline();
+	}
+}
+
+void AGridFloor::ClearTrajectory()
+{
+	if(TrajectorySplineActor == nullptr)
+	{
+		return;
+	}
+	TrajectorySplineActor->ClearNodes();
+	TrajectorySplineActor->UpdateSpline();
 }
 
 

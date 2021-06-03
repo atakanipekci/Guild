@@ -26,11 +26,11 @@ void UCharacterAnimInstance::SetOwnerCharacter(AGGCharacterBase* NewOwner)
 	OwnerChar = NewOwner;
 }
 
-void UCharacterAnimInstance::OnAttackHitsEnemy()
+void UCharacterAnimInstance::OnAttackHitsEnemiesInArea()
 {
 	if(OwnerChar)
 	{
-		OwnerChar->OnAttackHitsEnemy();
+		OwnerChar->OnAttackHitsEnemies();
 	}
 }
 
@@ -39,5 +39,21 @@ void UCharacterAnimInstance::OnCastingSkillEnds()
 	if(OwnerChar)
 	{
 		OwnerChar->OnCastingSkillEnds();
+	}
+}
+
+void UCharacterAnimInstance::ThrowProjectileRightHand()
+{
+    if(OwnerChar)
+	{
+		OwnerChar->ThrowProjectileRightHand();
+	}
+}
+
+void UCharacterAnimInstance::ThrowProjectileLeftHand()
+{
+    if(OwnerChar)
+	{
+		OwnerChar->ThrowProjectileLeftHand();
 	}
 }

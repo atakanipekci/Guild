@@ -166,7 +166,7 @@ float GridManager::GetDistBetween(int Index1, int Index2) const
 
 void GridManager::SetGridState(int Index, EGridState NewState)
 {
-    if(GGGrids.Num() <= 0 || Index < GGGrids.Num())
+    if(GGGrids.Num() <= 0)
     {
         return;
     }

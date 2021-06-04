@@ -39,7 +39,10 @@ public:
 	int GetClosestInArray(TArray<Grid*>* Grids, int Index) const;
 	bool GetCharactersInArray(TArray<Grid*>* Grids, TArray<class AGGCharacter*>* Characters) const;
 	AGGCharacter* GetCharacterByGridIndex(int GridIndex) const;
+	
 	static bool CanAttackTargetGrid(AGGCharacter* Character, struct FPredictProjectilePathResult& ProjectileResult);
+	static bool CanAttackTargetGrid(AGGCharacter* Character, struct FPredictProjectilePathResult& ProjectileResult, FVector StartLocation);
+	static bool PredictAttackOnTargetGrid(AGGCharacter* Character, struct FPredictProjectilePathResult& ProjectileResult, FVector StartLocation);
 	FVector GetPositionToPlace(int Index, int RowCount, int ColumnCount) const;
 	bool SetGridStates(TArray<Grid*>* GridsToSet, EGridState NewState);
 	void SetStartPos(FVector2D& NewPos)

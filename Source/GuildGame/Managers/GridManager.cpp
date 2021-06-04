@@ -9,6 +9,7 @@
 #include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Characters/GGCharacter.h"
 #include "GuildGame/GridSystem/GridFloor.h"
+#include "GuildGame/GridSystem/GridObstacle.h"
 #include "GuildGame/Skills/CharacterSkill.h"
 #include "GuildGame/VFX/Projectiles/Projectile.h"
 #include "Kismet/GameplayStatics.h"
@@ -478,6 +479,26 @@ bool GridManager::CanAttackTargetGrid(AGGCharacter* Character, FPredictProjectil
 		return false;
 	}
 	
+	return PredictAttackOnTargetGrid(Character, ProjectileResult, Character->GetStartTrajectoryLocation());
+}
+bool GridManager::CanAttackTargetGrid(AGGCharacter* Character, FPredictProjectilePathResult& ProjectileResult, FVector StartLocation)
+{
+	if (Character == nullptr)
+	{
+		return false;
+	}
+	
+	return PredictAttackOnTargetGrid(Character, ProjectileResult, StartLocation);
+}
+
+bool GridManager::PredictAttackOnTargetGrid(AGGCharacter* Character, FPredictProjectilePathResult& ProjectileResult,
+    FVector StartLocation)
+{
+    if (Character == nullptr)
+	{
+		return false;
+	}
+	
 	CharacterSkill* CurrentSkill = Character->GetCurrentSkill();
 	if(CurrentSkill)
 	{
@@ -505,20 +526,30 @@ bool GridManager::CanAttackTargetGrid(AGGCharacter* Character, FPredictProjectil
 	    else if(TargetingType == ESkillTargetingType::Grid)
 	    {
 	        AGGCharacter* CharacterOnTargetGrid = Character->GetCharacterAtTargetGridIndex();
-	        if(CharacterOnTargetGrid)
-	            ActorsToIgnore.Add(CharacterOnTargetGrid);
+	        CharacterToHit = CharacterOnTargetGrid;
+	        // if(CharacterOnTargetGrid)
+	        //     ActorsToIgnore.Add(CharacterOnTargetGrid);
 	    }
 		
 	    ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery1);//World_Static
 	    ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery3);//Pawn
 	    ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery6);//Destructable
 
-	    bool bHit = AProjectile::TraceTrajectory(Character->GetStartTrajectoryLocation(), Character->GetTargetTrajectoryLocation(), Angle, Character->GetWorld(),ProjectileResult, ActorsToIgnore, ObjectTypesToHit);
+	    bool bHit = AProjectile::TraceTrajectory(StartLocation, Character->GetTargetTrajectoryLocation(), Angle, Character->GetWorld(),ProjectileResult, ActorsToIgnore, ObjectTypesToHit);
 
 	    AActor* ActorHit = ProjectileResult.HitResult.GetActor();
 	    if(ActorHit)
 	    {
 	        //Obstacle
+	        AGridObstacle* GridObstacle = Cast<AGridObstacle>(ActorHit);
+	        AGGCharacter* CharacterHit = Cast<AGGCharacter>(ActorHit);
+
+	        if(GridObstacle)
+	        {
+	             UE_LOG(LogTemp, Warning, TEXT("OBSTACLE "));
+	            return false; 
+	        }
+
 	        UE_LOG(LogTemp, Warning, TEXT("HITTED ACTOR %s "), *ActorHit->GetName());
 	        if(TargetingType == ESkillTargetingType::Enemy)
 	        {
@@ -534,14 +565,28 @@ bool GridManager::CanAttackTargetGrid(AGGCharacter* Character, FPredictProjectil
 	                return true;
 	            }
 	        }
-	    }
-	    else
-	    {
-	        if(TargetingType == ESkillTargetingType::Grid)
+	        else if(TargetingType == ESkillTargetingType::Grid)
 	        {
-	            return true;
+	            if(CharacterHit != nullptr)//meaning the hit is a character 
+	            {
+	                if(CharacterHit == CharacterToHit)
+	                {
+	                    return true;
+	                }
+	            }
+	            else
+	            {
+	                return true;
+	            }
 	        }
 	    }
+	    // else
+	    // {
+	    //     // if(TargetingType == ESkillTargetingType::Grid)
+	    //     // {
+	    //     //     return true;
+	    //     // }
+	    // }
 	}
 
     return false;

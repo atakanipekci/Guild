@@ -6,6 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "GuildGame/Characters/GGCharacter.h"
+#include "GuildGame/Managers/GridManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -18,7 +19,7 @@ AProjectile::AProjectile()
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComponent");
 	if(ProjectileMovementComponent)
 	{
-		//ProjectileMovementComponent->ProjectileGravityScale = 0;
+		ProjectileMovementComponent->ProjectileGravityScale = 0;
 	}
 
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("SphereComponent");
@@ -32,6 +33,9 @@ AProjectile::AProjectile()
 
 		SphereComponent->SetCollisionResponseToChannels(Response);
 	}
+
+	Speed = 1;
+	PathIndex = 1;
 	
 }
 
@@ -68,18 +72,68 @@ void AProjectile::Tick(float DeltaTime)
 		Destroy();
 	}
 
+	if(bStartLaunch)
+	{
+		if(PathIndex < ProjectileResult.PathData.Num() && PathIndex - 1 >= 0)
+		{
+			FVector NextNode = ProjectileResult.PathData[PathIndex].Location;
+			FVector PrevNode = ProjectileResult.PathData[PathIndex - 1].Location;
+			FVector Direction = NextNode - GetActorLocation();
+			
+			float Distance = FVector::Dist(GetActorLocation(), NextNode);
+			
+			FVector DirectionNormalized = Direction;
+			DirectionNormalized.Normalize();
+			
+			FVector AddedVector = DirectionNormalized * Speed *  DeltaTime;
+			if(AddedVector.Size() > Direction.Size())
+			{
+				AddedVector = Direction;
+			}
+			
+			FVector NewLocation = GetActorLocation() + AddedVector;
+			//FVector NewLocation = FMath::VInterpTo(GetActorLocation(), NextNode, DeltaTime, Speed);
+
+			FRotator RawNewRotation = UKismetMathLibrary::FindLookAtRotation( NewLocation, NextNode);
+			
+			FRotator NewRotation = FMath::Lerp(GetActorRotation(), RawNewRotation, 0.5f);
+			
+			FTransform NewTransform;
+			NewTransform.SetLocation(NewLocation);
+			NewTransform.SetRotation(NewRotation.Quaternion());
+			NewTransform.SetScale3D(GetActorScale());
+
+			SetActorTransform(NewTransform);
+
+			Direction = NextNode - GetActorLocation();
+			if(Direction.Size() <= 0.01f)
+			{
+				PathIndex++;
+			}
+		}
+	}
+
 }
 
 void AProjectile::SetVelocityViaTarget(FVector LocationOfTarget)
 {
-	FVector StartPosition = GetActorLocation();
-	FVector TargetPosition = LocationOfTarget;
+	FVector StartLocation = GetActorLocation();
     SetActorRotation(FRotator::ZeroRotator);
 
+	bStartLaunch = GridManager::CanAttackTargetGrid(OwnerCharacter, ProjectileResult, StartLocation);
 
-	FVector VelocityOutput = GetVelocityVector(StartPosition, TargetPosition, Angle, GetWorld());
-			
-	ProjectileMovementComponent->SetVelocityInLocalSpace(VelocityOutput);
+	if(ProjectileMovementComponent)
+	{
+		ProjectileMovementComponent->Velocity = FVector::ZeroVector;
+	}
+	if(bStartLaunch)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PROJECTILE NODES %d"), ProjectileResult.PathData.Num());
+	}
+	UE_LOG(LogTemp, Warning, TEXT("PROJECTILE bStartLaunch %d"), bStartLaunch);
+
+	// FVector VelocityOutput = GetVelocityVector(StartLocation, LocationOfTarget, Angle, GetWorld());
+	// ProjectileMovementComponent->SetVelocityInLocalSpace(VelocityOutput);
 }
 
 FVector AProjectile::GetVelocityVector(FVector StartLocation, FVector TargetLocation, float Angle, UWorld* World)
@@ -113,7 +167,7 @@ bool AProjectile::TraceTrajectory(FVector StartPosition, FVector TargetPosition,
 	ProjectileParams.StartLocation = StartPosition;
 	ProjectileParams.LaunchVelocity = VelocityOutput;
 	ProjectileParams.ProjectileRadius = 1;
-	ProjectileParams.MaxSimTime = 2;
+	ProjectileParams.MaxSimTime = 3;
 	ProjectileParams.DrawDebugType = EDrawDebugTrace::None;
 	ProjectileParams.bTraceWithCollision = true;
 	ProjectileParams.bTraceWithChannel = false;
@@ -137,6 +191,7 @@ void AProjectile::OnCollisionOverlapBegin(UPrimitiveComponent* OverlappedComp, A
 		{
 			if(OwnerCharacter)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("PROJECTILE OnCollisionOverlapBegin DESTROY"));
 				OwnerCharacter->OnAttackHitsEnemy(OverlapedChar);
 				OwnerCharacter->OnCastingSkillEnds();
 				Destroy();

@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Kismet/GameplayStaticsTypes.h"
+
 #include "Projectile.generated.h"
 
 UCLASS()
@@ -36,6 +38,13 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float Angle;
+	UPROPERTY(EditAnywhere)
+	float Speed;
+
+	FPredictProjectilePathResult ProjectileResult;
+	int PathIndex = 0;
+
+	bool bStartLaunch = false;
 
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* HitEffect;

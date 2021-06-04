@@ -438,7 +438,7 @@ AActor* AGGCharacter::CreateProjectile(FName SocketName)
 	if(CurrentSkill== nullptr) return nullptr;
 
 	USkeletalMeshComponent* SkeletalMesh = Cast<USkeletalMeshComponent>(GetComponentByClass(USkeletalMeshComponent::StaticClass()));
-	if(SelectedTargetCharacters.Num() > 0 && SkeletalMesh)
+	if(/*SelectedTargetCharacters.Num() > 0 && */SkeletalMesh)
 	{
 		FCharSkillFileDataTable* SkillFiles = &(CurrentSkill->GetSkillFiles());
 		if(SkillFiles)
@@ -543,7 +543,14 @@ FVector AGGCharacter::GetTargetTrajectoryLocation()
 	FVector TargetLocation = FVector::ZeroVector;
 	if(GridMan && GridMan->GetAttachedFloor())
 	{
-		TargetLocation = GridMan->GetGridCenter(CurrentTargetGridIndex)  + FVector(0, 0, 40);;
+		FVector GridCenterLoc = GridMan->GetGridCenter(CurrentTargetGridIndex);
+		TargetLocation = GridCenterLoc  + FVector(0, 0, 5);
+
+		AGGCharacter* TargetChar = GetCharacterAtTargetGridIndex();
+		if(TargetChar)
+		{
+			TargetLocation = GridCenterLoc + FVector(0, 0, 100);
+		}
 	}
 	return  TargetLocation;
 }

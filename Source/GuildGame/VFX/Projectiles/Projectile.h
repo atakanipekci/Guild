@@ -46,6 +46,8 @@ public:
 
 	bool bStartLaunch = false;
 
+	bool bProjectileDeactivated = false;
+
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* HitEffect;
 
@@ -57,4 +59,5 @@ public:
 
 	UFUNCTION()
 	void OnCollisionOverlapBegin(class UPrimitiveComponent* OverlappedComp,class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	void OnSkillHits(FVector Normal);
 };

@@ -98,6 +98,7 @@ public:
 	FVector GetStartTrajectoryLocation();
 
 	AGGCharacter* GetCharacterAtTargetGridIndex();
+	bool CanTrajectoryBeShown();
 
 private:
 	TArray<Grid*> MovableGrids;
@@ -128,6 +129,8 @@ private:
 	int CurrentTargetGridIndex = 0;
 
 	TArray<AGGCharacter*> SelectedTargetCharacters;
+
+	bool bIsSkillMontagePlaying;
 
 	
 

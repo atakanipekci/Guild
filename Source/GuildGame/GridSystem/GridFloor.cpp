@@ -692,14 +692,11 @@ void AGridFloor::CreateProceduralGridArea(EISMType Type, TArray<Grid*>& Grids, T
 
 void AGridFloor::DrawTrajectory(AGGCharacter* Character)
 {
-	if (Character == nullptr)
-	{
-		return;
-	}
+	if (Character == nullptr || Character->CanTrajectoryBeShown() == false || FloorGridManager == nullptr) return;
 	
 	FPredictProjectilePathResult ProjectileResult;
 
-	bool bCanAttacked = GridManager::CanAttackTargetGrid(Character, ProjectileResult);
+	bool bCanAttacked = FloorGridManager->CanAttackTargetGrid(Character, ProjectileResult);
 
 	if(bCanAttacked)
 	{

@@ -363,7 +363,9 @@ void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 		ATimedEventManager::CallEventWithDelay(this, TimerKey, TimedEvent, 10, GetWorld());
 		
 		SetStatus(ECharacterStatus::Casting);
+
 		PlayCharacterMontage(SkillFiles->SkillMontage);
+		bIsSkillMontagePlaying = true;
 	}
 }
 
@@ -415,6 +417,8 @@ void AGGCharacter::OnCastingSkillEnds()
 {
 	Super::OnCastingSkillEnds();
 
+	bIsSkillMontagePlaying = false;
+	UE_LOG(LogTemp, Warning, TEXT("OnCastingSkillEnds "));
 	CharacterSkill* CurrentSkill = GetCurrentSkill();
 
 	if(CurrentSkill != nullptr)
@@ -441,13 +445,14 @@ AActor* AGGCharacter::CreateProjectile(FName SocketName)
 	if(/*SelectedTargetCharacters.Num() > 0 && */SkeletalMesh)
 	{
 		FCharSkillFileDataTable* SkillFiles = &(CurrentSkill->GetSkillFiles());
-		if(SkillFiles)
+		FSkillData* SkillData = &(CurrentSkill->GetSkillData());
+		if(SkillFiles && SkillData)
 		{
-			if(SkillFiles->ProjectileBP)
+			if(SkillFiles->EffectBP)
 			{
 				const FVector SocketLocation = SkeletalMesh->GetSocketLocation(SocketName);
 				const FRotator SocketRotation = SkeletalMesh->GetSocketRotation(SocketName);
-				AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(SkillFiles->ProjectileBP, SocketLocation, FRotator::ZeroRotator, FActorSpawnParameters());
+				AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(SkillFiles->EffectBP, SocketLocation, FRotator::ZeroRotator, FActorSpawnParameters());
 				if(Projectile)
 				{
 					Projectile->SelectedTargetCharacters = SelectedTargetCharacters;
@@ -457,7 +462,7 @@ AActor* AGGCharacter::CreateProjectile(FName SocketName)
 					//Projectile->SetActorRotation(Rot);
 					// FVector TargetLocation = SelectedTargetCharacters[0]->GetActorLocation();
 					FVector TargetLocation = GetTargetTrajectoryLocation();
-					Projectile->Angle = SkillFiles->ProjectileAngle;
+					Projectile->Angle = SkillData->LineOfSightAngle;
 					Projectile->SetVelocityViaTarget(TargetLocation);
 					
 					return Projectile;
@@ -520,7 +525,7 @@ void AGGCharacter::SetAnimState(ECharacterAnimState AnimState)
 void AGGCharacter::PlayCharacterMontage(UAnimMontage* Montage)
 {
 	UE_LOG(LogTemp, Warning, TEXT("PlayCharacterMontage1"));
-	if(AnimInstance == nullptr) return;;
+	if(AnimInstance == nullptr || bIsSkillMontagePlaying/* || AnimInstance->Montage_IsPlaying(nullptr) == true*/) return;
 
 	UE_LOG(LogTemp, Warning, TEXT("PlayCharacterMontage2"));
 	AnimInstance->PlayMontage(Montage);
@@ -568,5 +573,21 @@ AGGCharacter* AGGCharacter::GetCharacterAtTargetGridIndex()
 		return GridManager->GetCharacterByGridIndex(CurrentTargetGridIndex);
 	}
 	return nullptr;
+}
+
+bool AGGCharacter::CanTrajectoryBeShown()
+{
+	CharacterSkill* CurrentSkill = GetCurrentSkill();
+
+	if(CurrentSkill)
+	{
+		FSkillData* SkillData = &(CurrentSkill->GetSkillData());
+		if(SkillData)
+		{
+			return SkillData->ShowTrajectory;
+		}
+	}
+
+	return  false;
 }
 

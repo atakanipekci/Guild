@@ -3,6 +3,7 @@
 
 #include "GridManager.h"
 
+#include "DrawDebugHelpers.h"
 #include "GGLogHelper.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
@@ -517,96 +518,260 @@ bool GridManager::PredictAttackOnTargetGrid(AGGCharacter* Character, FPredictPro
 	}
 	
 	CharacterSkill* CurrentSkill = Character->GetCurrentSkill();
+
 	if(CurrentSkill)
 	{
-	    FCharSkillFileDataTable& SkillFiles =  CurrentSkill->GetSkillFiles();
-	    float Angle = SkillFiles.ProjectileAngle;
+        FSkillData* SkillData = &(CurrentSkill->GetSkillData());
 
-	    TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesToHit;
-	    TArray<AActor*> ActorsToIgnore;
-	    ActorsToIgnore.Add(Character);
-		
-	    ESkillTargetingType TargetingType =  CurrentSkill->GetSkillData().TargetingType;
-
-	    AGGCharacter* CharacterToHit = nullptr;
-		
-	    if(TargetingType == ESkillTargetingType::Enemy)
+	    if(SkillData)
 	    {
-	        AGGCharacter* CharacterOnTargetGrid = Character->GetCharacterAtTargetGridIndex();
-	        CharacterToHit = CharacterOnTargetGrid;
-	    }
-	    else if(TargetingType == ESkillTargetingType::Friend)
-	    {
-	        AGGCharacter* CharacterOnTargetGrid = Character->GetCharacterAtTargetGridIndex();
-	        CharacterToHit = CharacterOnTargetGrid;
-	    }
-	    else if(TargetingType == ESkillTargetingType::Grid)
-	    {
-	        AGGCharacter* CharacterOnTargetGrid = Character->GetCharacterAtTargetGridIndex();
-	        CharacterToHit = CharacterOnTargetGrid;
-	        // if(CharacterOnTargetGrid)
-	        //     ActorsToIgnore.Add(CharacterOnTargetGrid);
-	    }
-		
-	    ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery1);//World_Static
-	    ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery3);//Pawn
-	    ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery6);//Destructable
+            ELineOfSightType SightType = SkillData->SkillLineOfSight;
+	        float Angle = SkillData->LineOfSightAngle;
 
-	    bool bHit = AProjectile::TraceTrajectory(StartLocation, Character->GetTargetTrajectoryLocation(), Angle, Character->GetWorld(),ProjectileResult, ActorsToIgnore, ObjectTypesToHit);
+	        TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesToHit;
+	        TArray<AActor*> ActorsToIgnore;
+	        ActorsToIgnore.Add(Character);
+		    
+	        ESkillTargetingType TargetingType =  CurrentSkill->GetSkillData().TargetingType;
 
-	    AActor* ActorHit = ProjectileResult.HitResult.GetActor();
-	    if(ActorHit)
-	    {
-	        //Obstacle
-	        AGridObstacle* GridObstacle = Cast<AGridObstacle>(ActorHit);
-	        AGGCharacter* CharacterHit = Cast<AGGCharacter>(ActorHit);
-
-	        if(GridObstacle)
+	        AGGCharacter* CharacterToHit = Character->GetCharacterAtTargetGridIndex();
+		    
+	        AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(Character->GetWorld()));
+	        if(SightType == ELineOfSightType::GoesThroughEverything)
 	        {
-	             UE_LOG(LogTemp, Warning, TEXT("OBSTACLE "));
-	            return false; 
+                if(GameMode != nullptr)
+                {
+                    TArray<AGGCharacter*> AllCharacters = GameMode->GetCharacterList();
+
+                    for (int i = 0; i < AllCharacters.Num(); ++i)
+                    {
+                        if(AllCharacters[i] != nullptr && AllCharacters[i] != CharacterToHit && AllCharacters[i] != Character)
+                        {
+                            ActorsToIgnore.AddUnique(AllCharacters[i]);
+                        }
+                    }
+                }
+	            ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery1);//World_Static
+	            ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery3);//Pawn
+	        }
+	        else if(SightType == ELineOfSightType::GoesThroughNothing)
+	        {
+	            ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery1);//World_Static
+                ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery3);//Pawn
+                ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery6);//Destructible
+                ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery7);//Obstacles
+	        }
+	        else if(SightType == ELineOfSightType::GoesThroughCharacters)
+	        {
+	            if(GameMode != nullptr)
+                {
+                    TArray<AGGCharacter*> AllCharacters = GameMode->GetCharacterList();
+
+                    for (int i = 0; i < AllCharacters.Num(); ++i)
+                    {
+                        if(AllCharacters[i] != nullptr && AllCharacters[i] != CharacterToHit && AllCharacters[i] != Character)
+                        {
+                            ActorsToIgnore.AddUnique(AllCharacters[i]);
+                        }
+                    }
+                }
+	            ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery1);//World_Static
+                ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery3);//Pawn
+                ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery6);//Destructable
+                ObjectTypesToHit.Add(EObjectTypeQuery::ObjectTypeQuery7);//Obstacles
 	        }
 
-	        UE_LOG(LogTemp, Warning, TEXT("HITTED ACTOR %s "), *ActorHit->GetName());
-	        if(TargetingType == ESkillTargetingType::Enemy)
+
+	        bool bHit = AProjectile::TraceTrajectory(StartLocation, Character->GetTargetTrajectoryLocation(), Angle, Character->GetWorld(),ProjectileResult, ActorsToIgnore, ObjectTypesToHit);
+
+	        AActor* ActorHit = ProjectileResult.HitResult.GetActor();
+	        if(ActorHit)
 	        {
-	            if(ActorHit == CharacterToHit)
+	            Grid& TargetGrid = GGGrids[Character->GetCurrentTargetIndex()];
+	            AGridObstacle* GridObstacle = Cast<AGridObstacle>(ActorHit);
+	            AGGCharacter* CharacterHit = Cast<AGGCharacter>(ActorHit);
+
+	            if(GridObstacle || (TargetGrid.GridState == EGridState::Obstacle && CharacterToHit == nullptr))
 	            {
-	                return true;
+	                 UE_LOG(LogTemp, Warning, TEXT("OBSTACLE "));
+	                return false; 
 	            }
-	        }
-	        else if(TargetingType == ESkillTargetingType::Friend)
-	        {
-	            if(ActorHit == CharacterToHit)
+
+	            UE_LOG(LogTemp, Warning, TEXT("HITTED ACTOR %s "), *ActorHit->GetName());
+
+	            // GridManager* GridMan = CharacterManager::CharGridManager;
+	            
+	            if(TargetingType == ESkillTargetingType::Enemy)
 	            {
-	                return true;
-	            }
-	        }
-	        else if(TargetingType == ESkillTargetingType::Grid)
-	        {
-	            if(CharacterHit != nullptr)//meaning the hit is a character 
-	            {
-	                if(CharacterHit == CharacterToHit)
+	                if(ActorHit == CharacterToHit)
 	                {
 	                    return true;
 	                }
 	            }
-	            else
+	            else if(TargetingType == ESkillTargetingType::Friend)
 	            {
-	                return true;
+	                if(ActorHit == CharacterToHit)
+	                {
+	                    return true;
+	                }
 	            }
+	            else if(TargetingType == ESkillTargetingType::Grid)
+	            {
+	                if(CharacterHit != nullptr)//meaning the hit is a character 
+	                {
+	                    if(CharacterHit == CharacterToHit)
+	                    {
+	                        return true;
+	                    }
+	                }
+	                else
+	                {
+	                    return true;
+	                }
+	            }
+	            // else if(TargetingType == ESkillTargetingType::AllCharacters)
+	            // {
+	            //     
+	            // }
+	            // else if(TargetingType == ESkillTargetingType::Caster)
+	            // {
+	            //     
+	            // }
 	        }
-	    }
-	    // else
-	    // {
-	    //     // if(TargetingType == ESkillTargetingType::Grid)
-	    //     // {
-	    //     //     return true;
-	    //     // }
-	    // }
+	        // else
+	        // {
+	        //     // if(TargetingType == ESkillTargetingType::Grid)
+	        //     // {
+	        //     //     return true;
+	        //     // }
+	        // }
+        }
+	    
 	}
 
     return false;
+}
+
+void GridManager::GetCharsInEffectSight(TArray<AGGCharacter*> CharsInArea, TArray<AGGCharacter*>& OutCharsInSight, AGGCharacter* SelectedCharacter, UWorld* World)
+{
+    if(World == nullptr || SelectedCharacter == nullptr) return ;
+
+    CharacterSkill* Skill = SelectedCharacter->GetCurrentSkill();
+
+    if(Skill)
+    {
+        FSkillData* SkillData = &Skill->GetSkillData();
+        if(SkillData)
+        {
+            FCollisionQueryParams CollisionParams;
+            FHitResult HitResult;
+            FCollisionObjectQueryParams ObjectsToCollide;
+
+            AGGCharacter* TargetCharacter = SelectedCharacter->GetCharacterAtTargetGridIndex();
+
+            ELineOfSightType SightType = SkillData->EffectLineOfSight;
+
+            for (int i = 0; i < CharsInArea.Num(); ++i)
+            {
+                AGGCharacter* CharInArray = CharsInArea[i];
+                if(SightType == ELineOfSightType::GoesThroughEverything)
+                {
+                    if(CharInArray != nullptr)
+                    {
+                        OutCharsInSight.Add(CharInArray);
+                    }
+                }
+                else if(SightType == ELineOfSightType::GoesThroughNothing)
+                {
+                    if(TargetCharacter)
+                    {
+                        CollisionParams.AddIgnoredActor(TargetCharacter);
+                    }
+                    if(CharInArray != nullptr)
+                    {
+                        if(CharInArray == TargetCharacter)
+                        {
+                             OutCharsInSight.Add(CharInArray);
+                        }
+                        else
+                        {
+                            ObjectsToCollide.AddObjectTypesToQuery(ECC_Destructible);
+                            ObjectsToCollide.AddObjectTypesToQuery(ECC_GameTraceChannel3);//Obstacles
+                            ObjectsToCollide.AddObjectTypesToQuery(ECC_WorldStatic);
+                            ObjectsToCollide.AddObjectTypesToQuery(ECC_Pawn);
+                            
+                            FVector StartLocation = SelectedCharacter->GetTargetTrajectoryLocation();
+                            FVector EndLocation = CharInArray->GetActorLocation();
+                            StartLocation.Z = EndLocation.Z;
+
+                            DrawDebugLine(
+                                 World,
+                                 StartLocation,
+                                 EndLocation,
+                                 FColor(255, 0, 0),
+                                 false, 3, 0,
+                                 12.333
+                             );
+                                
+                            bool bDidHit = World->LineTraceSingleByObjectType(HitResult, StartLocation, EndLocation, ObjectsToCollide, CollisionParams);
+                            if(bDidHit)
+                            {
+                                AActor* HitActor = HitResult.GetActor();
+                                if(HitActor)
+                                {
+                                    if(HitActor == CharInArray)
+                                    {
+                                         OutCharsInSight.Add(CharInArray);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else if(SightType == ELineOfSightType::GoesThroughCharacters)
+                {
+                    if(CharInArray == TargetCharacter)
+                    {
+                         OutCharsInSight.Add(CharInArray);
+                    }
+                    
+                    if(CharInArray != nullptr)
+                    {
+                        if(CharInArray == TargetCharacter)
+                        {
+                             OutCharsInSight.Add(CharInArray);
+                        }
+                        else
+                        {
+                            ObjectsToCollide.AddObjectTypesToQuery(ECC_Destructible);
+                            ObjectsToCollide.AddObjectTypesToQuery(ECC_GameTraceChannel3);//Obstacles
+                            ObjectsToCollide.AddObjectTypesToQuery(ECC_WorldStatic);
+                            
+                            FVector StartLocation = SelectedCharacter->GetTargetTrajectoryLocation();
+                            FVector EndLocation = CharInArray->GetActorLocation();
+                            StartLocation.Z = EndLocation.Z;
+
+                            DrawDebugLine(
+                                 World,
+                                 StartLocation,
+                                 EndLocation,
+                                 FColor(255, 0, 0),
+                                 false, 3, 0,
+                                 12.333
+                             );
+                            bool bDidHit = World->LineTraceSingleByObjectType(HitResult, StartLocation, EndLocation, ObjectsToCollide, CollisionParams);
+                            if(bDidHit == false)
+                            {
+                                UE_LOG(LogTemp, Warning, TEXT("GoesThroughCharacters No Hit So Add ACTOR %s "), *CharInArray->GetName());
+                                 OutCharsInSight.Add(CharInArray);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
 }
 
 FVector GridManager::GetPositionToPlace(int Index, int ARowCount, int AColumnCount) const

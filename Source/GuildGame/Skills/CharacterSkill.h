@@ -12,6 +12,8 @@
 
 
 enum class ESplineMeshType : uint8;
+
+
 USTRUCT(BlueprintType)
 struct FCharSkillFileDataTable : public FTableRowBase
 {
@@ -27,22 +29,7 @@ struct FCharSkillFileDataTable : public FTableRowBase
 	class UAnimMontage* SkillMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<class AProjectile> ProjectileBP;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ClampMax = "0.0", UIMin = "80", UIMax = "80"))
-	float ProjectileAngle;
-
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	// UStaticMesh* TrajectoryMesh;
-	//
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	// UMaterialInterface* TrajectoryMaterial;
-	//
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	// float TrajectoryScale;
-
-	// UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	// TMap<ESplineMeshType, struct FSplineMeshDetails> TrajectorySplineMap;
+	TSubclassOf<AActor> EffectBP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText Desc;
@@ -74,6 +61,15 @@ struct FSkillData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ESkillTargetingType TargetingType;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ELineOfSightType SkillLineOfSight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ELineOfSightType EffectLineOfSight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ClampMax = "80.0", UIMin = "0.0", UIMax = "80.0"))
+	float LineOfSightAngle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ESkillShapeType ShapeType;

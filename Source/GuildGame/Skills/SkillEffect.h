@@ -28,6 +28,14 @@ enum class ESkillTargetingType: uint8
 	Grid
 };
 
+UENUM(Blueprintable)
+enum class ELineOfSightType : uint8
+{
+	GoesThroughNothing,
+	GoesThroughCharacters,
+	GoesThroughEverything
+};
+
 USTRUCT()
 struct FEffectData : public FTableRowBase
 {
@@ -38,7 +46,7 @@ struct FEffectData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ESkillTargetingType Target;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Chance;
 

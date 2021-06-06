@@ -244,11 +244,14 @@ void ControllerStateCastingSkill::LeftClickReleaseHandler()
 				if(GridMan)
 				{
 					FPredictProjectilePathResult Result;
-					if(GridManager::CanAttackTargetGrid(SelectedCharacter, Result))
+					if(GridMan->CanAttackTargetGrid(SelectedCharacter, Result))
 					{
 						TArray<AGGCharacter*> Targets;
 						GridMan->GetCharactersInArray(SelectedCharacter->GetDamageableGrids(), &Targets);
-						SelectedCharacter->CastSkill(Targets);
+
+						TArray<AGGCharacter*> TargetsToEffect;
+						GridMan->GetCharsInEffectSight(Targets, TargetsToEffect, SelectedCharacter, PlayerController->GetWorld());
+						SelectedCharacter->CastSkill(TargetsToEffect);
 					}
 				}
 			}

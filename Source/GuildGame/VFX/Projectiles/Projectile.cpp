@@ -6,6 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "GuildGame/Characters/GGCharacter.h"
+#include "GuildGame/Managers/CharacterManager.h"
 #include "GuildGame/Managers/GridManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -66,6 +67,8 @@ void AProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if(bProjectileDeactivated == true) return;
+	
 	DestroyTimer += DeltaTime;
 	if(DestroyTimer >=10)
 	{
@@ -74,10 +77,9 @@ void AProjectile::Tick(float DeltaTime)
 
 	if(bStartLaunch)
 	{
-		if(PathIndex < ProjectileResult.PathData.Num() && PathIndex - 1 >= 0)
+		if(PathIndex < ProjectileResult.PathData.Num())
 		{
 			FVector NextNode = ProjectileResult.PathData[PathIndex].Location;
-			FVector PrevNode = ProjectileResult.PathData[PathIndex - 1].Location;
 			FVector Direction = NextNode - GetActorLocation();
 			
 			float Distance = FVector::Dist(GetActorLocation(), NextNode);
@@ -111,6 +113,10 @@ void AProjectile::Tick(float DeltaTime)
 				PathIndex++;
 			}
 		}
+		else if(ProjectileResult.PathData.Num() > 1)
+		{
+			OnSkillHits(FVector::UpVector);
+		}
 	}
 
 }
@@ -120,17 +126,22 @@ void AProjectile::SetVelocityViaTarget(FVector LocationOfTarget)
 	FVector StartLocation = GetActorLocation();
     SetActorRotation(FRotator::ZeroRotator);
 
-	bStartLaunch = GridManager::CanAttackTargetGrid(OwnerCharacter, ProjectileResult, StartLocation);
+	GridManager* GridMan = CharacterManager::CharGridManager;
 
-	if(ProjectileMovementComponent)
+	if(GridMan)
 	{
-		ProjectileMovementComponent->Velocity = FVector::ZeroVector;
+		bStartLaunch = GridMan->CanAttackTargetGrid(OwnerCharacter, ProjectileResult, StartLocation);
+
+		if(ProjectileMovementComponent)
+		{
+			ProjectileMovementComponent->Velocity = FVector::ZeroVector;
+		}
+		if(bStartLaunch)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("PROJECTILE NODES %d"), ProjectileResult.PathData.Num());
+		}
+		UE_LOG(LogTemp, Warning, TEXT("PROJECTILE bStartLaunch %d"), bStartLaunch);
 	}
-	if(bStartLaunch)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("PROJECTILE NODES %d"), ProjectileResult.PathData.Num());
-	}
-	UE_LOG(LogTemp, Warning, TEXT("PROJECTILE bStartLaunch %d"), bStartLaunch);
 
 	// FVector VelocityOutput = GetVelocityVector(StartLocation, LocationOfTarget, Angle, GetWorld());
 	// ProjectileMovementComponent->SetVelocityInLocalSpace(VelocityOutput);
@@ -166,7 +177,7 @@ bool AProjectile::TraceTrajectory(FVector StartPosition, FVector TargetPosition,
 	
 	ProjectileParams.StartLocation = StartPosition;
 	ProjectileParams.LaunchVelocity = VelocityOutput;
-	ProjectileParams.ProjectileRadius = 1;
+	ProjectileParams.ProjectileRadius = 2;
 	ProjectileParams.MaxSimTime = 3;
 	ProjectileParams.DrawDebugType = EDrawDebugTrace::None;
 	ProjectileParams.bTraceWithCollision = true;
@@ -184,23 +195,32 @@ bool AProjectile::TraceTrajectory(FVector StartPosition, FVector TargetPosition,
 void AProjectile::OnCollisionOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                           UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if(bProjectileDeactivated == true) return;
+	
 	AGGCharacter* OverlapedChar = Cast<AGGCharacter>(OtherActor);
 	if(OverlapedChar)
 	{
 		if(SelectedTargetCharacters.Contains(OverlapedChar))
 		{
-			if(OwnerCharacter)
+			if(OverlapedChar == OwnerCharacter)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("PROJECTILE OnCollisionOverlapBegin DESTROY"));
-				OwnerCharacter->OnAttackHitsEnemy(OverlapedChar);
-				OwnerCharacter->OnCastingSkillEnds();
-				Destroy();
-				FRotator HitRotation = UKismetMathLibrary::MakeRotFromX(SweepResult.Normal);
-				UGameplayStatics::SpawnEmitterAtLocation(this, HitEffect, GetActorLocation(), HitRotation, true);
+				// UE_LOG(LogTemp, Warning, TEXT("PROJECTILE OnCollisionOverlapBegin DESTROY"));
+				OnSkillHits(SweepResult.Normal);
 				//SetLife
 			}
 		}
 	}
+}
+
+void AProjectile::OnSkillHits(FVector Normal)
+{
+	if(bProjectileDeactivated == true) return;
+	OwnerCharacter->OnAttackHitsEnemies();
+	OwnerCharacter->OnCastingSkillEnds();
+	Destroy();
+	FRotator HitRotation = UKismetMathLibrary::MakeRotFromX(Normal);
+	UGameplayStatics::SpawnEmitterAtLocation(this, HitEffect, GetActorLocation(), HitRotation, true);
+	bProjectileDeactivated = true;
 }
 
 

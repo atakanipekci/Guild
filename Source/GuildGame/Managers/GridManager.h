@@ -40,9 +40,10 @@ public:
 	bool GetCharactersInArray(TArray<Grid*>* Grids, TArray<class AGGCharacter*>* Characters) const;
 	AGGCharacter* GetCharacterByGridIndex(int GridIndex) const;
 	
-	static bool CanAttackTargetGrid(AGGCharacter* Character, struct FPredictProjectilePathResult& ProjectileResult);
-	static bool CanAttackTargetGrid(AGGCharacter* Character, struct FPredictProjectilePathResult& ProjectileResult, FVector StartLocation);
-	static bool PredictAttackOnTargetGrid(AGGCharacter* Character, struct FPredictProjectilePathResult& ProjectileResult, FVector StartLocation);
+	bool CanAttackTargetGrid(AGGCharacter* Character, struct FPredictProjectilePathResult& ProjectileResult);
+	bool CanAttackTargetGrid(AGGCharacter* Character, struct FPredictProjectilePathResult& ProjectileResult, FVector StartLocation);
+	bool PredictAttackOnTargetGrid(AGGCharacter* Character, struct FPredictProjectilePathResult& ProjectileResult, FVector StartLocation);
+	void GetCharsInEffectSight(TArray<AGGCharacter*> CharsInArea, TArray<AGGCharacter*>& OutCharsInSight, AGGCharacter* SelectedCharacter, UWorld* World);
 	FVector GetPositionToPlace(int Index, int RowCount, int ColumnCount) const;
 	bool SetGridStates(TArray<Grid*>* GridsToSet, EGridState NewState);
 	void SetStartPos(FVector2D& NewPos)

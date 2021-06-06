@@ -288,6 +288,20 @@ void AGridFloor::UpdateSelectedGrid(FVector NewPos, bool IsVisible)
 	
 }
 
+void AGridFloor::SetSelectedGridColorType(EISMType Type)
+{
+	if(SelectionGridMatInst && Type != EISMType::Empty)
+	{
+		SelectionGridMatInst->SetVectorParameterValue(FName("Color"), ISMMap.Find(Type)->Color);
+		SelectionGridMatInst->SetVectorParameterValue(FName("Glow Color"), ISMMap.Find(Type)->Color);
+	}
+	else if (SelectionGridMatInst &&Type == EISMType::Empty)
+	{
+		SelectionGridMatInst->SetVectorParameterValue(FName("Color"), SelectedGridColor);
+		SelectionGridMatInst->SetVectorParameterValue(FName("Glow Color"), SelectedGridColor);
+	}
+}
+
 void AGridFloor::DrawPath(int StartIndex, int EndIndex)
 {
 	if(!FloorGridManager || !PathActor)
@@ -324,6 +338,11 @@ float AGridFloor::GetPathLength(int StartIndex, int EndIndex)
 	UNavigationPath* path =  UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), start, end, nullptr,nullptr);
 	if(path && path->IsValid())
 	{
+		int Num = path->PathPoints.Num();
+        if(Num > 1 && FVector::Dist(path->PathPoints[Num-1], FloorGridManager->GetGridCenter(EndIndex)) >= GridSize)
+        {
+        	return -1;
+        }
 		return path->GetPathLength();
 	}
 	return -1;
@@ -652,8 +671,20 @@ void AGridFloor::CreateProceduralGridArea(EISMType Type, TArray<Grid*>& Grids, T
 	
 	if(SelectionGridMatInst)
 	{
-		SelectionGridMatInst->SetVectorParameterValue(FName("Color"), ISMMap.Find(Type)->Color);
-		SelectionGridMatInst->SetVectorParameterValue(FName("Glow Color"), ISMMap.Find(Type)->Color);
+		ABattlePlayerController* PlayerController = Cast<ABattlePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+		if (PlayerController != nullptr)
+		{
+			if(FloorGridManager->DoesInclude(&Grids, PlayerController->GetSelectedGridIndex()))
+			{
+				SelectionGridMatInst->SetVectorParameterValue(FName("Color"), ISMMap.Find(Type)->Color);
+				SelectionGridMatInst->SetVectorParameterValue(FName("Glow Color"), ISMMap.Find(Type)->Color);
+			}
+			else
+			{
+				SelectionGridMatInst->SetVectorParameterValue(FName("Color"), SelectedGridColor);
+				SelectionGridMatInst->SetVectorParameterValue(FName("Glow Color"), SelectedGridColor);
+			}		
+		}
 	}
 	
 	

@@ -42,16 +42,25 @@ bool GridManager::IsGridWalkable(int Index) const
 
 bool GridManager::IsGridWalkable(FIntPoint Point) const
 {
-    if(IsGridValid(PointToIndex(Point)))
+    int Index = PointToIndex(Point);
+    if(Index < 0 || Index >= ColumnCount*RowCount || GGGrids[Index].GridState != EGridState::Empty)
+    {
+        return false;
+    }
+    
+    return true;
+    
+    /*if(IsGridValid(PointToIndex(Point)))
     {
         return true;
     }
-    return false;
+    return false;*/
 }
 
 bool GridManager::IsGridValid(FIntPoint Point) const
 {
-    return IsGridValid(PointToIndex(Point));
+    return (Point.X >= 0 && Point.Y >= 0 && Point.X < ColumnCount && Point.Y < RowCount);
+    //return IsGridValid(PointToIndex(Point));
 }
 
 bool GridManager::IsGridValid(int Index) const
@@ -61,10 +70,10 @@ bool GridManager::IsGridValid(int Index) const
         return false;
     }
 
-    if(GGGrids[Index].GridState == EGridState::Obstacle)
+    /*if(GGGrids[Index].GridState == EGridState::Obstacle)
     {
         return false;
-    }
+    }*/
     return true;
 }
 
@@ -72,10 +81,10 @@ int GridManager::WorldToGrid(FVector WorldPos) const
 {
     int row = (WorldPos.X - StartPos.X)/GridSize;
     int col = (WorldPos.Y - StartPos.Y)/GridSize;
-    if(row >= RowCount || col >= ColumnCount || row < 0 || col < 0 || WorldPos.Y < StartPos.Y || WorldPos.X < StartPos.X)
+    /*if(row >= RowCount || col >= ColumnCount || row < 0 || col < 0 || WorldPos.Y < StartPos.Y || WorldPos.X < StartPos.X)
     {
         return -1;
-    }
+    }*/
     
     return row*ColumnCount + col;
 }
@@ -84,10 +93,10 @@ FIntPoint GridManager::WorldToGrid_Point(FVector WorldPos) const
 {
     int row = (WorldPos.X - StartPos.X)/GridSize;
     int col = (WorldPos.Y - StartPos.Y)/GridSize;
-    if(row >= RowCount || col >= ColumnCount || row < 0 || col < 0 || WorldPos.Y < StartPos.Y || WorldPos.X < StartPos.X)
+    /*if(row >= RowCount || col >= ColumnCount || row < 0 || col < 0 || WorldPos.Y < StartPos.Y || WorldPos.X < StartPos.X)
     {
         return -1;
-    }
+    }*/
 
     return FIntPoint(col,row);
 }
@@ -101,7 +110,7 @@ FIntPoint GridManager::IndexToPoint(int Index) const
         row = Index/ColumnCount;
         col = Index%ColumnCount;
     }
-    return FIntPoint(row,col);
+    return FIntPoint(col,row);
 }
 
 int GridManager::PointToIndex(FIntPoint Point) const
@@ -289,7 +298,7 @@ bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<Grid*>* Gr
             if(result >= 0 && result < RowCount*ColumnCount && AttachedFloor)
             {
                 end = GetGridCenter(result);
-                if(IsGridValid(result))
+                if(IsGridWalkable(result))
                 {
                     if(UsePathfinding)
                     {
@@ -299,7 +308,15 @@ bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<Grid*>* Gr
                             float PathDist = path->GetPathLength();
                             if(PathDist<=Dist && path->IsValid())
                             {
-                                GridsResult->Add(&GGGrids[result]);
+                                int Num = path->PathPoints.Num();
+                                if(Num > 1 && FVector::Dist(path->PathPoints[Num-1], GetGridCenter(result)) >= GridSize)
+                                {
+                                    continue;
+                                }
+                                else
+                                {
+                                    GridsResult->Add(&GGGrids[result]);
+                                }
                             }
                         }
                     }

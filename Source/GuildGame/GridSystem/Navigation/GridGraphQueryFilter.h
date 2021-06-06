@@ -41,7 +41,37 @@ public:
 		if (!QueryGridManager->IsGridWalkable(NodeA) || !QueryGridManager->IsGridWalkable(NodeB))
 			return false;
 
-		return true;
+		static const FIntPoint kXOffset(1, 0);
+        static const FIntPoint kYOffset(0, 1);
+
+        if (NodeB.X < NodeA.X)
+        {
+            if (NodeB.Y < NodeA.Y)
+            {
+                if (!QueryGridManager->IsGridWalkable(NodeA - kXOffset) || !QueryGridManager->IsGridWalkable(NodeA - kYOffset))
+                    return false;
+            }
+            else if (NodeB.Y > NodeA.Y)
+            {
+                if (!QueryGridManager->IsGridWalkable(NodeA - kXOffset) || !QueryGridManager->IsGridWalkable(NodeA + kYOffset))
+                    return false;
+            }
+        }
+        else if (NodeB.X > NodeA.X)
+        {
+            if (NodeB.Y < NodeA.Y)
+            {
+                if (!QueryGridManager->IsGridWalkable(NodeA + kXOffset) || !QueryGridManager->IsGridWalkable(NodeA - kYOffset))
+                    return false;
+            }
+            else if (NodeB.Y > NodeA.Y)
+            {
+                if (!QueryGridManager->IsGridWalkable(NodeA + kXOffset) || !QueryGridManager->IsGridWalkable(NodeA + kYOffset))
+                    return false;
+            }
+        }
+    
+        return true;
 	}
 
 	bool WantsPartialSolution() const

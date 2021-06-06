@@ -145,7 +145,7 @@ void AGGCharacter::MoveTo(FVector TargetPos)
 			GridMan->GetAttachedFloor()->ClearGridMeshes();
 			GridMan->GetAttachedFloor()->ClearPath();
 		}
-		AIController->MoveToLocation(TargetPos,5,false,true,true,true,0,true);
+		AIController->MoveToLocation(TargetPos,5,false,true,false,true,nullptr,false);
 		SetAnimState(ECharacterAnimState::Run);
 	}
 }

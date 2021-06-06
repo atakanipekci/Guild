@@ -155,6 +155,8 @@ public:
 
 	void UpdateSelectedGrid(FVector NewPos, bool IsVisible);
 
+	void SetSelectedGridColorType(EISMType);
+
 	void DrawPath(int StartIndex, int EndIndex);
 
 	float GetPathLength(int StartIndex, int EndIndex);

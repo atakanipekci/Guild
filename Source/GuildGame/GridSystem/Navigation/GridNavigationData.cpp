@@ -51,11 +51,11 @@ void AGridNavigationData::Tick(float DeltaTime)
 
 bool AGridNavigationData::ProjectPoint(const FVector& Point, FNavLocation& OutLocation, const FVector& Extent, FSharedConstNavQueryFilter Filter, const UObject* Querier) const
 {
-	if (NavGridManager->IsGridValid(NavGridManager->WorldToGrid(Point)))
-	{
+	/*if (NavGridManager->IsGridValid(NavGridManager->WorldToGrid(Point)))
+	{*/
 		OutLocation = FNavLocation(Point);
 		return true;
-	}
+	//}
 
 	return false;
 }

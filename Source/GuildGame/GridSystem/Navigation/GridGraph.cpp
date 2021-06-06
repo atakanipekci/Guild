@@ -10,7 +10,7 @@ void GridGraph::SetGridManager(GridManager* NewManager)
 
 int GridGraph::GetNeighbourCount(FNodeRef NodeRef) const
 {
-	return 4;
+	return 8;
 }
 
 GridGraph::FNodeRef GridGraph::GetNeighbour(const FNodeRef NodeRef, const int Index) const

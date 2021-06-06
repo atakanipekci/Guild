@@ -128,6 +128,19 @@ bool ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)
 			int end = SelectedGridIndex;
 			GridFloor->DrawPath(start,end);
 		}
+
+		if(SelectedCharacter)
+		{
+			if(GridMan->DoesInclude(SelectedCharacter->GetMovableGrids(), SelectedGridIndex))
+			{
+				GridFloor->SetSelectedGridColorType(EISMType::Movement);
+			}
+			else
+			{
+				GridFloor->SetSelectedGridColorType(EISMType::Empty);
+			}
+		}
+		
 		return true;
 	}
 	return false;

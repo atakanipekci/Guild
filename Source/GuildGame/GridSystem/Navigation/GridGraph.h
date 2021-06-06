@@ -22,12 +22,16 @@ public:
 	bool IsValidRef(FNodeRef NodeRef) const;
 	
 private:
-	const FNodeRef Neighbours[4] =
+	const FNodeRef Neighbours[8] =
 	{
-		{0,1},
-		{1,0},
-		{0,-1},
-		{-1,0}
+		{ 0, 1 },
+		{ 1, 1 },
+		{ 1, 0 },
+		{ 1, -1 },
+		{ 0, -1 },
+		{ -1, -1 },
+		{ -1, 0 },
+		{ -1, 1 },
 	};
 	GridManager* GraphGridManager = nullptr;
 };

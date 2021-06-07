@@ -149,6 +149,9 @@ void ASplineActor::UpdateSpline()
 
 			SplineComponent->SetSplinePointType(SplineCount,ESplinePointType::Linear,false);
 
+			SplineComponent->SetTangentsAtSplinePoint(SplineCount, FVector::ZeroVector, FVector::ZeroVector, ESplineCoordinateSpace::Local);
+
+		
 			//SplineMesh->SetRenderCustomDepth(true);
 			//SplineMesh->SetCustomDepthStencilValue(5);
 

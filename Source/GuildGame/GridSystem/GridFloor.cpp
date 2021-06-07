@@ -124,7 +124,7 @@ void AGridFloor::BeginPlay()
 	if (World)
 	{
 		FActorSpawnParameters SpawnParams;
-		PathActor = static_cast<ASplineActor*>(World->SpawnActor<ASplineActor>(FVector{0,0,0},FRotator{},SpawnParams));
+		PathActor = static_cast<ASplineActor*>(World->SpawnActor<ASplineActor>(FVector::ZeroVector,FRotator::ZeroRotator,SpawnParams));
 		if(PathActor)
 		{
 			PathActor->ClearNodes();
@@ -136,11 +136,11 @@ void AGridFloor::BeginPlay()
 				PathActor->AddNode(FVector{static_cast<float>(i*200),0,0});
 			}*/
 			PathActor->UpdateSpline();
-			PathActor->SetActorScale3D(FVector{0.05,0.05,0.001});
+			PathActor->SetActorScale3D(FVector{0.1,0.1,0.1});
 		}
 
 		FActorSpawnParameters SpawnParams2;
-		TrajectorySplineActor = static_cast<ASplineActor*>(World->SpawnActor<ASplineActor>(FVector{0,0,0},FRotator{},SpawnParams2));
+		TrajectorySplineActor = static_cast<ASplineActor*>(World->SpawnActor<ASplineActor>(FVector::ZeroVector,FRotator::ZeroRotator,SpawnParams2));
 
 		if(TrajectorySplineActor)
 		{
@@ -324,6 +324,14 @@ void AGridFloor::DrawPath(int StartIndex, int EndIndex)
 				FVector aa = path->PathPoints[i];
 				aa.Z = 70;
 				PathActor->AddNode(aa);
+				if(i + 1 < path->PathPoints.Num())
+				{
+					FVector NextVec = path->PathPoints[i + 1];
+					NextVec.Z = 70;
+					FVector DirVec = (NextVec - aa);
+					DirVec.Z = 0;
+					PathActor->AddNode(aa + DirVec*0.1f);
+				}
 				//LOG("i : %d", FloorGridManager->WorldToGrid(path->PathPoints[i]));
 			}
 			PathActor->UpdateSpline();

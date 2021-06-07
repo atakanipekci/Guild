@@ -717,12 +717,15 @@ void AGridFloor::DrawTrajectory(AGGCharacter* Character)
 	
 	if(TrajectorySplineActor)
 	{
+		TrajectorySplineActor->SetActorHiddenInGame(true);
 		TrajectorySplineActor->ClearNodes();
+		
 		for(int i = 0; i < ProjectileResult.PathData.Num(); i++)
 		{
 			TrajectorySplineActor->AddNode(ProjectileResult.PathData[i].Location);
 		}
 		TrajectorySplineActor->UpdateSpline();
+		TrajectorySplineActor->SetActorHiddenInGame(false);
 	}
 }
 

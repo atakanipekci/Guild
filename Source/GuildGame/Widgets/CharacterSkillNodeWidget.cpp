@@ -5,6 +5,7 @@
 
 #include "CharacterSkillLineWidget.h"
 #include "CharacterSkillsWidget.h"
+#include "CharacterSkillTooltipWidget.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
 
@@ -26,14 +27,13 @@ void UCharacterSkillNodeWidget::NativeConstruct()
 void UCharacterSkillNodeWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-
 }
 
 void UCharacterSkillNodeWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	if(OwnerWidget)
+	if(Tooltip)
 	{
-		OwnerWidget->RefreshTooltip(SkillID);
+		Tooltip->Refresh(SkillsData, SkillTexture, &DescText);
 	}
 }
 

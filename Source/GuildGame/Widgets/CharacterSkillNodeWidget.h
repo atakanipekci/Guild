@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "GuildGame/Skills/CharacterSkill.h"
+
 #include "CharacterSkillNodeWidget.generated.h"
 
 
@@ -49,6 +51,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	int SkillID;
 
+	FSkillData SkillsData;
+	
+	UPROPERTY()
+	UTexture* SkillTexture;
+
+	FText DescText;
+
 	UPROPERTY(EditAnywhere)
 	FSlateBrush CanBeUnlockedButtonBrush;
 	
@@ -59,6 +68,9 @@ public:
 
 	UPROPERTY()
 	TArray<class UCharacterSkillLineWidget*> Lines;
+
+	UPROPERTY()
+	class UCharacterSkillTooltipWidget* Tooltip;
 
 	void ReleaseButton();
 	void ResetButtonStyle(bool Normal, bool Hover, bool Pressed);

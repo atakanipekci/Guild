@@ -84,10 +84,6 @@ void UCharacterSkillsWidget::RefreshSkillsArray()
 		}
     	
         SkillNodes.Empty();
-    	SkillsMap.Empty();
-    	SkillsImageMap.Empty();
-    	DescMap.Empty();
-    	
     	UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
 	    if(GameInstance == nullptr || GameInstance->CharacterSkillsFileTable == nullptr)
@@ -103,45 +99,41 @@ void UCharacterSkillsWidget::RefreshSkillsArray()
 			{
 				
     	 		FSkillData* SkillData = GameInstance->CharacterSkillsTable->FindRow<FSkillData>(FName(FString::FromInt(ChildWidget->SkillID)),"Skill File Row Missing", true);
+				FCharSkillFileDataTable* SkillFile = CharacterSkill::GetSkillFilesFromTable(ChildWidget->SkillID, GetWorld());
 
-				if(SkillData)
-					SkillsMap.Add(ChildWidget->SkillID, new FSkillData(*SkillData));
-
-
-				FCharSkillFileDataTable* SkillFile = GameInstance->CharacterSkillsFileTable->FindRow<FCharSkillFileDataTable>(FName(FString::FromInt(ChildWidget->SkillID)),"Skill File Row Missing", true);
-
-				if(SkillFile)
-					SkillsImageMap.Add(ChildWidget->SkillID, SkillFile->SkillImage);
-
-				if(SkillFile)
-					DescMap.Add(ChildWidget->SkillID, &SkillFile->Desc);
-				
-				
-				ChildWidget->Lines.Empty();
-				for (int j = 0; j < Lines.Num(); ++j)
+				if(SkillData && SkillFile)
 				{
-					if(Lines[j])
+					ChildWidget->SkillsData = *SkillData;
+					ChildWidget->SkillTexture =  SkillFile->SkillImage;
+					ChildWidget->DescText = SkillFile->Desc;
+
+					ChildWidget->Lines.Empty();
+					for (int j = 0; j < Lines.Num(); ++j)
 					{
-						if(Lines[j]->OwnerSkillID == ChildWidget->SkillID)
+						if(Lines[j])
 						{
-							ChildWidget->Lines.Add(Lines[j]);
+							if(Lines[j]->OwnerSkillID == ChildWidget->SkillID)
+							{
+								ChildWidget->Lines.Add(Lines[j]);
+							}
 						}
 					}
-				}
-				SkillNodes.Add(ChildWidget);
-				ChildWidget->SetToolTip(Tooltip);
-				// ChildWidget->SetCursor(EMouseCursor::None);
-				ChildWidget->OwnerWidget = this;
-				ChildWidget->bIsPressed = false;
-				if(ChildWidget->Portrait)
-				{
-					FCharSkillFileDataTable* SkillFiles = CharacterSkill::GetSkillFilesFromTable(ChildWidget->SkillID, GetWorld());
-					if(SkillFiles)
+					SkillNodes.Add(ChildWidget);
+					ChildWidget->SetToolTip(Tooltip);
+					ChildWidget->Tooltip = Tooltip;
+					
+					// ChildWidget->SetCursor(EMouseCursor::None);
+					ChildWidget->OwnerWidget = this;
+					ChildWidget->bIsPressed = false;
+					if(ChildWidget->Portrait)
 					{
-						const FVector2D ImageSize = ChildWidget->Portrait->Brush.GetImageSize();
-						ChildWidget->Portrait->SetBrushResourceObject(SkillFiles->SkillImage);
-						ChildWidget->Portrait->SetBrushSize(ImageSize);
-						
+						if(SkillFile)
+						{
+							const FVector2D ImageSize = ChildWidget->Portrait->Brush.GetImageSize();
+							ChildWidget->Portrait->SetBrushResourceObject(SkillFile->SkillImage);
+							ChildWidget->Portrait->SetBrushSize(ImageSize);
+						}
+							
 					}
 				}
 			}
@@ -299,21 +291,4 @@ bool UCharacterSkillsWidget::CanSkillBeAcquired(UCharacterSkillNodeWidget* Skill
 	}
 	
 	return false;
-}
-
-void UCharacterSkillsWidget::RefreshTooltip(int SkillID)
-{
-	if(Tooltip)
-	{
-		FSkillData** Skill = SkillsMap.Find(SkillID);
-		UTexture** SkillImage = SkillsImageMap.Find(SkillID);
-		FText** Desc = DescMap.Find(SkillID);
-		if(Skill && SkillImage && Desc)
-		{
-			if(*Skill)
-			{
-				Tooltip->Refresh(**Skill, *SkillImage, *Desc);
-			}
-		}
-	}
 }

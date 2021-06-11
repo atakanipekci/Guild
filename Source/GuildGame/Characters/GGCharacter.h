@@ -85,9 +85,12 @@ public:
 	virtual void OnCastingSkillEnds() override;
 
 	
-	AActor* CreateProjectile(FName SocketName);
-	virtual void ThrowProjectileRightHand() override;
-	virtual void ThrowProjectileLeftHand() override;
+	AActor* CreateProjectile(FName SocketName, bool bUseBoneRotation);
+	virtual void CreateParticleOnTargetGrid() override;
+	virtual void CreateParticlesOnEveryEnemyInDamageable() override;
+
+	
+	virtual void ThrowProjectile(FName SocketName, bool bUseBoneRotation) override;
 
 	void UpdateHealthBar();
 	class UCharacterAnimInstance* GetAnimInstance();
@@ -97,7 +100,10 @@ public:
 	void PlayCharacterMontage(UAnimMontage* Montage);
 
 	class CharacterSkill* GetCurrentSkill();
+	TArray<class CharacterSkill*>* GetSkills();
 
+	void SetCurrentSkillIfContains(int SkillID);
+	
 	FVector GetTargetTrajectoryLocation();
 	FVector GetStartTrajectoryLocation();
 
@@ -135,8 +141,6 @@ private:
 	TArray<AGGCharacter*> SelectedTargetCharacters;
 
 	bool bIsSkillMontagePlaying;
-
-	
 
 	struct FCharFileDataTable CharFile;
 };

@@ -24,6 +24,7 @@ class GUILDGAME_API UTownHudWidget : public UUserWidget
 	protected:
 
 
+	UPROPERTY()
 	class ATownPlayerController* PlayerController;
 
 	UPROPERTY(meta = (BindWidget))

@@ -8,6 +8,9 @@
 #include "BattleControllerState.h"
 #include "GuildGame/GridSystem/GridFloor.h"
 #include "GGLogHelper.h"
+#include "GuildGame/GuildGameGameModeBase.h"
+#include "GuildGame/Widgets/BattleHudWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 ABattlePlayerController::ABattlePlayerController()
 	:Super()
@@ -209,6 +212,19 @@ void ABattlePlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)
 	if(SelectedCharacter)
 	{
 		SelectedCharacter->SetSelected();
+	}
+
+	if(NewCharacter)
+	{
+		AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(NewCharacter));
+		if(BattleGameMode)
+		{
+			if(BattleGameMode->HudWidgetInstance)
+			{
+				BattleGameMode->HudWidgetInstance->RefreshSkillsArray(SelectedCharacter);
+			}
+		}
+		
 	}
 }
 

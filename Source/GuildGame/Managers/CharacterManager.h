@@ -7,6 +7,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "GuildGame/Characters/CharacterStats.h"
 #include "GuildGame/Characters/GGCharacter.h"
+#include "GuildGame/Characters/WeaponActor.h"
 #include "Kismet/GameplayStatics.h"
 
 enum class ECharacterClassType: uint8;
@@ -60,65 +61,48 @@ T* CharacterManager::SpawnCharacter(TSubclassOf<E> BPClass, ECharacterClassType 
                 if(CharFiles->SkeletalMesh)
                 {
                     SkeletalMesh->SetSkeletalMesh(CharFiles->SkeletalMesh);
-        
-                    if(CharFiles->AnimationBP)
+                    SkeletalMesh->SetAnimInstanceClass(CharFiles->AnimationBP);
+
+                    AGGCharacterBase* SpawnedCharBase = Cast<AGGCharacterBase>(SpawnedCharacter);
+                    if(SpawnedCharBase)
                     {
-                        SkeletalMesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-                        SkeletalMesh->SetAnimInstanceClass(CharFiles->AnimationBP);
-                    }
-
-
-                    AGGCharacter* SpawnedCharBase = Cast<AGGCharacter>(SpawnedCharacter);
-                    if(CharFiles->WeaponData.RightHandWeaponStaticMesh)
-                    {
-                        UStaticMeshComponent* WeaponMesh = NewObject<UStaticMeshComponent>(SkeletalMesh,UStaticMeshComponent::StaticClass(), TEXT("RightHandWeapon"));
-                        WeaponMesh->SetStaticMesh(CharFiles->WeaponData.RightHandWeaponStaticMesh);
-                        WeaponMesh->AttachToComponent(SkeletalMesh, FAttachmentTransformRules::KeepRelativeTransform, TEXT("hand_r"));
-                        WeaponMesh->RegisterComponent();
-                        WeaponMesh->SetRelativeLocation(CharFiles->WeaponData.RelativeLocationRightHandWeapon);
-                        WeaponMesh->SetRelativeRotation(CharFiles->WeaponData.RelativeRotationRightHandWeapon);
-                        WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-
-                        if(SpawnedCharBase) SpawnedCharBase->SetWeaponMesh(WeaponMesh, true, false);
-                    }
-                    if(CharFiles->WeaponData.RightHandWeaponSkeletalMesh)
-                    {
-                        USkeletalMeshComponent* WeaponMesh = NewObject<USkeletalMeshComponent>(SkeletalMesh,USkeletalMeshComponent::StaticClass(), TEXT("RightHandWeaponSkeletal"));
-                        WeaponMesh->SetSkeletalMesh(CharFiles->WeaponData.RightHandWeaponSkeletalMesh);
-                        WeaponMesh->AttachToComponent(SkeletalMesh, FAttachmentTransformRules::KeepRelativeTransform, TEXT("hand_r"));
-                        WeaponMesh->RegisterComponent();
-                        WeaponMesh->SetRelativeLocation(CharFiles->WeaponData.RelativeLocationRightHandWeapon);
-                        WeaponMesh->SetRelativeRotation(CharFiles->WeaponData.RelativeRotationRightHandWeapon);
-                        WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-                        if(SpawnedCharBase) SpawnedCharBase->SetWeaponMesh(WeaponMesh, true, true);
-                    }
-                    
-                    if(CharFiles->WeaponData.LeftHandWeaponStaticMesh)
-                    {
-                        UStaticMeshComponent* WeaponMesh = NewObject<UStaticMeshComponent>(SkeletalMesh,UStaticMeshComponent::StaticClass(), TEXT("LeftHandWeapon"));
-                        WeaponMesh->SetStaticMesh(CharFiles->WeaponData.LeftHandWeaponStaticMesh);
-                        WeaponMesh->AttachToComponent(SkeletalMesh, FAttachmentTransformRules::KeepRelativeTransform, TEXT("hand_l"));
-                        WeaponMesh->RegisterComponent();
-                        WeaponMesh->SetRelativeLocation(CharFiles->WeaponData.RelativeLocationLeftHandWeapon);
-                        WeaponMesh->SetRelativeRotation(CharFiles->WeaponData.RelativeRotationLeftHandWeapon);
-                        WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-                        if(SpawnedCharBase) SpawnedCharBase->SetWeaponMesh(WeaponMesh, false, false);
-                    }
-
-                    if(CharFiles->WeaponData.LeftHandWeaponSkeletalMesh)
-                    {
-                        USkeletalMeshComponent* WeaponMesh = NewObject<USkeletalMeshComponent>(SkeletalMesh,USkeletalMeshComponent::StaticClass(), TEXT("LeftHandWeaponSkeletal"));
-                        WeaponMesh->SetSkeletalMesh(CharFiles->WeaponData.LeftHandWeaponSkeletalMesh);
-                        WeaponMesh->AttachToComponent(SkeletalMesh, FAttachmentTransformRules::KeepRelativeTransform, TEXT("hand_l"));
-                        WeaponMesh->RegisterComponent();
-                        WeaponMesh->SetRelativeLocation(CharFiles->WeaponData.RelativeLocationLeftHandWeapon);
-                        WeaponMesh->SetRelativeRotation(CharFiles->WeaponData.RelativeRotationRightHandWeapon);
-                        WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-                        if(SpawnedCharBase) SpawnedCharBase->SetWeaponMesh(WeaponMesh, false, true);
+                        for (int i = 0; i < CharFiles->WeaponData.Num(); ++i)
+                        {
+                            FActorSpawnParameters SpawnParameters;
+                            AWeaponActor* WeaponActor =  World->SpawnActor<AWeaponActor>(AWeaponActor::StaticClass(), SpawnParameters);
+                            if(WeaponActor)
+                            {
+                                if(CharFiles->WeaponData[i].SkeletalMesh)
+                                {
+                                    USkeletalMeshComponent* WpSkeletal = WeaponActor->SkeletalMesh;
+                                    if(WpSkeletal)
+                                    {
+                                        WpSkeletal->SetSkeletalMesh(CharFiles->WeaponData[i].SkeletalMesh);
+                                        WpSkeletal->SetRelativeLocation(FVector::ZeroVector);
+                                        WpSkeletal->SetRelativeRotation(FRotator::ZeroRotator);
+                                        WpSkeletal->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+                                        // WpSkeletal->SetAnimInstanceClass(CharFiles->AnimationBP);
+                                        WpSkeletal->SetMasterPoseComponent(SkeletalMesh);
+                                    }
+                                }
+                                else if(CharFiles->WeaponData[i].StaticMesh)
+                                {
+                                    UStaticMeshComponent* WpStatic = WeaponActor->StaticMesh;
+                                    if(WpStatic)
+                                    {
+                                        WpStatic->SetStaticMesh(CharFiles->WeaponData[i].StaticMesh);
+                                        WpStatic->SetRelativeLocation(FVector::ZeroVector);
+                                        WpStatic->SetRelativeRotation(FRotator::ZeroRotator);
+                                        WpStatic->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+                                    }
+                                }
+                                WeaponActor->SetActorRelativeLocation(CharFiles->WeaponData[i].RelativeLocation);
+                                WeaponActor->SetActorRelativeRotation(CharFiles->WeaponData[i].RelativeRotation);
+                                WeaponActor->AttachToComponent(SkeletalMesh, FAttachmentTransformRules::KeepRelativeTransform, CharFiles->WeaponData[i].BoneName);
+                                
+                                SpawnedCharBase->AddWeaponActor(WeaponActor);
+                            }
+                        }
                     }
                     
                 }

@@ -13,6 +13,8 @@
 #include "Battle/BattlePlayerController.h"
 #include "GridSystem/GridFloor.h"
 #include "Kismet/GameplayStatics.h"
+#include "Managers/WidgetManager.h"
+#include "Widgets/BattleHudWidget.h"
 
 void AGuildGameGameModeBase::BeginPlay()
 {
@@ -80,6 +82,12 @@ void AGuildGameGameModeBase::BeginPlay()
 	
 	BattleTurnManager.SetCharactersList(Characters);
 	//BattleTurnManager.Start();
+
+	HudWidgetInstance = Cast<UBattleHudWidget>(WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::BattleHud, this));
+    if(HudWidgetInstance)
+    {
+        HudWidgetInstance->AddToViewport();
+    }
 }
 
 void AGuildGameGameModeBase::Start()

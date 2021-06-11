@@ -11,6 +11,13 @@ UTexture* ImageManager::GetPortraitTextureByClass(ECharacterClassType ClassType)
 
 		return Texture;
 	}
+	else if(ClassType == ECharacterClassType::Archer)
+	{
+		FString Path = FString("/Game/Sprites/UI/Icons/skill_icon_02");
+		UTexture2D* Texture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Path));
+
+		return Texture;
+	}
 	else 
 	{
 		FString Path = FString("/Game/Sprites/UI/Icons/skill_icon_03");
@@ -18,7 +25,6 @@ UTexture* ImageManager::GetPortraitTextureByClass(ECharacterClassType ClassType)
 
 		return Texture;
 	}
-	
 }
 
 void ImageManager::SetPortraitTextureByClass(ECharacterClassType ClassType, UImage* Image)

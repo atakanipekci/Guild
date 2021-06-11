@@ -10,14 +10,29 @@ void UCharacterAnimInstance::ChangeAnimState(ECharacterAnimState State)
 	if(AnimState == State) return;
 	
 	AnimState = State;
+
+	// for (int i = 0; i < WeaponAnimInstances.Num(); ++i)
+	// {
+	// 	if(WeaponAnimInstances[i])
+	// 	{
+	// 		WeaponAnimInstances[i]->ChangeAnimState(State);
+	// 	}
+	// }
 }
 
 void UCharacterAnimInstance::PlayMontage(UAnimMontage* Montage)
 {
 	if(Montage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayMontage"));
 		Montage_Play(Montage);
+
+		// for (int i = 0; i < WeaponAnimInstances.Num(); ++i)
+		// {
+		// 	if(WeaponAnimInstances[i])
+		// 	{
+		// 		WeaponAnimInstances[i]->PlayMontage(Montage);
+		// 	}
+		// }
 	}
 }
 
@@ -42,11 +57,19 @@ void UCharacterAnimInstance::OnCastingSkillEnds()
 	}
 }
 
+void UCharacterAnimInstance::CreateParticleOnTargetGrid()
+{
+	if(OwnerChar)
+	{
+		OwnerChar->CreateParticleOnTargetGrid();
+	}
+}
+
 void UCharacterAnimInstance::ThrowProjectileRightHand()
 {
     if(OwnerChar)
 	{
-		OwnerChar->ThrowProjectileRightHand();
+		OwnerChar->ThrowProjectile("hand_r_spell", false);
 	}
 }
 
@@ -54,6 +77,14 @@ void UCharacterAnimInstance::ThrowProjectileLeftHand()
 {
     if(OwnerChar)
 	{
-		OwnerChar->ThrowProjectileLeftHand();
+		OwnerChar->ThrowProjectile("hand_l_spell", false);
+	}
+}
+
+void UCharacterAnimInstance::ThrowProjectileArrow()
+{
+    if(OwnerChar)
+	{
+		OwnerChar->ThrowProjectile("arrow", true);
 	}
 }

@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "CharacterStats.h"
 #include "CharacterAnimInstance.generated.h"
 
 /**
  * 
  */
 
-UENUM()
+UENUM(Blueprintable)
 enum class ECharacterAnimState: uint8
 {
 	Idle,
@@ -25,6 +26,10 @@ class GUILDGAME_API UCharacterAnimInstance : public UAnimInstance
 	public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ECharacterAnimState AnimState;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ECharacterClassType ClassType;
+	
 	UFUNCTION(BlueprintCallable)
 	void ChangeAnimState(ECharacterAnimState State);
 
@@ -32,6 +37,9 @@ class GUILDGAME_API UCharacterAnimInstance : public UAnimInstance
 
 	UPROPERTY()
 	class AGGCharacterBase* OwnerChar;
+
+	UPROPERTY()
+	TArray<UCharacterAnimInstance*>  WeaponAnimInstances;
 	
 	void SetOwnerCharacter(class AGGCharacterBase*);
 
@@ -39,11 +47,18 @@ class GUILDGAME_API UCharacterAnimInstance : public UAnimInstance
 	void OnAttackHitsEnemiesInArea();
 	UFUNCTION(BlueprintCallable)
 	void OnCastingSkillEnds();
+
+	UFUNCTION(BlueprintCallable)
+	void CreateParticleOnTargetGrid();
 	
 	UFUNCTION(BlueprintCallable)
 	void ThrowProjectileRightHand();
 	
 	UFUNCTION(BlueprintCallable)
 	void ThrowProjectileLeftHand();
+
+	UFUNCTION(BlueprintCallable)
+	void ThrowProjectileArrow();
+
 	
 };

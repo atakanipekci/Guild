@@ -29,6 +29,7 @@ public:
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	class UWidgetAnimation* CloseDownAnimation;
 
+	UPROPERTY()
 	ATownPlayerController* PlayerController;
 
 	UFUNCTION()

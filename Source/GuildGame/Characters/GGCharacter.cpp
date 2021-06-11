@@ -13,6 +13,7 @@
 #include "CharacterStatsComponent.h"
 #include "GGLogHelper.h"
 #include "GuildGameInstance.h"
+#include "WeaponAnimInstance.h"
 #include "Components/WidgetComponent.h"
 #include "GuildGame/Battle/BattlePlayerController.h"
 #include "GuildGame/GridSystem/GridFloor.h"
@@ -96,8 +97,6 @@ void AGGCharacter::BeginPlay()
 void AGGCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-
 }
 
 void AGGCharacter::SetStats(const FCharacterStats& Stats)
@@ -467,7 +466,7 @@ void AGGCharacter::OnCastingSkillEnds()
 	}
 }
 
-AActor* AGGCharacter::CreateProjectile(FName SocketName)
+AActor* AGGCharacter::CreateProjectile(FName SocketName, bool bUseBoneRotation)
 {
 	CharacterSkill* CurrentSkill = GetCurrentSkill();
 
@@ -483,8 +482,12 @@ AActor* AGGCharacter::CreateProjectile(FName SocketName)
 			if(SkillFiles->EffectBP)
 			{
 				const FVector SocketLocation = SkeletalMesh->GetSocketLocation(SocketName);
-				const FRotator SocketRotation = SkeletalMesh->GetSocketRotation(SocketName);
-				AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(SkillFiles->EffectBP, SocketLocation, FRotator::ZeroRotator, FActorSpawnParameters());
+				FRotator SocketRotation = SkeletalMesh->GetSocketRotation(SocketName);
+				if(bUseBoneRotation == false)
+				{
+					SocketRotation = FRotator::ZeroRotator;
+				}
+				AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(SkillFiles->EffectBP, SocketLocation, SocketRotation, FActorSpawnParameters());
 				if(Projectile)
 				{
 					Projectile->SelectedTargetCharacters = SelectedTargetCharacters;
@@ -496,6 +499,7 @@ AActor* AGGCharacter::CreateProjectile(FName SocketName)
 					FVector TargetLocation = GetTargetTrajectoryLocation();
 					Projectile->Angle = SkillData->LineOfSightAngle;
 					Projectile->SetVelocityViaTarget(TargetLocation);
+					Projectile->SetLifeSpan(10);
 					
 					return Projectile;
 				}
@@ -506,14 +510,38 @@ AActor* AGGCharacter::CreateProjectile(FName SocketName)
 	return nullptr;
 }
 
-void AGGCharacter::ThrowProjectileRightHand()
+void AGGCharacter::CreateParticleOnTargetGrid()
 {
-	AActor* Projectile = CreateProjectile("hand_r_spell");
+	CharacterSkill* CurrentSkill = GetCurrentSkill();
+
+	if(CurrentSkill== nullptr) return;
+	
+
+	FCharSkillFileDataTable* SkillFiles = &(CurrentSkill->GetSkillFiles());
+	FSkillData* SkillData = &(CurrentSkill->GetSkillData());
+	if(SkillFiles && SkillData)
+	{
+		GridManager* GridMan = CharacterManager::CharGridManager;
+		if(SkillFiles->EffectBP  && GridMan && GridMan->GetAttachedFloor())
+		{
+			FVector TargetLocation = GridMan->GetGridCenter(CurrentTargetGridIndex);
+			AActor* ParticleActor = GetWorld()->SpawnActor<AActor>(SkillFiles->EffectBP, TargetLocation, FRotator::ZeroRotator, FActorSpawnParameters());
+
+			if(ParticleActor)
+			{
+				ParticleActor->SetLifeSpan(10);
+			}
+		}
+	}
 }
 
-void AGGCharacter::ThrowProjectileLeftHand()
+void AGGCharacter::CreateParticlesOnEveryEnemyInDamageable()
 {
-	AActor* Projectile = CreateProjectile("hand_l_spell");
+}
+
+void AGGCharacter::ThrowProjectile(FName SocketName, bool bUseBoneRotation)
+{
+	AActor* Projectile = CreateProjectile(SocketName, bUseBoneRotation);
 }
 
 void AGGCharacter::UpdateHealthBar()
@@ -541,7 +569,32 @@ void AGGCharacter::PrepareAnimInstance()
 			if(AnimInstance)
 			{
 				AnimInstance->SetOwnerCharacter(this);
+				AnimInstance->ClassType = CharFile.CharacterType;
 			}
+			
+			// for (int i = 0; i < Weapons.Num(); ++i)
+			// {
+			// 	if(Weapons[i])
+			// 	{
+			// 		USkeletalMeshComponent* WpSkeletal = Cast<USkeletalMeshComponent>(Weapons[i]->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
+			// 		if(WpSkeletal)
+			// 		{
+			// 			UCharacterAnimInstance* WpAnimInst = Cast<UCharacterAnimInstance>(WpSkeletal->GetAnimInstance());
+			// 			if(WpAnimInst)
+			// 			{
+			// 				WpAnimInst->ClassType = CharFile.CharacterType;
+			// 				if(AnimInstance)
+			// 				{
+			// 					if(AnimInstance->WeaponAnimInstances.Contains(WpAnimInst) == false)
+			// 					{
+			// 						UE_LOG(LogTemp, Warning, TEXT("ANIM INSTANCE %s"), *WpAnimInst->GetName());
+			// 						AnimInstance->WeaponAnimInstances.Add(WpAnimInst);
+			// 					}
+			// 				}
+			// 			}
+			// 		}
+			// 	}
+			// }
 		}
 	}
 }
@@ -573,6 +626,26 @@ CharacterSkill* AGGCharacter::GetCurrentSkill()
 	return Skills[CurrentSkillIndex];
 }
 
+TArray<CharacterSkill*>* AGGCharacter::GetSkills()
+{
+	return  &Skills;
+}
+
+void AGGCharacter::SetCurrentSkillIfContains(int SkillId)
+{
+	for (int i = 0; i < Skills.Num(); ++i)
+	{
+		if(Skills[i])
+		{
+			FSkillData SkillData = Skills[i]->GetSkillData();
+			if(SkillData.SkillID == SkillId)
+			{
+				CurrentSkillIndex = i;
+			}
+		}
+	}
+}
+
 FVector AGGCharacter::GetTargetTrajectoryLocation()
 {
 	GridManager* GridMan = CharacterManager::CharGridManager;
@@ -586,7 +659,7 @@ FVector AGGCharacter::GetTargetTrajectoryLocation()
 		AGGCharacter* TargetChar = GetCharacterAtTargetGridIndex();
 		if(TargetChar)
 		{
-			TargetLocation = GridCenterLoc + FVector(0, 0, 100);
+			TargetLocation = GridCenterLoc + FVector(0, 0, 130);
 		}
 	}
 	return  TargetLocation;

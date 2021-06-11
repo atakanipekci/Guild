@@ -4,39 +4,33 @@
 
 enum class ENpcBehaviourStates: uint8;
 
-UENUM()
+UENUM(Blueprintable)
 enum class ECharacterClassType: uint8
 {
 	Knight,
-	Mage
+	Mage,
+	Archer
 };
 
 USTRUCT(BlueprintType)
 struct FWeaponFileData
 {
 	GENERATED_BODY()
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UStaticMesh* RightHandWeaponStaticMesh;
+	USkeletalMesh* SkeletalMesh;
 
- 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UStaticMesh* LeftHandWeaponStaticMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UStaticMesh* StaticMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector RelativeLocation;
  	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	USkeletalMesh* RightHandWeaponSkeletalMesh;
+	FRotator RelativeRotation;
 
- 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	USkeletalMesh* LeftHandWeaponSkeletalMesh;
-
- 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector RelativeLocationLeftHandWeapon;
- 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FRotator RelativeRotationLeftHandWeapon;
-
- 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector RelativeLocationRightHandWeapon;
- 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FRotator RelativeRotationRightHandWeapon;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName BoneName;
+	
 };
 
  USTRUCT(BlueprintType)
@@ -51,7 +45,7 @@ struct FCharFileDataTable : public FTableRowBase
 	USkeletalMesh* SkeletalMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
- 	FWeaponFileData WeaponData;
+ 	TArray<FWeaponFileData> WeaponData;
 
  	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UAnimInstance> AnimationBP;

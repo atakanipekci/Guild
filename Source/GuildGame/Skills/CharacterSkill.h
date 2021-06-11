@@ -13,7 +13,6 @@
 
 enum class ESplineMeshType : uint8;
 
-
 USTRUCT(BlueprintType)
 struct FCharSkillFileDataTable : public FTableRowBase
 {

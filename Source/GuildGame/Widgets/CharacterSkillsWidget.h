@@ -44,12 +44,6 @@ class GUILDGAME_API UCharacterSkillsWidget : public UUserWidget
 	UPROPERTY()
 	TArray<class UCharacterSkillLineWidget*> Lines;
 
-	TMap<int, struct FSkillData*> SkillsMap;
-	UPROPERTY()
-	TMap<int, UTexture*> SkillsImageMap;
-
-	TMap<int, FText*> DescMap;
-
 	UFUNCTION()
 	void AcquireSkill();
 	
@@ -69,6 +63,4 @@ class GUILDGAME_API UCharacterSkillsWidget : public UUserWidget
 	void RefreshPage(struct FCharacterStats* Stat);
 	void ReleaseSkillNodeButtons(UCharacterSkillNodeWidget* Excluded);
 	bool CanSkillBeAcquired(class UCharacterSkillNodeWidget* SkillNode);
-	void RefreshTooltip(int SkillID);
-	
 };

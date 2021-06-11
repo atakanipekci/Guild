@@ -31,6 +31,10 @@ public:
 		return Characters;
 	}
 	TurnManager BattleTurnManager;
+
+	UPROPERTY()
+	class UBattleHudWidget* HudWidgetInstance;
+	
 private:
 	TArray<class AGGCharacter*> Characters;
 };

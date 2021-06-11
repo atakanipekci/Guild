@@ -100,6 +100,10 @@ FString TownNpcManager::GetNpcTableRowName(ECharacterClassType CharacterType)
     {
         return  FString(TEXT("Mage"));
     }
+    else if(CharacterType == ECharacterClassType::Archer)
+    {
+        return  FString(TEXT("Archer"));
+    }
    
     return FString(TEXT("EMPTY"));
 }

@@ -84,6 +84,10 @@ FString WidgetManager::GetWidgetRowName(const EWidgetKeys Key)
     {
         return FString(TEXT("TownHud"));
     }
+     else if(Key == EWidgetKeys::BattleHud)
+    {
+        return FString(TEXT("BattleHud"));
+    }
     else if(Key == EWidgetKeys::RecruitBuildingUpgTooltip)
     {
         return FString(TEXT("RecruitBuildingUpgTooltip"));
@@ -93,6 +97,10 @@ FString WidgetManager::GetWidgetRowName(const EWidgetKeys Key)
         return FString(TEXT("KnightSkills"));
     }
     else if(Key == EWidgetKeys::MageSkills)
+    {
+        return FString(TEXT("KnightSkills"));
+    }
+    else if(Key == EWidgetKeys::ArcherSkills)
     {
         return FString(TEXT("KnightSkills"));
     }
@@ -148,6 +156,10 @@ UUserWidget* WidgetManager::GetSkillsWidgetByType(ECharacterClassType ClassType,
     else if(ClassType == ECharacterClassType::Mage)
     {
         return GetOrCreateWidgetInstance(EWidgetKeys::MageSkills, Owner);
+    }
+    else if(ClassType == ECharacterClassType::Archer)
+    {
+        return GetOrCreateWidgetInstance(EWidgetKeys::ArcherSkills, Owner);
     }
     else
     {

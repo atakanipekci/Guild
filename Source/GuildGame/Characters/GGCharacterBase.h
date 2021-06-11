@@ -30,86 +30,16 @@ public:
 	virtual void OnAttackHitsEnemy(AActor* TargetToHit) ;
 	virtual void OnDeath();
 	virtual void OnCastingSkillEnds();
-	virtual void ThrowProjectileRightHand();
-	virtual void ThrowProjectileLeftHand();
+	virtual void ThrowProjectile(FName SocketName, bool bUseBoneRotation);
+	virtual void CreateParticleOnTargetGrid() ;
+	virtual void CreateParticlesOnEveryEnemyInDamageable() ;
+
+	UPROPERTY()
+	TArray<AActor*> Weapons;
 
 
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* RWeaponStaticMesh;
-
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* LWeaponStaticMesh;
-
-	UPROPERTY(EditAnywhere)
-	USkeletalMeshComponent* RWeaponSkeletalMesh;
-
-	UPROPERTY(EditAnywhere)
-	USkeletalMeshComponent* LWeaponSkeletalMesh;
-
-	bool bIsLWeaponSkeletal;
-	bool bIsRWeaponSkeletal;
-
-	template<typename T>
-	void SetWeaponMesh(T* Mesh, bool bIsRightWeapon,bool bIsSkeletal);
-
-	template<typename T>
-	T* GetWeapon(bool bIsRightWeapon, bool& bOutIsSkeletal);
+	void AddWeaponActor(class AWeaponActor* NewWeapon);
 };
 
-template <typename T>
-void AGGCharacterBase::SetWeaponMesh(T* Mesh, bool bIsRightWeapon, bool bIsSkeletal)
-{
-	if(bIsRightWeapon)
-	{
-		if(bIsSkeletal)
-		{
-			RWeaponSkeletalMesh = Cast<USkeletalMeshComponent>(Mesh);
-			bIsRWeaponSkeletal = true;
-		}
-		else
-		{
-			RWeaponStaticMesh = Cast<UStaticMeshComponent>(Mesh);
-			bIsRWeaponSkeletal = false;
-		}
-	}
-	else
-	{
-		if(bIsSkeletal)
-		{
-			LWeaponSkeletalMesh = Cast<USkeletalMeshComponent>(Mesh);
-			bIsLWeaponSkeletal = true;
-		}
-		else
-		{
-			LWeaponStaticMesh = Cast<UStaticMeshComponent>(Mesh);
-			bIsLWeaponSkeletal = false;
-		}
-	}
-}
 
-template <typename T>
-T* AGGCharacterBase::GetWeapon(bool bIsRightWeapon, bool& bOutIsSkeletal)
-{
-	if(bIsRightWeapon)
-	{
-		if(bIsRWeaponSkeletal)
-		{
-			return RWeaponSkeletalMesh;
-		}
-		else
-		{
-			return RWeaponStaticMesh;
-		}
-	}
-	else
-	{
-		if(bIsLWeaponSkeletal)
-		{
-			return LWeaponSkeletalMesh;
-		}
-		else
-		{
-			return LWeaponStaticMesh;
-		}
-	}
-}
+

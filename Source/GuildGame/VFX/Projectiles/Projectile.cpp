@@ -45,8 +45,6 @@ void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
-	DestroyTimer = 0;
-	
 	if(SphereComponent)
 	{
 		SphereComponent->OnComponentBeginOverlap.AddUniqueDynamic(this, &AProjectile::OnCollisionOverlapBegin);
@@ -69,20 +67,13 @@ void AProjectile::Tick(float DeltaTime)
 
 	if(bProjectileDeactivated == true) return;
 	
-	DestroyTimer += DeltaTime;
-	if(DestroyTimer >=10)
-	{
-		Destroy();
-	}
-
 	if(bStartLaunch)
 	{
 		if(PathIndex < ProjectileResult.PathData.Num())
 		{
 			FVector NextNode = ProjectileResult.PathData[PathIndex].Location;
 			FVector Direction = NextNode - GetActorLocation();
-			
-			float Distance = FVector::Dist(GetActorLocation(), NextNode);
+
 			
 			FVector DirectionNormalized = Direction;
 			DirectionNormalized.Normalize();
@@ -96,13 +87,20 @@ void AProjectile::Tick(float DeltaTime)
 			FVector NewLocation = GetActorLocation() + AddedVector;
 			//FVector NewLocation = FMath::VInterpTo(GetActorLocation(), NextNode, DeltaTime, Speed);
 
-			FRotator RawNewRotation = UKismetMathLibrary::FindLookAtRotation( NewLocation, NextNode);
+			FRotator RawNewRotation = GetActorRotation();
+
+			if(FVector::Dist(NewLocation, NextNode) > 0.05f)
+			{
+				RawNewRotation = UKismetMathLibrary::FindLookAtRotation( NewLocation, NextNode);
+			}
+		
 			
-			FRotator NewRotation = FMath::Lerp(GetActorRotation(), RawNewRotation, 0.5f);
-			
+			// FRotator NewRotation = FMath::Lerp(ActorRot, RawNewRotation, 0.5f);
+			FRotator NewRotation = RawNewRotation;
 			FTransform NewTransform;
 			NewTransform.SetLocation(NewLocation);
 			NewTransform.SetRotation(NewRotation.Quaternion());
+			//NewTransform.SetRotation(GetActorRotation().Quaternion());
 			NewTransform.SetScale3D(GetActorScale());
 
 			SetActorTransform(NewTransform);

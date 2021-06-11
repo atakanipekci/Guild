@@ -27,9 +27,11 @@ enum class EWidgetKeys: uint8
 	CharacterDetail,
 	GuildDetail,
 	TownHud,
+	BattleHud,
 	RecruitBuildingUpgTooltip,
 	KnightSkills,
 	MageSkills,
+	ArcherSkills,
 	CharacterSkillTooltip
 };
 

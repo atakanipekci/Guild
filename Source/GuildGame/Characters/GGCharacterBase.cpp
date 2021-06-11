@@ -3,6 +3,8 @@
 
 #include "GGCharacterBase.h"
 
+#include "WeaponActor.h"
+
 // Sets default values
 AGGCharacterBase::AGGCharacterBase()
 {
@@ -49,11 +51,25 @@ void AGGCharacterBase::OnCastingSkillEnds()
 {
 }
 
-void AGGCharacterBase::ThrowProjectileRightHand()
+void AGGCharacterBase::ThrowProjectile(FName SocketName, bool bUseBoneRotation)
 {
 }
 
-void AGGCharacterBase::ThrowProjectileLeftHand()
+void AGGCharacterBase::CreateParticleOnTargetGrid()
 {
 }
+
+void AGGCharacterBase::CreateParticlesOnEveryEnemyInDamageable()
+{
+}
+
+void AGGCharacterBase::AddWeaponActor(AWeaponActor* NewWeapon)
+{
+	if(NewWeapon && Weapons.Contains(NewWeapon) == false)
+	{
+		Weapons.Add(NewWeapon);
+	}
+	
+}
+
 

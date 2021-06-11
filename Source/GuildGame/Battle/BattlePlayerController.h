@@ -5,6 +5,13 @@
 #include "GameFramework/PlayerController.h"
 #include "BattlePlayerController.generated.h"
 
+enum class EControllerStateIndex: uint8
+{
+	Placement = 0,
+	Movement = 1,
+	SkillCast = 2
+};
+
 /**
  * 
  */
@@ -20,7 +27,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	class BattleControllerState* GetActiveState() const;
 	void SetState(int StateIndex);
-	void ChangeStateTo(int StateIndex);
+	void ChangeStateTo(EControllerStateIndex StateIndex);
 	bool UpdateSelectedGrid(bool DrawPathTo = true);
 	void DrawPath(int StartIndex, int EndIndex) const;
 	void SetGridFloor(class AGridFloor* Grid);

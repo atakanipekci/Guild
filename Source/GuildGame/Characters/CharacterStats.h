@@ -103,6 +103,8 @@ struct FCharacterStats : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int BaseDamage = 5;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Speed = 5;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MovementRange = 850;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float AttackRange = 150;
@@ -121,8 +123,8 @@ struct FCharacterStats : public FTableRowBase
 	ENpcBehaviourStates TownNpcBehaviourState;
 
 	FCharacterStats() = default;
-	
-	explicit FCharacterStats(const FCharacterStats& StructForCopy)
+	FCharacterStats(const FCharacterStats& StructForCopy) = default;
+	/*explicit FCharacterStats(const FCharacterStats& StructForCopy)
 	{
 		ClassType = StructForCopy.ClassType;
 		ClassName = StructForCopy.ClassName;
@@ -145,7 +147,7 @@ struct FCharacterStats : public FTableRowBase
 		{
 			
 		}
-	}
+	}*/
 
 	 bool operator==(const FCharacterStats & OtherStats) const
      {

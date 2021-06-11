@@ -257,7 +257,7 @@ void ABattleCameraSpectatorPawn::No1Clicked()
 		return;
 	}
 
-	PlayerController->ChangeStateTo(1);
+	PlayerController->ChangeStateTo(EControllerStateIndex::SkillCast);
 }
 
 float ABattleCameraSpectatorPawn::GetLandTerrainSurfaceAtCoord(float XCoord, float YCoord) const

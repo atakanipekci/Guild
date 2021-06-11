@@ -225,6 +225,16 @@ float AGGCharacter::GetDefaultDamageRange() const
 	return StatsComponent->GetAttackRange();
 }
 
+int AGGCharacter::GetSpeed() const
+{
+	if(StatsComponent == nullptr)
+	{
+		return 0;
+	}
+	
+	return StatsComponent->GetSpeed();
+}
+
 int AGGCharacter::GetBaseDamage() const
 {
 	if(StatsComponent == nullptr)
@@ -331,6 +341,28 @@ void AGGCharacter::ShowDamageableGrids(int CenterIndex, bool CreateNew)
 	CurrentTargetGridIndex = CenterIndex;
 }
 
+void AGGCharacter::UpdateCurrentGridIndex()
+{
+	GridManager* GridMan = CharacterManager::CharGridManager;
+	
+	if(GridMan && GridMan->GetAttachedFloor())
+	{
+		GridMan->SetGridState(CurrentGridIndex, EGridState::Empty);
+		CurrentGridIndex = GridMan->WorldToGrid(GetActorLocation());
+		GridMan->SetGridState(CurrentGridIndex, EGridState::Obstacle);
+	}
+}
+
+void AGGCharacter::SetCustomDepth(bool Active, int StencilValue)
+{
+	USkeletalMeshComponent* Skeletal = this->GetMesh();
+	if(Skeletal)
+	{
+		Skeletal->SetRenderCustomDepth(Active);
+		Skeletal->SetCustomDepthStencilValue(StencilValue);
+	}
+}
+
 void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 {
 	CharacterSkill* CurrentSkill = GetCurrentSkill();
@@ -431,7 +463,7 @@ void AGGCharacter::OnCastingSkillEnds()
 	if (PlayerController != nullptr)
 	{
 		SetStatus(ECharacterStatus::Idle);
-		PlayerController->ChangeStateTo(0);
+		PlayerController->ChangeStateTo(EControllerStateIndex::Movement);
 	}
 }
 

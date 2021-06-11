@@ -6,6 +6,8 @@
 #include "GuildGame/Characters/GGCharacter.h"
 #include "GuildGame/GridSystem/GridFloor.h"
 #include "GGLogHelper.h"
+#include "GuildGame/GuildGameGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStaticsTypes.h"
 
 ControllerStateDefault::ControllerStateDefault(ABattlePlayerController* Controller)
@@ -34,7 +36,11 @@ void ControllerStateDefault::LeftClickReleaseHandler()
 		return;
 	}
 
-	PlayerController->SelectCharAtMousePos();
+	//PlayerController->SelectCharAtMousePos();
+
+	/*AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(PlayerController->GetWorld()));
+	if(GameMode)
+		GameMode->BattleTurnManager.Start();*/
 }
 
 void ControllerStateDefault::RightClickHandler()
@@ -49,6 +55,10 @@ void ControllerStateDefault::RightClickReleaseHandler()
 	}
 
 	PlayerController->MoveSelectedChar();
+
+	/*AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(PlayerController->GetWorld()));
+	if(GameMode)
+		GameMode->BattleTurnManager.NextCharacter();*/
 }
 
 void ControllerStateDefault::ESCHandler()
@@ -85,105 +95,6 @@ void ControllerStateDefault::ChangeFrom()
 bool ControllerStateDefault::CanChangeTo()
 {
 	return true;
-}
-
-ControllerStateBasicAttack::ControllerStateBasicAttack(ABattlePlayerController* Controller)
-{
-	 PlayerController = Controller;
-}
-
-void ControllerStateBasicAttack::Update()
-{
-	if (PlayerController == nullptr)
-	{
-		return;
-	}
-
-	PlayerController->UpdateSelectedGrid(false);
-}
-
-void ControllerStateBasicAttack::LeftClickHandler()
-{
-}
-
-void ControllerStateBasicAttack::LeftClickReleaseHandler()
-{
-	if (PlayerController == nullptr)
-	{
-		return;
-	}
-
-	AGGCharacter* Char = PlayerController->GetCharacterFromMousePos();
-	if(Char != nullptr && Char != PlayerController->GetSelectedCharacter())
-	{
-		if(PlayerController->GetSelectedCharacter())
-		{
-			PlayerController->GetSelectedCharacter()->AttackTo(Char);
-		}
-	}
-}
-
-void ControllerStateBasicAttack::RightClickHandler()
-{
-	
-}
-
-void ControllerStateBasicAttack::RightClickReleaseHandler()
-{
-	if (PlayerController == nullptr)
-	{
-		return;
-	}
-
-	PlayerController->ChangeStateTo(0);
-}
-
-void ControllerStateBasicAttack::ESCHandler()
-{
-	RightClickReleaseHandler();
-}
-
-void ControllerStateBasicAttack::ChangeTo()
-{
-	if (PlayerController == nullptr)
-	{
-		return;
-	}
-
-	AGGCharacter* SelectedCharacter = PlayerController->GetSelectedCharacter();
-	if(SelectedCharacter)
-	{
-		SelectedCharacter->ShowTargetableGrids();
-	}
-}
-
-void ControllerStateBasicAttack::ChangeFrom()
-{
-	if (PlayerController == nullptr)
-	{
-		return;
-	}
-
-	if(PlayerController->GetGridFloor())
-	{
-		PlayerController->GetGridFloor()->ClearGridMeshes();
-	}
-}
-
-bool ControllerStateBasicAttack::CanChangeTo()
-{
-	if (PlayerController == nullptr)
-	{
-		return false;
-	}
-
-	if (PlayerController->GetSelectedCharacter() == nullptr || PlayerController->GetSelectedCharacter()->GetStatus() != ECharacterStatus::Idle)
-	{
-		return false;
-	}
-
-	return true;
-	
 }
 
 ControllerStateCastingSkill::ControllerStateCastingSkill(ABattlePlayerController* Controller)
@@ -273,7 +184,7 @@ void ControllerStateCastingSkill::RightClickReleaseHandler()
 		return;
 	}
 
-	PlayerController->ChangeStateTo(0);
+	PlayerController->ChangeStateTo(EControllerStateIndex::Movement);
 }
 
 void ControllerStateCastingSkill::ESCHandler()
@@ -330,4 +241,92 @@ bool ControllerStateCastingSkill::CanChangeTo()
 	}
 
 	return true;
+}
+
+ControllerStatePlacement::ControllerStatePlacement(ABattlePlayerController* Controller)
+{
+	PlayerController = Controller;
+}
+
+void ControllerStatePlacement::Update()
+{
+}
+
+void ControllerStatePlacement::LeftClickHandler()
+{
+}
+
+void ControllerStatePlacement::LeftClickReleaseHandler()
+{
+	if (PlayerController == nullptr)
+	{
+		return;
+	}
+
+	AGGCharacter* Old = SelectedCharacter;
+	SelectedCharacter = PlayerController->GetCharacterFromMousePos();
+	if(SelectedCharacter)
+	{
+		SelectedCharacter->SetCustomDepth(true,2);
+	}
+	if(Old)
+	{
+		Old->SetCustomDepth(false,0);
+	}
+}
+
+void ControllerStatePlacement::RightClickHandler()
+{
+}
+
+void ControllerStatePlacement::RightClickReleaseHandler()
+{
+	if(SelectedCharacter != nullptr && PlayerController != nullptr)
+	{
+		if(PlayerController->GetGridFloor() && PlayerController->GetGridFloor()->GetGridManager())
+		{
+			GridManager* GridMan = PlayerController->GetGridFloor()->GetGridManager();
+			if(GridMan == nullptr)
+			{
+				return;
+			}
+		
+			FHitResult TraceResult(ForceInit);
+			PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, TraceResult);
+			if (TraceResult.IsValidBlockingHit())
+			{
+				int Index = GridMan->WorldToGrid(TraceResult.Location);
+				if(GridMan->IsGridWalkable(Index))
+				{
+					if(GridMan->DoesInclude(&(PlayerController->GetGridFloor()->GetPlaceableGrids()), Index))
+					{
+						SelectedCharacter->TeleportTo(GridMan->GetGridCenter(Index), SelectedCharacter->GetActorRotation());
+						SelectedCharacter->UpdateCurrentGridIndex();
+						PlayerController->GetGridFloor()->ShowPlaceableGrids();
+					}
+				}
+			}
+		}
+	}
+}
+
+void ControllerStatePlacement::ESCHandler()
+{
+}
+
+void ControllerStatePlacement::ChangeTo()
+{
+}
+
+void ControllerStatePlacement::ChangeFrom()
+{
+	if(SelectedCharacter)
+	{
+		SelectedCharacter->SetCustomDepth(false, 1);
+	}
+}
+
+bool ControllerStatePlacement::CanChangeTo()
+{
+	return false;
 }

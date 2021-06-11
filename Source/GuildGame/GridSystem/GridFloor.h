@@ -135,6 +135,8 @@ private:
 
 	void UpdateGridStatesWithTrace();
 
+	TArray<Grid*> PlaceableGrids;
+
 public:
 	
 	GridManager* GetGridManager() const;
@@ -176,6 +178,13 @@ public:
 	void SetProcMaterials(EISMType Type);
 
 	void SetProcMeshPosition(EISMType Type, FVector&);
+
+	void ShowPlaceableGrids();
+
+	TArray<Grid*>& GetPlaceableGrids()
+	{
+		return PlaceableGrids;
+	}
 
 	//void CreatePath(int StartIndex, int EndIndex);
 

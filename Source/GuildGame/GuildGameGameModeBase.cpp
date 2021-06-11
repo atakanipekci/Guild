@@ -10,6 +10,8 @@
 #include "Managers/CharacterManager.h"
 #include "Managers/GridManager.h"
 #include "GGLogHelper.h"
+#include "Battle/BattlePlayerController.h"
+#include "GridSystem/GridFloor.h"
 #include "Kismet/GameplayStatics.h"
 
 void AGuildGameGameModeBase::BeginPlay()
@@ -21,9 +23,20 @@ void AGuildGameGameModeBase::BeginPlay()
      	GridManager* GridMan = CharacterManager::CharGridManager;
      	for (auto Element : GameInstance->SquadCharacters)
      	{
-     		if(GridMan)
+     		if(GridMan && GridMan->GetAttachedFloor())
      		{
-     			FVector Location = GridMan->GetGridCenter(Count);
+     			TArray<Grid*> Placeables = (GridMan->GetAttachedFloor()->GetPlaceableGrids());
+     			if(Count >= Placeables.Num())
+     			{
+     				LOG_ERR("Not enough placeable grids, %d", Count);
+     				break;
+     			}
+     			if(Placeables[Count] == nullptr)
+     			{
+     				LOG_ERR("GameMode : Grid null %d", Count);
+     				continue;
+     			}
+     			FVector Location = GridMan->GetGridCenter(Placeables[Count]->Index);
      			Location.Z = 100;
 				AGGCharacter* Char = CharacterManager::SpawnCharacter<AGGCharacter,AGGCharacter>(BattleCharactersBP,Element->ClassType,
            										Location, FRotator::ZeroRotator, GetWorld());
@@ -46,12 +59,48 @@ void AGuildGameGameModeBase::BeginPlay()
 
      				Char->PrepareAnimInstance();
 
-     				Char->SetCurrentIndex(Count);
-					GridMan->SetGridState(Count, EGridState::Obstacle);
+     				Char->UpdateCurrentGridIndex();
      				Characters.Add(Char);
      			}
      		}
-     		Count+=2;
-     	}   
+     		else
+     		{
+     			LOG_ERR("GameMode : Gridman or Gridfloor null");
+     		}
+     		Count+=1;
+     	}
+
+     	if(GridMan && GridMan->GetAttachedFloor())
+     	{
+     		GridMan->GetAttachedFloor()->ShowPlaceableGrids();
+     	}
      }
+
+
+	
+	BattleTurnManager.SetCharactersList(Characters);
+	//BattleTurnManager.Start();
+}
+
+void AGuildGameGameModeBase::Start()
+{
+	ABattlePlayerController* PlayerController = Cast<ABattlePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	if(PlayerController)
+	{
+		PlayerController->ChangeStateTo(EControllerStateIndex::Movement);
+		BattleTurnManager.Start();
+		PlayerController->SetSelectedCharacter(BattleTurnManager.GetCurrentCharacter());
+	}
+	
+}
+
+void AGuildGameGameModeBase::Next()
+{
+	ABattlePlayerController* PlayerController = Cast<ABattlePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	if(PlayerController)
+	{
+		PlayerController->ChangeStateTo(EControllerStateIndex::Movement);
+		BattleTurnManager.NextCharacter();
+		PlayerController->SetSelectedCharacter(BattleTurnManager.GetCurrentCharacter());
+	}
 }

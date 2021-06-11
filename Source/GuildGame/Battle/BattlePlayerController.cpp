@@ -16,6 +16,7 @@ ABattlePlayerController::ABattlePlayerController()
 	bEnableClickEvents = true;
 	bEnableTouchEvents = true;
 	PrimaryActorTick.bCanEverTick = true;
+	States.Add(new ControllerStatePlacement(this));
 	States.Add(new ControllerStateDefault(this));
 	States.Add(new ControllerStateCastingSkill(this));
 	if(States.Num() != 0)
@@ -62,16 +63,17 @@ void ABattlePlayerController::SetState(int StateIndex)
 	ActiveState = States[StateIndex];
 }
 
-void ABattlePlayerController::ChangeStateTo(int StateIndex)
+void ABattlePlayerController::ChangeStateTo(EControllerStateIndex StateIndex)
 {
-	if(StateIndex >= States.Num())
+	int Index = static_cast<int>(StateIndex);
+	if(Index >= States.Num())
 	{
 		return;
 	}
 
-	if(States[StateIndex])
+	if(States[Index])
 	{
-		if(!States[StateIndex]->CanChangeTo())
+		if(!States[Index]->CanChangeTo())
 		{
 			return;
 		}
@@ -82,7 +84,7 @@ void ABattlePlayerController::ChangeStateTo(int StateIndex)
 		ActiveState->ChangeFrom();
 	}
 
-	ActiveState = States[StateIndex];
+	ActiveState = States[Index];
 	ActiveState->ChangeTo();
 }
 

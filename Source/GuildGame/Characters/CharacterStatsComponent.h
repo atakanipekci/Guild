@@ -84,6 +84,11 @@ public:
 		this->Stats.BaseDamage = NewBaseDamage;
 	}
 
+	int GetSpeed() const
+	{
+		return Stats.Speed;
+	}
+
 	const TArray<int>& GetSkillIDs() const;
 	
 private:

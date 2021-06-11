@@ -71,8 +71,15 @@ void AGridFloor::UpdateGridStatesWithTrace()
 			bool isHit = GetWorld()->SweepSingleByChannel(OutHit,pos,pos,FQuat::Identity,ECC_GameTraceChannel1,MySphereCollision);
 			if(isHit)
 			{
-				DrawDebugSphere(GetWorld(), pos, MySphereCollision.GetSphereRadius(), 12, FColor::Purple, true);
+				//DrawDebugSphere(GetWorld(), pos, MySphereCollision.GetSphereRadius(), 12, FColor::Purple, true);
 				FloorGridManager->SetGridState(i + j*ColumnCount, EGridState::Obstacle);
+			}
+			//placeable channel
+			isHit = GetWorld()->SweepSingleByChannel(OutHit,pos,pos,FQuat::Identity,ECC_GameTraceChannel4,MySphereCollision);
+			if(isHit)
+			{
+				//DrawDebugSphere(GetWorld(), pos, MySphereCollision.GetSphereRadius(), 12, FColor::Green, true);
+				PlaceableGrids.Add(&FloorGridManager->GGGrids[i + j*ColumnCount]);
 			}
 		}
 	}
@@ -149,6 +156,8 @@ void AGridFloor::BeginPlay()
 			// TrajectorySplineActor->SplineMeshMap = TrajectorySplineMap;
 			TrajectorySplineActor->UpdateSpline();
 		}
+
+		ShowPlaceableGrids();
 
 	}
 	
@@ -547,6 +556,26 @@ void AGridFloor::SetProcMeshPosition(EISMType Type, FVector& AddPosition)
 	}
 
 	ProcMesh->SetRelativeLocation(ProcMesh->GetRelativeLocation()+AddPosition);
+	
+}
+
+void AGridFloor::ShowPlaceableGrids()
+{
+	TArray<Grid*> Placeables;
+
+	for (auto Element : PlaceableGrids)
+	{
+		if(Element)
+		{
+			if(Element->GridState != EGridState::Obstacle)
+			{
+				Placeables.Add(Element);
+			}
+		}
+	}
+
+	ClearGridMeshes();
+	CreateProceduralGridArea(EISMType::Movement, Placeables);
 	
 }
 

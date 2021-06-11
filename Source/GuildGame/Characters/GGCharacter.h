@@ -64,6 +64,7 @@ public:
 	}
 	float GetDefaultMovementRange()const;
 	float GetDefaultDamageRange()const;
+	int GetSpeed() const;
 	int GetBaseDamage()const;
 	ECharacterStatus GetStatus()const;
 	void SetStatus(ECharacterStatus);
@@ -72,6 +73,9 @@ public:
 	float Heal(float HealAmount, AGGCharacter* Healer);
 	void ShowTargetableGrids();
 	void ShowDamageableGrids(int CenterIndex, bool CreateNew = true);
+	void UpdateCurrentGridIndex();
+
+	void SetCustomDepth(bool Active, int StencilValue);
 
 	void CastSkill(TArray<AGGCharacter*>& TargetCharacters);
 	virtual void OnAttackHitsEnemies() override;

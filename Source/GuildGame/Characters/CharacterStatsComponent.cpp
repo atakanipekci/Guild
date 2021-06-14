@@ -5,6 +5,8 @@
 
 #include "GGCharacter.h"
 #include "GGLogHelper.h"
+#include "GuildGame/Managers/CharacterManager.h"
+#include "GuildGame/Managers/GridManager.h"
 
 // Sets default values for this component's properties
 UCharacterStatsComponent::UCharacterStatsComponent()
@@ -55,6 +57,18 @@ bool UCharacterStatsComponent::ChangeHealth(int Amount)
 		}
 	}
 	return  false;
+}
+
+float UCharacterStatsComponent::GetMovementRange() const
+{
+	GridManager* GridMan =  CharacterManager::CharGridManager;
+
+	int GridSize = 0;
+	if(GridMan)
+	{
+		GridSize = GridMan->GetGridSize();
+	}
+	return Stats.MovableGridAmountPerAP * GridSize * Stats.CurrentAP;
 }
 
 const TArray<int>& UCharacterStatsComponent::GetSkillIDs() const

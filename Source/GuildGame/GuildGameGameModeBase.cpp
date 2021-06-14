@@ -114,18 +114,18 @@ void AGuildGameGameModeBase::Next()
 	}
 }
 
-void AGuildGameGameModeBase::OnTurnEnds()
+void AGuildGameGameModeBase::OnRoundEnds()
 {
 	for (int i = 0; i < Characters.Num(); ++i)
 	{
 		if(Characters[i])
 		{
-			Characters[i]->OnTurnEnds();
+			Characters[i]->OnRoundEnds();
 		}
 	}
 
 	if(HudWidgetInstance)
 	{
-		HudWidgetInstance->OnTurnEnds();
+		HudWidgetInstance->OnRoundEnds();
 	}
 }

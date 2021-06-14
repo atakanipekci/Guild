@@ -75,6 +75,20 @@ TArray<Grid*>* AGGCharacter::GetDamageableGrids()
 	return &DamageableGrids;
 }
 
+bool AGGCharacter::TryToSpendAP(int ApCost)
+{
+	if(StatsComponent == nullptr || StatsComponent->GetCurrentAP() < ApCost) return  false;
+
+	int NewApBalance = StatsComponent->GetCurrentAP() - ApCost;
+	StatsComponent->SetCurrentAP(NewApBalance);
+	if(RefreshHudOnApSpendDelegate.IsBound())
+	{
+		RefreshHudOnApSpendDelegate.Execute();
+	}
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Current AP %d"), NewApBalance));
+	return  true;
+}
+
 // Called when the game starts or when spawned
 void AGGCharacter::BeginPlay()
 {
@@ -110,6 +124,8 @@ void AGGCharacter::SetStats(const FCharacterStats& Stats)
 	if(StatsComponent)
 	{
 		StatsComponent->SetStats(Stats);
+		StatsComponent->SetCurrentAP(Stats.BaseAP);
+
 		UpdateHealthBar();
 		UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 		for (auto Element : StatsComponent->GetSkillIDs())
@@ -253,6 +269,31 @@ int AGGCharacter::GetBaseDamage() const
 	return StatsComponent->GetBaseDamage();
 }
 
+int AGGCharacter::GetCurrentAP() const
+{
+	if(StatsComponent == nullptr)
+	{
+		return 0;
+	}
+	
+	return StatsComponent->GetCurrentAP();
+}
+
+int AGGCharacter::GetApCostByDistance(float Distance)
+{
+	if(StatsComponent == nullptr) return 0;
+	float MovementRange = StatsComponent->GetMovementRange();
+
+	if(MovementRange > 0)
+	{
+		float ApCost = (Distance / MovementRange) * StatsComponent->GetCurrentAP();
+		
+		return  FMath::CeilToInt(ApCost);
+	}
+
+	return -1;
+}
+
 ECharacterStatus AGGCharacter::GetStatus() const
 {
 	return Status;
@@ -373,6 +414,8 @@ void AGGCharacter::SetCustomDepth(bool Active, int StencilValue)
 
 void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 {
+		if(StatsComponent == nullptr) return;
+
 	CharacterSkill* CurrentSkill = GetCurrentSkill();
 
 	if(CurrentSkill== nullptr) return;
@@ -380,10 +423,16 @@ void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 	//UpdateTrajectoryPath();
 
 	SelectedTargetCharacters = TargetCharacters;
-	
+
 	FCharSkillFileDataTable* SkillFiles = &(CurrentSkill->GetSkillFiles());
-	if(SkillFiles )
+	if(SkillFiles)
 	{
+		int SkillApCost = 0;
+		if(IsApEnoughForSkill(CurrentSkill, SkillApCost) == false)
+		{
+			return;
+		}
+		
 		GridManager* GridMan = CharacterManager::CharGridManager;
 		if(GridMan && GridMan->GetAttachedFloor())
 		{
@@ -407,15 +456,17 @@ void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 		PlayCharacterMontage(SkillFiles->SkillMontage);
 		bIsSkillMontagePlaying = true;
 
+		TryToSpendAP(SkillApCost);
+
 		if(SkillsCooldownMap.Contains(SkillFiles->SkillID))
 		{
 			FCooldownTimer* Timer = SkillsCooldownMap.Find(SkillFiles->SkillID);
 			if(Timer)
 			{
 				Timer->RestartTimer();
-				if(Timer->OnSkillCastedDelegate.IsBound())
+				if(Timer->RefreshHudOnSkillCastDelegate.IsBound())
 				{
-					Timer->OnSkillCastedDelegate.Execute();
+					Timer->RefreshHudOnSkillCastDelegate.Execute();
 				}
 			}
 		}
@@ -638,6 +689,33 @@ void AGGCharacter::PlayCharacterMontage(UAnimMontage* Montage)
 	AnimInstance->PlayMontage(Montage);
 }
 
+bool AGGCharacter::IsApEnoughForSkill(CharacterSkill* Skill, int& OutCost)
+{
+	if(Skill == nullptr || StatsComponent == nullptr) return  false;
+
+	CharacterSkill* CurrentSkill = GetCurrentSkill();
+
+	if(CurrentSkill == nullptr) return false;
+
+	FSkillData* SkillData =  &(CurrentSkill->GetSkillData());
+
+	if(SkillData == nullptr) return false;
+
+	if(StatsComponent->GetCurrentAP() < SkillData->ApCost)
+	{
+		return  false;
+	}
+	else
+	{
+		OutCost = SkillData->ApCost;
+		return  true;
+	}
+
+	
+
+	
+}
+
 CharacterSkill* AGGCharacter::GetCurrentSkill()
 {
 	if(CurrentSkillIndex >= Skills.Num()|| CurrentSkillIndex < 0 || Skills[CurrentSkillIndex] == nullptr)
@@ -721,23 +799,28 @@ bool AGGCharacter::CanTrajectoryBeShown()
 	return  false;
 }
 
-void AGGCharacter::OnTurnEnds()
+void AGGCharacter::OnRoundEnds()
 {
 	for (auto It = SkillsCooldownMap.CreateIterator(); It; ++It)
 	{
-		It.Value().DecreaseTurn(1);
+		It.Value().DecreaseRound(1);
 	}
 
 	
 }
 
-void AGGCharacter::OnIndividualTurnBegins()
+void AGGCharacter::OnTurnBegins()
 {
 	StatusEffectManager::ApplyOnTurnBegins(this, &AppliedStatusEffects);
 	UE_LOG(LogTemp, Warning, TEXT("STATUS EFFECTS %d"), AppliedStatusEffects.Num());
+
+	if(StatsComponent)
+	{
+		StatsComponent->SetCurrentAP(StatsComponent->GetBaseAP());
+	}
 }
 
-void AGGCharacter::OnIndividualTurnEnds()
+void AGGCharacter::OnTurnEnds()
 {
 	//StatusEffectManager::ApplyOnTurnEnds(this, &AppliedStatusEffects);
 }

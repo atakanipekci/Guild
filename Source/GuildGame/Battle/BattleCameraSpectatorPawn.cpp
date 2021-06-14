@@ -9,6 +9,7 @@
 #include "Engine/Classes/Components/InputComponent.h"
 #include "Engine/Classes/Engine/Engine.h"
 #include "BattleControllerState.h"
+#include "GuildGame/Characters/GGCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
 ABattleCameraSpectatorPawn::ABattleCameraSpectatorPawn(const FObjectInitializer& ObjectInitializer)
@@ -257,7 +258,15 @@ void ABattleCameraSpectatorPawn::No1Clicked()
 		return;
 	}
 
-	PlayerController->ChangeStateTo(EControllerStateIndex::SkillCast);
+	AGGCharacter* SelectedChar = PlayerController->GetSelectedCharacter();
+	if(SelectedChar)
+	{
+		int ApCost = 0;
+		if(SelectedChar->IsApEnoughForSkill(SelectedChar->GetCurrentSkill(), ApCost) == false)
+		{
+			PlayerController->ChangeStateTo(EControllerStateIndex::SkillCast);
+		}
+	}
 }
 
 float ABattleCameraSpectatorPawn::GetLandTerrainSurfaceAtCoord(float XCoord, float YCoord) const
@@ -307,23 +316,23 @@ void ABattleCameraSpectatorPawn::Tick(float DeltaSeconds)
 	if (GameViewport->IsFocused(GameViewport->Viewport)
 		&& GameViewport->GetMousePosition(MousePosition) && bCanMoveCamera)
 	{
-		if (MousePosition.X < CameraScrollBoundary)
-		{
-			MoveRightValue = -1.0f;
-		}
-		else if (ViewportSize.X - MousePosition.X < CameraScrollBoundary)
-		{
-			MoveRightValue = 1.0f;
-		}
-
-		if (MousePosition.Y < CameraScrollBoundary)
-		{
-			MoveForwardValue = 1.0f;
-		}
-		else if (ViewportSize.Y - MousePosition.Y < CameraScrollBoundary)
-		{
-			MoveForwardValue = -1.0f;
-		}
+		// if (MousePosition.X < CameraScrollBoundary)
+		// {
+		// 	MoveRightValue = -1.0f;
+		// }
+		// else if (ViewportSize.X - MousePosition.X < CameraScrollBoundary)
+		// {
+		// 	MoveRightValue = 1.0f;
+		// }
+		//
+		// if (MousePosition.Y < CameraScrollBoundary)
+		// {
+		// 	MoveForwardValue = 1.0f;
+		// }
+		// else if (ViewportSize.Y - MousePosition.Y < CameraScrollBoundary)
+		// {
+		// 	MoveForwardValue = -1.0f;
+		// }
 
 		FVector ActualLocation = GetActorLocation();
 		FVector ActualMovement = FVector::ZeroVector;

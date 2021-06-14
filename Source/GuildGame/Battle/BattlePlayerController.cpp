@@ -130,11 +130,17 @@ bool ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)
 		//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, FString::Printf(TEXT(" %d"), GridIndex));
 		SelectedGridIndex = GridIndex;
 		GridFloor->UpdateSelectedGrid(GridMan->GetGridBottomLeft(GridIndex), true);
-		if(SelectedCharacter && SelectedCharacter->GetStatus() == ECharacterStatus::Idle && DrawPathTo)
+		if(SelectedCharacter && SelectedCharacter->GetStatus() == ECharacterStatus::Idle && DrawPathTo && SelectedCharacter->GetCurrentAP() > 0)
 		{
 			int start = GridMan->WorldToGrid(SelectedCharacter->GetActorLocation());
 			int end = SelectedGridIndex;
 			GridFloor->DrawPath(start,end);
+
+			float Dist = GridFloor->GetPathLength(GridMan->WorldToGrid(SelectedCharacter->GetActorLocation()), SelectedGridIndex);
+
+			int ApCost = SelectedCharacter->GetApCostByDistance(Dist);
+
+			UE_LOG(LogTemp, Warning, TEXT("AP COST At Location %d"), ApCost);
 		}
 
 		if(SelectedCharacter)
@@ -203,6 +209,9 @@ void ABattlePlayerController::MoveSelectedChar()
 	FVector Target = GridMan->GetGridCenter(SelectedGridIndex);
 	Target.Z = SelectedCharacter->GetActorLocation().Z;
 	SelectedCharacter->MoveTo(Target);
+	
+	int ApCost = SelectedCharacter->GetApCostByDistance(Dist);
+	SelectedCharacter->TryToSpendAP(ApCost);
 }
 
 void ABattlePlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)

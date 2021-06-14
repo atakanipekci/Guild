@@ -66,6 +66,11 @@ void UBattleCharSkillNodeWidget::RefreshNodeState()
 {
 	if(bIsMovementButton == false)
 	{
+		if(SkillButton && SkillButton->GetIsEnabled() == false)
+		{
+			SkillButton->SetIsEnabled(true);
+		}
+		
 		if(SkillCooldownData && PlayerController && SelectedCharacter)
 		{
 			if(SkillCooldownData->IsTimeUp() == false)
@@ -112,28 +117,60 @@ void UBattleCharSkillNodeWidget::RefreshNodeState()
 						PortraitBg->SetBrushTintColor(NormalBrush.TintColor);
 					}
 				}
+
+				int ApCost = 0;
+				if(SkillButton && SelectedCharacter && SelectedCharacter->IsApEnoughForSkill(SelectedCharacter->GetCurrentSkill(), ApCost) == false)
+				{
+					SkillButton->SetIsEnabled(false);
+					if(PortraitBg)
+					{
+						PortraitBg->SetBrushResourceObject(NormalBrush.GetResourceObject());
+						PortraitBg->SetBrushTintColor(NormalBrush.TintColor);
+					}
+				}
 			}
 		}
 	}
 	else
 	{
-		if(PlayerController->GetActiveStateType() != EControllerStateIndex::Movement)
+		if(SkillButton && SkillButton->GetIsEnabled() == false)
 		{
+			SkillButton->SetIsEnabled(true);
+		}
+
+		if(SelectedCharacter && SelectedCharacter->GetCurrentAP() <= 0)
+		{
+			SkillButton->SetIsEnabled(false);
 			if(PortraitBg)
 			{
 				PortraitBg->SetBrushResourceObject(NormalBrush.GetResourceObject());
 				PortraitBg->SetBrushTintColor(NormalBrush.TintColor);
 			}
+			
 		}
 		else
 		{
-			if(PortraitBg)
+			if(PlayerController->GetActiveStateType() != EControllerStateIndex::Movement)
 			{
-				PortraitBg->SetBrushResourceObject(PressedBrush.GetResourceObject());
-				PortraitBg->SetBrushSize(NormalBrush.GetImageSize());
-				PortraitBg->SetBrushTintColor(PressedBrush.TintColor);
+				if(PortraitBg)
+				{
+					PortraitBg->SetBrushResourceObject(NormalBrush.GetResourceObject());
+					PortraitBg->SetBrushTintColor(NormalBrush.TintColor);
+				}
+			}
+			else
+			{
+				if(PortraitBg)
+				{
+					PortraitBg->SetBrushResourceObject(PressedBrush.GetResourceObject());
+					PortraitBg->SetBrushSize(NormalBrush.GetImageSize());
+					PortraitBg->SetBrushTintColor(PressedBrush.TintColor);
+				}
 			}
 		}
+		
+
+		
 	}
 	
 }
@@ -157,8 +194,8 @@ void UBattleCharSkillNodeWidget::RefreshNode(AGGCharacter* SelectedChar, UBattle
 		SkillCooldownData = SelectedChar->SkillsCooldownMap.Find(SkillsData.SkillID);
 		if(SkillCooldownData)
 		{
-			SkillCooldownData->OnSkillCastedDelegate.Unbind();
-			SkillCooldownData->OnSkillCastedDelegate.BindDynamic(this, &UBattleCharSkillNodeWidget::OnSkillCasted);
+			SkillCooldownData->RefreshHudOnSkillCastDelegate.Unbind();
+			SkillCooldownData->RefreshHudOnSkillCastDelegate.BindDynamic(this, &UBattleCharSkillNodeWidget::OnSkillCasted);
 		}
 	}
 	else
@@ -178,7 +215,13 @@ void UBattleCharSkillNodeWidget::OnSkillCasted()
 {
 	RefreshNodeState();
 }
-void UBattleCharSkillNodeWidget::OnTurnEnds()
+
+void UBattleCharSkillNodeWidget::OnApSpent()
+{
+	RefreshNodeState();
+}
+
+void UBattleCharSkillNodeWidget::OnRoundEnds()
 {
 	RefreshNodeState();
 }

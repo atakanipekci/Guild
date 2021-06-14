@@ -99,11 +99,15 @@ struct FCharacterStats : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Speed = 5;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MovementRange = 850;
+	int MovableGridAmountPerAP = 2;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float AttackRange = 150;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Price;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int BaseAP;
+	int CurrentAP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<int> SkillIDs;

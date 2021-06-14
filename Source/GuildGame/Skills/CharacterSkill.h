@@ -45,6 +45,9 @@ struct FSkillData : public FTableRowBase
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString SkillName;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int ApCost;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Cooldown;

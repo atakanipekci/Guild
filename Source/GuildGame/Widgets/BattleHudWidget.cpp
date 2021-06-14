@@ -40,6 +40,9 @@ void UBattleHudWidget::RefreshSkillsArray(AGGCharacter* SelectedChar)
 
     	TArray<class CharacterSkill*>* Skills = SelectedChar->GetSkills();
 
+    	SelectedChar->RefreshHudOnApSpendDelegate.Unbind();
+		SelectedChar->RefreshHudOnApSpendDelegate.BindDynamic(this, &UBattleHudWidget::OnApSpent);
+
 		for (int i = 0; i < SkillNodesGrid->GetChildrenCount(); ++i)
 		{
 			UBattleCharSkillNodeWidget* ChildWidget = Cast<UBattleCharSkillNodeWidget>(SkillNodesGrid->GetChildAt(i));
@@ -93,12 +96,12 @@ void UBattleHudWidget::RefreshSkillsArray(AGGCharacter* SelectedChar)
 	}
 }
 
-void UBattleHudWidget::OnTurnEnds()
+void UBattleHudWidget::OnRoundEnds()
 {
 	for (int i = 0; i < SkillNodes.Num(); ++i)
 	{
 		if(SkillNodes[i])
-			SkillNodes[i]->OnTurnEnds();
+			SkillNodes[i]->OnRoundEnds();
 	}
 }
 
@@ -109,6 +112,17 @@ void UBattleHudWidget::RefreshSkillButtonsState()
 		if(SkillNodes[i])
 		{
 			SkillNodes[i]->RefreshNodeState();
+		}
+	}
+}
+
+void UBattleHudWidget::OnApSpent()
+{
+	for (int i = 0; i < SkillNodes.Num(); ++i)
+	{
+		if(SkillNodes[i])
+		{
+			SkillNodes[i]->OnApSpent();
 		}
 	}
 }

@@ -31,7 +31,7 @@ void TurnManager::NextCharacter()
 
 	if(CharactersList[CurrentCharacterIndex] != nullptr)
 	{
-		CharactersList[CurrentCharacterIndex]->OnIndividualTurnEnds();
+		CharactersList[CurrentCharacterIndex]->OnTurnEnds();
 		CharactersList[CurrentCharacterIndex]->Deselect();
 
 	}
@@ -42,10 +42,10 @@ void TurnManager::NextCharacter()
 		if(CurrentCharacterIndex >= CharactersList.Num())
 		{
 			CurrentCharacterIndex = 0;
-			TurnCount++;
+			RoundCount++;
 			if(GameMode)
 			{
-				GameMode->OnTurnEnds();
+				GameMode->OnRoundEnds();
 			}
 		}
 
@@ -61,7 +61,7 @@ void TurnManager::NextCharacter()
 	if(CharactersList[CurrentCharacterIndex] != nullptr)
 	{
 		CharactersList[CurrentCharacterIndex]->SetSelected();
-		CharactersList[CurrentCharacterIndex]->OnIndividualTurnBegins();
+		CharactersList[CurrentCharacterIndex]->OnTurnBegins();
 	}
 	
 	

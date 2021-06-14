@@ -32,6 +32,11 @@ class GUILDGAME_API UBattleHudWidget : public UUserWidget
 public:
 	void RefreshSkillsArray(class AGGCharacter* SelectedChar);
 
-	void OnTurnEnds();
+	void OnRoundEnds();
+
+	UFUNCTION()
 	void RefreshSkillButtonsState();
+
+	UFUNCTION()
+	void OnApSpent();
 };

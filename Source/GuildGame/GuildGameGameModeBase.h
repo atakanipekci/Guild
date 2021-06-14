@@ -24,7 +24,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Next();
 
-	void OnTurnEnds();
+	void OnRoundEnds();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	TSubclassOf<class AGGCharacter> BattleCharactersBP;

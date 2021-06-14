@@ -12,7 +12,7 @@
 
 #include "GGCharacter.generated.h"
 
-DECLARE_DYNAMIC_DELEGATE(FSkillCastedDelegate);
+DECLARE_DYNAMIC_DELEGATE(FCharacterDelegate);
 
 enum class ECharacterAnimState : uint8;
 
@@ -32,7 +32,7 @@ private:
 
 public:
 
-	FSkillCastedDelegate OnSkillCastedDelegate;
+	FCharacterDelegate RefreshHudOnSkillCastDelegate;
 
 	FCooldownTimer(float Cooldown)
 	{
@@ -50,7 +50,7 @@ public:
 		Timer = Cooldown;
 	}
 
-	void DecreaseTurn(int Amount) 
+	void DecreaseRound(int Amount) 
 	{
 		if(Timer > 0)
 		{
@@ -87,6 +87,9 @@ public:
 	TArray<Grid*>* GetMovableGrids();
 	TArray<Grid*>* GetTargetableGrids();
 	TArray<Grid*>* GetDamageableGrids();
+	bool TryToSpendAP(int ApCost);
+	FCharacterDelegate RefreshHudOnApSpendDelegate;
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -119,6 +122,8 @@ public:
 	float GetDefaultDamageRange()const;
 	int GetSpeed() const;
 	int GetBaseDamage()const;
+	int GetCurrentAP() const;
+	int GetApCostByDistance(float Distance);
 	ECharacterStatus GetStatus()const;
 	void SetStatus(ECharacterStatus);
 	float TakeDamage(float DamageAmount,struct FDamageEvent const & DamageEvent,class AController * EventInstigator, AActor * DamageCause) override;
@@ -152,6 +157,7 @@ public:
 	void SetAnimState(ECharacterAnimState AnimState);
 	void PlayCharacterMontage(UAnimMontage* Montage);
 
+	bool IsApEnoughForSkill(CharacterSkill* Skill, int& OutCost);
 	class CharacterSkill* GetCurrentSkill();
 	TArray<class CharacterSkill*>* GetSkills();
 
@@ -165,9 +171,9 @@ public:
 
 	TMap<int, FCooldownTimer> SkillsCooldownMap;
 
+	void OnRoundEnds();
+	void OnTurnBegins();
 	void OnTurnEnds();
-	void OnIndividualTurnBegins();
-	void OnIndividualTurnEnds();
 	
 	TMap<EStatusEffectType,  FStatusEffectData>* GetAppliedStatusEffects();
 

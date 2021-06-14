@@ -79,5 +79,7 @@ public:
 
 	UFUNCTION()
 	void OnSkillCasted();
-	void OnTurnEnds();
+
+	void OnApSpent();
+	void OnRoundEnds();
 };

@@ -37,19 +37,17 @@ void UBattleHudWidget::RefreshSkillsArray(AGGCharacter* SelectedChar)
 	    {
 	        return;
 	    }
-    	
+
+    	TArray<class CharacterSkill*>* Skills = SelectedChar->GetSkills();
+
 		for (int i = 0; i < SkillNodesGrid->GetChildrenCount(); ++i)
 		{
-			
 			UBattleCharSkillNodeWidget* ChildWidget = Cast<UBattleCharSkillNodeWidget>(SkillNodesGrid->GetChildAt(i));
 			if(ChildWidget && GameInstance)
 			{
-				TArray<class CharacterSkill*>* Skills = SelectedChar->GetSkills();
-				
-				
-				if(Skills && i < Skills->Num())
+				if(Skills && i - 1 < Skills->Num() && i >= 1 && Skills->Num() > 0)
 				{
-					CharacterSkill* Skill = (*Skills)[i];
+					CharacterSkill* Skill = (*Skills)[i - 1];
 					if(Skill)
 					{
 						FSkillData* SkillData = &(Skill->GetSkillData());
@@ -67,15 +65,50 @@ void UBattleHudWidget::RefreshSkillsArray(AGGCharacter* SelectedChar)
 
 							ChildWidget->Tooltip = Tooltip;
 
-							ChildWidget->RefreshNode(SelectedChar);
+							ChildWidget->RefreshNode(SelectedChar, this);
 						}
 					}
 				}
 				else
 				{
-					ChildWidget->SetVisibility(ESlateVisibility::Hidden);
+					if(i == 0)
+					{
+						//Movement Skill
+						ChildWidget->SetVisibility(ESlateVisibility::Visible);
+
+						SkillNodes.Add(ChildWidget);
+						ChildWidget->SetToolTip(Tooltip);
+						ChildWidget->Tooltip = Tooltip;
+
+						ChildWidget->RefreshNode(SelectedChar, this);
+						
+					}
+					else
+					{
+						ChildWidget->SetVisibility(ESlateVisibility::Hidden);
+					}
 				}
 			}
+		}
+	}
+}
+
+void UBattleHudWidget::OnTurnEnds()
+{
+	for (int i = 0; i < SkillNodes.Num(); ++i)
+	{
+		if(SkillNodes[i])
+			SkillNodes[i]->OnTurnEnds();
+	}
+}
+
+void UBattleHudWidget::RefreshSkillButtonsState()
+{
+	for (int i = 0; i < SkillNodes.Num(); ++i)
+	{
+		if(SkillNodes[i])
+		{
+			SkillNodes[i]->RefreshNodeState();
 		}
 	}
 }

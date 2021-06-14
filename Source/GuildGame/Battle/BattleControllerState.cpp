@@ -7,6 +7,7 @@
 #include "GuildGame/GridSystem/GridFloor.h"
 #include "GGLogHelper.h"
 #include "GuildGame/GuildGameGameModeBase.h"
+#include "GuildGame/Widgets/BattleHudWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStaticsTypes.h"
 
@@ -163,6 +164,7 @@ void ControllerStateCastingSkill::LeftClickReleaseHandler()
 						TArray<AGGCharacter*> TargetsToEffect;
 						GridMan->GetCharsInEffectSight(Targets, TargetsToEffect, SelectedCharacter, PlayerController->GetWorld());
 						SelectedCharacter->CastSkill(TargetsToEffect);
+
 					}
 				}
 			}
@@ -185,6 +187,15 @@ void ControllerStateCastingSkill::RightClickReleaseHandler()
 	}
 
 	PlayerController->ChangeStateTo(EControllerStateIndex::Movement);
+
+	AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(PlayerController));
+	if(BattleGameMode)
+	{
+		if(BattleGameMode->HudWidgetInstance)
+		{
+			BattleGameMode->HudWidgetInstance->RefreshSkillButtonsState();
+		}
+	}
 }
 
 void ControllerStateCastingSkill::ESCHandler()

@@ -25,6 +25,7 @@ ABattlePlayerController::ABattlePlayerController()
 	if(States.Num() != 0)
 	{
 		ActiveState = States[0];
+		ActiveStateIndex = 0;
 	}
 }
 
@@ -64,6 +65,7 @@ void ABattlePlayerController::SetState(int StateIndex)
 	}
 
 	ActiveState = States[StateIndex];
+	ActiveStateIndex = StateIndex;
 }
 
 void ABattlePlayerController::ChangeStateTo(EControllerStateIndex StateIndex)
@@ -89,6 +91,7 @@ void ABattlePlayerController::ChangeStateTo(EControllerStateIndex StateIndex)
 
 	ActiveState = States[Index];
 	ActiveState->ChangeTo();
+	ActiveStateIndex = Index;
 }
 
 bool ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)

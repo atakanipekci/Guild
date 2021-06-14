@@ -81,6 +81,7 @@ void AGuildGameGameModeBase::BeginPlay()
 
 	
 	BattleTurnManager.SetCharactersList(Characters);
+	BattleTurnManager.SetGameMode(this);
 	//BattleTurnManager.Start();
 
 	HudWidgetInstance = Cast<UBattleHudWidget>(WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::BattleHud, this));
@@ -110,5 +111,21 @@ void AGuildGameGameModeBase::Next()
 		PlayerController->ChangeStateTo(EControllerStateIndex::Movement);
 		BattleTurnManager.NextCharacter();
 		PlayerController->SetSelectedCharacter(BattleTurnManager.GetCurrentCharacter());
+	}
+}
+
+void AGuildGameGameModeBase::OnTurnEnds()
+{
+	for (int i = 0; i < Characters.Num(); ++i)
+	{
+		if(Characters[i])
+		{
+			Characters[i]->OnTurnEnds();
+		}
+	}
+
+	if(HudWidgetInstance)
+	{
+		HudWidgetInstance->OnTurnEnds();
 	}
 }

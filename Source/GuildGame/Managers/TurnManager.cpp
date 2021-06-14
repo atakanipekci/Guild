@@ -4,6 +4,7 @@
 #include "GuildGame/Managers/TurnManager.h"
 
 #include "GGLogHelper.h"
+#include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Characters/GGCharacter.h"
 
 
@@ -30,7 +31,9 @@ void TurnManager::NextCharacter()
 
 	if(CharactersList[CurrentCharacterIndex] != nullptr)
 	{
+		CharactersList[CurrentCharacterIndex]->OnIndividualTurnEnds();
 		CharactersList[CurrentCharacterIndex]->Deselect();
+
 	}
 
 	for(int i = 0; i < CharactersList.Num(); i++)
@@ -40,6 +43,10 @@ void TurnManager::NextCharacter()
 		{
 			CurrentCharacterIndex = 0;
 			TurnCount++;
+			if(GameMode)
+			{
+				GameMode->OnTurnEnds();
+			}
 		}
 
 		if(CharactersList[CurrentCharacterIndex] != nullptr)
@@ -54,6 +61,7 @@ void TurnManager::NextCharacter()
 	if(CharactersList[CurrentCharacterIndex] != nullptr)
 	{
 		CharactersList[CurrentCharacterIndex]->SetSelected();
+		CharactersList[CurrentCharacterIndex]->OnIndividualTurnBegins();
 	}
 	
 	

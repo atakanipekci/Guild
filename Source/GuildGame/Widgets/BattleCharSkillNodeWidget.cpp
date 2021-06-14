@@ -3,9 +3,12 @@
 
 #include "BattleCharSkillNodeWidget.h"
 
+#include "BattleHudWidget.h"
 #include "CharacterSkillTooltipWidget.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
+#include "Components/Overlay.h"
+#include "Components/TextBlock.h"
 #include "GuildGame/Battle/BattlePlayerController.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -13,12 +16,13 @@ void UBattleCharSkillNodeWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if(SkillButton)
+	if(SkillButton && PortraitBg)
 	{
 		SkillButton->OnClicked.AddUniqueDynamic(this, &UBattleCharSkillNodeWidget::OnPressed);
 		ButtonStyle = SkillButton->WidgetStyle;
-	}
 
+		NormalBrush  = PortraitBg->Brush;
+	}
 }
 
 void UBattleCharSkillNodeWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -31,21 +35,110 @@ void UBattleCharSkillNodeWidget::NativeOnMouseEnter(const FGeometry& InGeometry,
 
 void UBattleCharSkillNodeWidget::OnPressed()
 {
-	if(SelectedCharacter)
+	if(bIsMovementButton == false)
 	{
-		SelectedCharacter->SetCurrentSkillIfContains(SkillsData.SkillID);
-
-		if(PlayerController)
-			PlayerController->ChangeStateTo(EControllerStateIndex::SkillCast);
-
-		if(PortraitBg)
+		if(SelectedCharacter && SkillCooldownData)
 		{
-			PortraitBg->SetBrushTintColor(CooldownButtonBrushColor);
+			if(SkillCooldownData->IsTimeUp() == false) return;
+
+			SelectedCharacter->SetCurrentSkillIfContains(SkillsData.SkillID);
+
+			if(PlayerController) PlayerController->ChangeStateTo(EControllerStateIndex::SkillCast);
+
+			if(OwnerHud)
+			{
+				OwnerHud->RefreshSkillButtonsState();
+			}
+		}
+	}
+	else
+	{
+		if(PlayerController) PlayerController->ChangeStateTo(EControllerStateIndex::Movement);
+
+		if(OwnerHud)
+		{
+			OwnerHud->RefreshSkillButtonsState();
 		}
 	}
 }
 
-void UBattleCharSkillNodeWidget::RefreshNode(AGGCharacter* SelectedChar)
+void UBattleCharSkillNodeWidget::RefreshNodeState()
+{
+	if(bIsMovementButton == false)
+	{
+		if(SkillCooldownData && PlayerController && SelectedCharacter)
+		{
+			if(SkillCooldownData->IsTimeUp() == false)
+			{
+				CooldownPanel->SetVisibility(ESlateVisibility::Visible);
+				if(PortraitBg)
+				{
+					PortraitBg->SetBrushResourceObject(CooldownBrush.GetResourceObject());
+					PortraitBg->SetBrushSize(NormalBrush.GetImageSize());
+					PortraitBg->SetBrushTintColor(CooldownBrush.TintColor);
+				}
+				CooldownPanel->SetVisibility(ESlateVisibility::Visible);
+				if(CooldownText)
+				{
+					const float CooldownTimer = SkillCooldownData->HowMuchLeft();
+					CooldownText->SetText(FText::AsNumber(CooldownTimer));
+				}
+			}
+			else
+			{
+				CooldownPanel->SetVisibility(ESlateVisibility::Hidden);
+				if(PlayerController->GetActiveStateType() == EControllerStateIndex::Movement)
+				{
+					if(PortraitBg)
+					{
+						PortraitBg->SetBrushResourceObject(NormalBrush.GetResourceObject());
+						PortraitBg->SetBrushTintColor(NormalBrush.TintColor);
+					}
+				}
+				else if(SelectedCharacter->GetCurrentSkill() && SelectedCharacter->GetCurrentSkill()->GetSkillID() == SkillsData.SkillID)
+				{
+					if(PortraitBg)
+					{
+						PortraitBg->SetBrushResourceObject(PressedBrush.GetResourceObject());
+						PortraitBg->SetBrushSize(NormalBrush.GetImageSize());
+						PortraitBg->SetBrushTintColor(PressedBrush.TintColor);
+					}
+				}
+				else
+				{
+					if(PortraitBg)
+					{
+						PortraitBg->SetBrushResourceObject(NormalBrush.GetResourceObject());
+						PortraitBg->SetBrushTintColor(NormalBrush.TintColor);
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		if(PlayerController->GetActiveStateType() != EControllerStateIndex::Movement)
+		{
+			if(PortraitBg)
+			{
+				PortraitBg->SetBrushResourceObject(NormalBrush.GetResourceObject());
+				PortraitBg->SetBrushTintColor(NormalBrush.TintColor);
+			}
+		}
+		else
+		{
+			if(PortraitBg)
+			{
+				PortraitBg->SetBrushResourceObject(PressedBrush.GetResourceObject());
+				PortraitBg->SetBrushSize(NormalBrush.GetImageSize());
+				PortraitBg->SetBrushTintColor(PressedBrush.TintColor);
+			}
+		}
+	}
+	
+}
+
+void UBattleCharSkillNodeWidget::RefreshNode(AGGCharacter* SelectedChar, UBattleHudWidget* Hud)
 {
 	if(SelectedChar == nullptr) return;
 
@@ -59,6 +152,33 @@ void UBattleCharSkillNodeWidget::RefreshNode(AGGCharacter* SelectedChar)
 		SkillButton->WidgetStyle.Pressed.SetImageSize(ButtonStyle.Pressed.ImageSize);
 	}
 
+	if(bIsMovementButton == false)
+	{
+		SkillCooldownData = SelectedChar->SkillsCooldownMap.Find(SkillsData.SkillID);
+		if(SkillCooldownData)
+		{
+			SkillCooldownData->OnSkillCastedDelegate.Unbind();
+			SkillCooldownData->OnSkillCastedDelegate.BindDynamic(this, &UBattleCharSkillNodeWidget::OnSkillCasted);
+		}
+	}
+	else
+	{
+		SkillCooldownData = nullptr;
+	}
+	
+
 	PlayerController = Cast<ABattlePlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	SelectedCharacter = SelectedChar;
+	OwnerHud = Hud;
+
+	RefreshNodeState();
+}
+
+void UBattleCharSkillNodeWidget::OnSkillCasted()
+{
+	RefreshNodeState();
+}
+void UBattleCharSkillNodeWidget::OnTurnEnds()
+{
+	RefreshNodeState();
 }

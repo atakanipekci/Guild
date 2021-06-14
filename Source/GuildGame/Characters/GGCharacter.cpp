@@ -97,6 +97,12 @@ void AGGCharacter::BeginPlay()
 void AGGCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	// for (auto It = SkillsCooldownMap.CreateIterator(); It; ++It)
+	// {
+	// 	It.Value().RunClockAFrame(DeltaTime);
+	// }
+
 }
 
 void AGGCharacter::SetStats(const FCharacterStats& Stats)
@@ -120,6 +126,9 @@ void AGGCharacter::SetStats(const FCharacterStats& Stats)
 					if(SkillFile)
 					{
 						Skills.Add(new CharacterSkill(*SkillData, *SkillFile));
+
+						FCooldownTimer CooldownData(SkillData->Cooldown);
+						SkillsCooldownMap.Add(SkillData->SkillID, CooldownData);
 					}
 				}
 			}
@@ -397,6 +406,19 @@ void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 
 		PlayCharacterMontage(SkillFiles->SkillMontage);
 		bIsSkillMontagePlaying = true;
+
+		if(SkillsCooldownMap.Contains(SkillFiles->SkillID))
+		{
+			FCooldownTimer* Timer = SkillsCooldownMap.Find(SkillFiles->SkillID);
+			if(Timer)
+			{
+				Timer->RestartTimer();
+				if(Timer->OnSkillCastedDelegate.IsBound())
+				{
+					Timer->OnSkillCastedDelegate.Execute();
+				}
+			}
+		}
 	}
 }
 
@@ -411,6 +433,7 @@ void AGGCharacter::OnAttackHitsEnemies()
 	if(SelectedTargetCharacters.Num() > 0)
 	{
 		CurrentSkill->ApplyEffects(this, SelectedTargetCharacters);
+		CurrentSkill->ApplyStatus(this, SelectedTargetCharacters);
 	}
 }
 
@@ -432,6 +455,7 @@ void AGGCharacter::OnAttackHitsEnemy(AActor* TargetToHit)
 	{
 		Enemies.Add(CharacterToHit);
 		CurrentSkill->ApplyEffects(this, Enemies);
+		CurrentSkill->ApplyStatus(this, Enemies);
 	}
 	
 }
@@ -609,10 +633,8 @@ void AGGCharacter::SetAnimState(ECharacterAnimState AnimState)
 
 void AGGCharacter::PlayCharacterMontage(UAnimMontage* Montage)
 {
-	UE_LOG(LogTemp, Warning, TEXT("PlayCharacterMontage1"));
 	if(AnimInstance == nullptr || bIsSkillMontagePlaying/* || AnimInstance->Montage_IsPlaying(nullptr) == true*/) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("PlayCharacterMontage2"));
 	AnimInstance->PlayMontage(Montage);
 }
 
@@ -631,7 +653,7 @@ TArray<CharacterSkill*>* AGGCharacter::GetSkills()
 	return  &Skills;
 }
 
-void AGGCharacter::SetCurrentSkillIfContains(int SkillId)
+bool AGGCharacter::SetCurrentSkillIfContains(int SkillId)
 {
 	for (int i = 0; i < Skills.Num(); ++i)
 	{
@@ -641,9 +663,12 @@ void AGGCharacter::SetCurrentSkillIfContains(int SkillId)
 			if(SkillData.SkillID == SkillId)
 			{
 				CurrentSkillIndex = i;
+				return true;
 			}
 		}
 	}
+
+	return false;
 }
 
 FVector AGGCharacter::GetTargetTrajectoryLocation()
@@ -694,5 +719,32 @@ bool AGGCharacter::CanTrajectoryBeShown()
 	}
 
 	return  false;
+}
+
+void AGGCharacter::OnTurnEnds()
+{
+	for (auto It = SkillsCooldownMap.CreateIterator(); It; ++It)
+	{
+		It.Value().DecreaseTurn(1);
+	}
+
+	
+}
+
+void AGGCharacter::OnIndividualTurnBegins()
+{
+	StatusEffectManager::ApplyOnTurnBegins(this, &AppliedStatusEffects);
+	UE_LOG(LogTemp, Warning, TEXT("STATUS EFFECTS %d"), AppliedStatusEffects.Num());
+}
+
+void AGGCharacter::OnIndividualTurnEnds()
+{
+	//StatusEffectManager::ApplyOnTurnEnds(this, &AppliedStatusEffects);
+}
+
+
+TMap<EStatusEffectType, struct FStatusEffectData>* AGGCharacter::GetAppliedStatusEffects()
+{
+	return &AppliedStatusEffects;
 }
 

@@ -7,9 +7,12 @@
 #include "CharacterStats.h"
 #include "GGCharacterBase.h"
 #include "GuildGame/GridSystem/Grid.h"
+#include "GuildGame/Managers/StatusEffectManager.h"
 //#include "GuildGame/Skills/CharacterSkills.h"
 
 #include "GGCharacter.generated.h"
+
+DECLARE_DYNAMIC_DELEGATE(FSkillCastedDelegate);
 
 enum class ECharacterAnimState : uint8;
 
@@ -19,6 +22,56 @@ enum class ECharacterStatus : uint8
 	Moving = 1,
 	Dead = 2,
 	Casting = 3
+};
+
+struct FCooldownTimer
+{
+private:
+	int Timer = 0;
+	int Cooldown = 0;
+
+public:
+
+	FSkillCastedDelegate OnSkillCastedDelegate;
+
+	FCooldownTimer(float Cooldown)
+	{
+		this->Cooldown = Cooldown;
+	}
+	
+	void SetCooldown(float NewCooldown)
+	{
+		Cooldown = NewCooldown;
+		Timer = 0;
+	}
+
+	void RestartTimer()
+	{
+		Timer = Cooldown;
+	}
+
+	void DecreaseTurn(int Amount) 
+	{
+		if(Timer > 0)
+		{
+			Timer -= Amount;
+			Timer = FMath::Max(Timer, 0);
+		}
+	}
+	
+	bool IsTimeUp() const
+	{
+		if(Timer <= 0)
+		{
+			return  true;
+		}
+		return  false;
+	}
+
+	float HowMuchLeft() const
+	{
+		return Timer;
+	}
 };
 
 UCLASS()
@@ -102,13 +155,21 @@ public:
 	class CharacterSkill* GetCurrentSkill();
 	TArray<class CharacterSkill*>* GetSkills();
 
-	void SetCurrentSkillIfContains(int SkillID);
+	bool SetCurrentSkillIfContains(int SkillID);
 	
 	FVector GetTargetTrajectoryLocation();
 	FVector GetStartTrajectoryLocation();
 
 	AGGCharacter* GetCharacterAtTargetGridIndex();
 	bool CanTrajectoryBeShown();
+
+	TMap<int, FCooldownTimer> SkillsCooldownMap;
+
+	void OnTurnEnds();
+	void OnIndividualTurnBegins();
+	void OnIndividualTurnEnds();
+	
+	TMap<EStatusEffectType,  FStatusEffectData>* GetAppliedStatusEffects();
 
 private:
 	TArray<Grid*> MovableGrids;
@@ -132,13 +193,15 @@ private:
 	UPROPERTY()
 	class USplineComponent* SplineComponent;
 	
-	int CurrentGridIndex;
 	TArray<class CharacterSkill*> Skills;
+	int CurrentGridIndex;
 	int CurrentSkillIndex = 0;
-
 	int CurrentTargetGridIndex = 0;
 
 	TArray<AGGCharacter*> SelectedTargetCharacters;
+
+	TMap<EStatusEffectType, struct FStatusEffectData> AppliedStatusEffects;
+
 
 	bool bIsSkillMontagePlaying;
 

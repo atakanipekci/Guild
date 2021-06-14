@@ -41,8 +41,11 @@ public:
 	{
 		return SelectedGridIndex;
 	}
-	
 
+	EControllerStateIndex GetActiveStateType()
+	{
+		return static_cast<EControllerStateIndex>(ActiveStateIndex);
+	}
 
 private:
 	class AGGCharacter* SelectedCharacter = nullptr;
@@ -50,5 +53,6 @@ private:
 	class AGridFloor* GridFloor = nullptr;
 	int SelectedGridIndex = -1;
 	class BattleControllerState* ActiveState;
+	int ActiveStateIndex;
 	TArray<class BattleControllerState*> States;
 };

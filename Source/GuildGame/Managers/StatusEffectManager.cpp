@@ -1,30 +1,49 @@
 ﻿#include "StatusEffectManager.h"
 
+#include "GuildGameInstance.h"
 #include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Characters/GGCharacter.h"
 #include "Kismet/GameplayStatics.h"
+
+FStatusEffectData* StatusEffectManager::FindTypeInArray(TArray<FStatusEffectData>* Array, EStatusEffectType Type)
+{
+	if(Array)
+	{
+		for (int i = 0; i < Array->Num(); ++i)
+		{
+			if((*Array)[i].Type == Type)
+			{
+				return &(*Array)[i];  
+			}
+		}
+	}
+
+	return nullptr;
+}
 
 void StatusEffectManager::AddStatusEffect(class AGGCharacter* Target, class AGGCharacter* Caster, TArray<FStatusEffectData>* StatusEffects)
 {
 	if(Target == nullptr || Caster == nullptr || StatusEffects == nullptr || StatusEffects->Num() <= 0) return;
 
-	TMap<EStatusEffectType, struct FStatusEffectData>* AppliedEffects = Target->GetAppliedStatusEffects();
+	TArray<struct FStatusEffectData>* AppliedEffects = Target->GetAppliedStatusEffects();
 
 	if(AppliedEffects)
 	{
 		for (int i = 0; i < StatusEffects->Num(); ++i)
 		{
-			if(AppliedEffects->Contains((*StatusEffects)[i].Type))
+			FStatusEffectData* ExistingStatus = FindTypeInArray(AppliedEffects, (*StatusEffects)[i].Type);
+			if(ExistingStatus != nullptr)
 			{
 				(*StatusEffects)[i].Caster = Caster;
-				FStatusEffectData* ExistingStatus = AppliedEffects->Find((*StatusEffects)[i].Type);
+				
 				StackStatus(Target, ExistingStatus,&(*StatusEffects)[i]);
+				InitStatus(Target, &(*StatusEffects)[i]);
 			}
 			else
 			{
 				(*StatusEffects)[i].Caster = Caster;
 				InitStatus(Target, &(*StatusEffects)[i]);
-				AppliedEffects->Add((*StatusEffects)[i].Type, (*StatusEffects)[i]);
+				AppliedEffects->Add((*StatusEffects)[i]);
 			}
 		}
 	}
@@ -46,7 +65,7 @@ void StatusEffectManager::InitStatus(AGGCharacter* Target, FStatusEffectData* St
 	{
 		
 	}
-	else if(StatusEffect->Type == EStatusEffectType::Armor)
+	else if(StatusEffect->Type == EStatusEffectType::Heal)
 	{
 		
 	}
@@ -57,66 +76,44 @@ void StatusEffectManager::StackStatus(AGGCharacter* Target, FStatusEffectData* E
 {
 	if(Target == nullptr || ExistingStatusEffect == nullptr || NewStatusEffect == nullptr) return;
 
-	if(NewStatusEffect->Type == EStatusEffectType::Bleed)
-	{
-		
-	}
-	else if(NewStatusEffect->Type == EStatusEffectType::Poison)
-	{
-		
-	}
-	else if(NewStatusEffect->Type == EStatusEffectType::Stun)
-	{
-		
-	}
-	else if(NewStatusEffect->Type == EStatusEffectType::Armor)
-	{
-		
-	}
+	ExistingStatusEffect->Caster = NewStatusEffect->Caster;
+	ExistingStatusEffect->MinValue += NewStatusEffect->MinValue;
+	ExistingStatusEffect->MaxValue += NewStatusEffect->MaxValue;
+	ExistingStatusEffect->RemainingTurns += NewStatusEffect->RemainingTurns;
 }
 
-void StatusEffectManager::ApplyOnTurnBegins(AGGCharacter* Target, TMap<EStatusEffectType, struct FStatusEffectData>* StatusEffects)
+void StatusEffectManager::ApplyOnTurnBegins(AGGCharacter* Target, TArray<struct FStatusEffectData>* StatusEffects)
 {
 	if(Target == nullptr || StatusEffects == nullptr) return;
 
-	TArray<FStatusEffectData*> StatusToRemove;
-
 	bool bSkipTurn = false;
-	for (auto It = StatusEffects->CreateIterator(); It; ++It)
+	for (int i = StatusEffects->Num() - 1; i >= 0; --i)
 	{
-		if(It.Key() == EStatusEffectType::Bleed)
+		if((*StatusEffects)[i].Type == EStatusEffectType::Bleed)
 		{
-			const int Result = FMath::RandRange(It.Value().MinValue, It.Value().MaxValue);
-			Target->TakeDefaultDamage(Result, It.Value().Caster);
+			const int Result = FMath::RandRange((*StatusEffects)[i].MinValue, (*StatusEffects)[i].MaxValue);
+			Target->TakeDefaultDamage(Result, (*StatusEffects)[i].Caster);
 		}
-		else if(It.Key() == EStatusEffectType::Poison)
+		else if((*StatusEffects)[i].Type == EStatusEffectType::Poison)
 		{
-			const int Result = FMath::RandRange(It.Value().MinValue, It.Value().MaxValue);
-			Target->TakeDefaultDamage(Result, It.Value().Caster);
+			const int Result = FMath::RandRange((*StatusEffects)[i].MinValue, (*StatusEffects)[i].MaxValue);
+			Target->TakeDefaultDamage(Result, (*StatusEffects)[i].Caster);
 		}
-		else if(It.Key() == EStatusEffectType::Stun)
+		else if((*StatusEffects)[i].Type == EStatusEffectType::Stun)
 		{
 			bSkipTurn = true;
 		}
-		else if(It.Key() == EStatusEffectType::Armor)
+		else if((*StatusEffects)[i].Type == EStatusEffectType::Heal)
 		{
-			
+			const int Result = FMath::RandRange((*StatusEffects)[i].MinValue, (*StatusEffects)[i].MaxValue);
+			Target->Heal(Result, (*StatusEffects)[i].Caster);
 		}
 
-		It.Value().RemainingTurns--;
-		if(It.Value().RemainingTurns <= 0)
+		(*StatusEffects)[i].RemainingTurns--;
+		if((*StatusEffects)[i].RemainingTurns <= 0)
 		{
-			StatusToRemove.Add(&(It.Value()));
-		}
-	}
-
-	for (int i = 0; i < StatusToRemove.Num(); ++i)
-	{
-		if(StatusToRemove[i])
-		{
-			
-			OnStatusEnd(Target, StatusToRemove[i]);
-			StatusEffects->Remove(StatusToRemove[i]->Type);
+			OnStatusEnd(Target, &(*StatusEffects)[i]);
+			StatusEffects->RemoveAt(i);
 		}
 	}
 
@@ -148,7 +145,7 @@ void StatusEffectManager::ApplyOnTurnBegins(AGGCharacter* Target, TMap<EStatusEf
 // 		{
 // 			
 // 		}
-// 		else if(It.Key() == EStatusEffectType::Armor)
+// 		else if(It.Key() == EStatusEffectType::Heal)
 // 		{
 // 			
 // 		}
@@ -171,8 +168,50 @@ void StatusEffectManager::OnStatusEnd(AGGCharacter* Target, FStatusEffectData* S
 	{
 		
 	}
-	else if(StatusEffect->Type == EStatusEffectType::Armor)
+	else if(StatusEffect->Type == EStatusEffectType::Heal)
 	{
 		
 	}
+}
+
+FString StatusEffectManager::GetStatusFileRowName(EStatusEffectType StatusType)
+{
+	if(StatusType == EStatusEffectType::Bleed)
+    {
+        return  FString(TEXT("Bleed"));
+    }
+    else if(StatusType == EStatusEffectType::Poison)
+    {
+        return  FString(TEXT("Poison"));
+    }
+    else if(StatusType == EStatusEffectType::Stun)
+    {
+        return  FString(TEXT("Stun"));
+    }
+    else if(StatusType == EStatusEffectType::Heal)
+    {
+    	return  FString(TEXT("Heal"));
+    }
+   
+    return FString(TEXT("EMPTY"));
+}
+
+FStatusEffectFileDataTable* StatusEffectManager::GetStatusEffectFile(EStatusEffectType StatusType, UWorld* World)
+{
+	if(World == nullptr)
+	{
+		return nullptr;
+	}
+	UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(World));
+
+	if(GameInstance == nullptr || GameInstance->StatusEffectsFileTable == nullptr)
+	{
+		return nullptr;
+	}
+
+	const FName RowName = *(GetStatusFileRowName(StatusType));
+	FStatusEffectFileDataTable* StatusFile = GameInstance->StatusEffectsFileTable->FindRow<FStatusEffectFileDataTable>(
+		RowName, "Status Data File Row Missing", true);
+
+	return StatusFile;
 }

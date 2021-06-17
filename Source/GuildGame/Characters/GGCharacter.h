@@ -151,6 +151,7 @@ public:
 	virtual void ThrowProjectile(FName SocketName, bool bUseBoneRotation) override;
 
 	void UpdateHealthBar();
+	void UpdateHealthBarStatusEffects();
 	class UCharacterAnimInstance* GetAnimInstance();
 	void PrepareAnimInstance();
 
@@ -159,6 +160,7 @@ public:
 
 	bool IsApEnoughForSkill(CharacterSkill* Skill, int& OutCost);
 	class CharacterSkill* GetCurrentSkill();
+	class CharacterSkill* GetOwnedSkillbyID(int ID);
 	TArray<class CharacterSkill*>* GetSkills();
 
 	bool SetCurrentSkillIfContains(int SkillID);
@@ -175,7 +177,7 @@ public:
 	void OnTurnBegins();
 	void OnTurnEnds();
 	
-	TMap<EStatusEffectType,  FStatusEffectData>* GetAppliedStatusEffects();
+	TArray<struct FStatusEffectData>* GetAppliedStatusEffects();
 
 private:
 	TArray<Grid*> MovableGrids;
@@ -206,8 +208,7 @@ private:
 
 	TArray<AGGCharacter*> SelectedTargetCharacters;
 
-	TMap<EStatusEffectType, struct FStatusEffectData> AppliedStatusEffects;
-
+	TArray<FStatusEffectData> AppliedStatusEffects;
 
 	bool bIsSkillMontagePlaying;
 

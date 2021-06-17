@@ -4,13 +4,14 @@
 #include "CharacterSkillTooltipWidget.h"
 
 #include "Components/Image.h"
+#include "Components/Overlay.h"
 #include "Components/RichTextBlock.h"
 #include "GuildGame/Skills/CharacterSkill.h"
 
 void UCharacterSkillTooltipWidget::Refresh(FSkillData& Data, UTexture* Image, FText* Desc)
 {
 	if(SkillName)
-		SkillName->SetText(FText::FromString(Data.SkillName));
+		SkillName->SetText(Data.SkillName);
 
 	if(SkillImage)
 		SkillImage->SetBrushResourceObject(Image);
@@ -40,4 +41,49 @@ void UCharacterSkillTooltipWidget::Refresh(FSkillData& Data, UTexture* Image, FT
 		);		
 		DescText->SetText(FormattedText);
 	}
+	
+	if(CooldownOverlay && CooldownText)
+	{
+		if(Data.Cooldown > 0)
+		{
+			CooldownOverlay->SetVisibility(ESlateVisibility::Visible);
+			FFormatNamedArguments Args;
+			Args.Add("Cooldown", Data.Cooldown);
+
+			const FText CooldownLocalizableText = NSLOCTEXT("CommonWords", "Cooldown:", "Cooldown: <Red>{Cooldown}</> turn(s)");
+			
+			const FText FormattedText = FText::Format(
+				CooldownLocalizableText,
+				Args
+			);		
+			CooldownText->SetText(FormattedText);
+		}
+		else
+		{
+			CooldownOverlay->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+
+	if(ApCostOverlay && ApCostText)
+	{
+		if(Data.Cooldown > 0)
+		{
+			ApCostOverlay->SetVisibility(ESlateVisibility::Visible);
+			FFormatNamedArguments Args;
+			Args.Add("ApCost", Data.ApCost);
+
+			const FText ApCostLocalizableText = NSLOCTEXT("CommonWords", "ApCost:", "Ap Cost: <Red>{ApCost}</>");
+			
+			const FText FormattedText = FText::Format(
+				ApCostLocalizableText,
+				Args
+			);		
+			ApCostText->SetText(FormattedText);
+		}
+		else
+		{
+			ApCostOverlay->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
 }
+

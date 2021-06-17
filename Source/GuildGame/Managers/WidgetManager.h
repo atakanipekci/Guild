@@ -32,7 +32,11 @@ enum class EWidgetKeys: uint8
 	KnightSkills,
 	MageSkills,
 	ArcherSkills,
-	CharacterSkillTooltip
+	CharacterSkillTooltip,
+	StatusEffectNodeWidget,
+	StatusEffectTooltip,
+	StatusEffectStackableTooltip
+	
 };
 
 UENUM()
@@ -69,7 +73,8 @@ class GUILDGAME_API WidgetManager
 		static FString GetWidgetRowName(const EWidgetKeys Key);
 		static void SetWidgetInstance(const EWidgetKeys Key, UUserWidget* Widget);
 		static UUserWidget* GetWidgetInstance(const EWidgetKeys Key);
-		static UUserWidget* GetOrCreateWidgetInstance(const EWidgetKeys Key, UObject* Owner);
+		static UUserWidget* GetWidgetInstanceIfNotCreate(const EWidgetKeys Key, UObject* Owner);
+		static UUserWidget* CreateWidgetInstance(const EWidgetKeys Key, UObject* Owner);
 		static UUserWidget* GetSkillsWidgetByType(ECharacterClassType ClassType, UObject* Owner);
 	
 		static void SetSequenceTable(UDataTable* Table);

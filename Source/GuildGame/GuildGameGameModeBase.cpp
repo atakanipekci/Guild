@@ -84,7 +84,7 @@ void AGuildGameGameModeBase::BeginPlay()
 	BattleTurnManager.SetGameMode(this);
 	//BattleTurnManager.Start();
 
-	HudWidgetInstance = Cast<UBattleHudWidget>(WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::BattleHud, this));
+	HudWidgetInstance = Cast<UBattleHudWidget>(WidgetManager::GetWidgetInstanceIfNotCreate(EWidgetKeys::BattleHud, this));
     if(HudWidgetInstance)
     {
         HudWidgetInstance->AddToViewport();

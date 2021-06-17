@@ -8,6 +8,7 @@
 #include "GuildGameInstance.h"
 #include "Components/CanvasPanel.h"
 #include "Components/Image.h"
+#include "Components/TextBlock.h"
 #include "Components/UniformGridPanel.h"
 #include "GuildGame/Characters/GGCharacter.h"
 #include "GuildGame/Managers/WidgetManager.h"
@@ -25,6 +26,13 @@ void UBattleHudWidget::RefreshSkillsArray(AGGCharacter* SelectedChar)
 {
 	if(SelectedChar == nullptr)
 		return;
+
+	LatestSelectedChar = SelectedChar;
+
+	if(ApText)
+	{
+		ApText->SetText(FText::AsNumber(SelectedChar->GetCurrentAP()));
+	}
 	
     if(SkillNodesGrid && SkillsPanel)
 	{
@@ -124,5 +132,10 @@ void UBattleHudWidget::OnApSpent()
 		{
 			SkillNodes[i]->OnApSpent();
 		}
+	}
+
+	if(ApText && LatestSelectedChar)
+	{
+		ApText->SetText(FText::AsNumber(LatestSelectedChar->GetCurrentAP()));
 	}
 }

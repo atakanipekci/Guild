@@ -44,7 +44,7 @@ struct FSkillData : public FTableRowBase
 	int SkillID;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString SkillName;
+	FText SkillName;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int ApCost;

@@ -25,5 +25,17 @@ public:
 	class URichTextBlock* DescText;
 
 	UPROPERTY(meta = (BindWidget))
+	class URichTextBlock* CooldownText;
+	
+	UPROPERTY(meta = (BindWidget))
+	class URichTextBlock* ApCostText;
+
+	UPROPERTY(meta = (BindWidget))
+	class UOverlay* CooldownOverlay;
+	
+	UPROPERTY(meta = (BindWidget))
+	class UOverlay* ApCostOverlay;
+
+	UPROPERTY(meta = (BindWidget))
 	class UImage* SkillImage;
 };

@@ -119,7 +119,9 @@ void UBattleCharSkillNodeWidget::RefreshNodeState()
 				}
 
 				int ApCost = 0;
-				if(SkillButton && SelectedCharacter && SelectedCharacter->IsApEnoughForSkill(SelectedCharacter->GetCurrentSkill(), ApCost) == false)
+				CharacterSkill * Skill = SelectedCharacter->GetOwnedSkillbyID(SkillsData.SkillID);
+				
+				if(SkillButton && SelectedCharacter && SelectedCharacter->IsApEnoughForSkill(Skill, ApCost) == false)
 				{
 					SkillButton->SetIsEnabled(false);
 					if(PortraitBg)
@@ -168,11 +170,7 @@ void UBattleCharSkillNodeWidget::RefreshNodeState()
 				}
 			}
 		}
-		
-
-		
 	}
-	
 }
 
 void UBattleCharSkillNodeWidget::RefreshNode(AGGCharacter* SelectedChar, UBattleHudWidget* Hud)

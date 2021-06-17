@@ -336,6 +336,7 @@ float AGGCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 			PlayCharacterMontage(CharFile.GetRandomTakeHitMontage());
 		}
 		UpdateHealthBar();
+		UpdateHealthBarStatusEffects();
 	}
 	return DamageAmount;
 }
@@ -446,7 +447,7 @@ void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 			GridMan->GetAttachedFloor()->ClearTrajectory();
 		}
 
-		FString TimerKey = CurrentSkill->GetSkillData().SkillName;
+		FString TimerKey = CurrentSkill->GetSkillData().SkillName.ToString();
 		FTimedEvent TimedEvent;
 		TimedEvent.BindDynamic(this, &AGGCharacter::OnCastingSkillEnds);
 		ATimedEventManager::CallEventWithDelay(this, TimerKey, TimedEvent, 10, GetWorld());
@@ -483,8 +484,8 @@ void AGGCharacter::OnAttackHitsEnemies()
 
 	if(SelectedTargetCharacters.Num() > 0)
 	{
-		CurrentSkill->ApplyEffects(this, SelectedTargetCharacters);
 		CurrentSkill->ApplyStatus(this, SelectedTargetCharacters);
+		CurrentSkill->ApplyEffects(this, SelectedTargetCharacters);
 	}
 }
 
@@ -505,8 +506,8 @@ void AGGCharacter::OnAttackHitsEnemy(AActor* TargetToHit)
 	if(CharacterToHit && SelectedTargetCharacters.Contains(TargetToHit))
 	{
 		Enemies.Add(CharacterToHit);
-		CurrentSkill->ApplyEffects(this, Enemies);
 		CurrentSkill->ApplyStatus(this, Enemies);
+		CurrentSkill->ApplyEffects(this, Enemies);
 	}
 	
 }
@@ -529,7 +530,7 @@ void AGGCharacter::OnCastingSkillEnds()
 
 	if(CurrentSkill != nullptr)
 	{
-		FString TimerKey = Skills[CurrentSkillIndex]->GetSkillData().SkillName;
+		FString TimerKey = Skills[CurrentSkillIndex]->GetSkillData().SkillName.ToString();;
 		ATimedEventManager::RemoveEventData(TimerKey, false);
 	}
 
@@ -627,6 +628,14 @@ void AGGCharacter::UpdateHealthBar()
 	}
 }
 
+void AGGCharacter::UpdateHealthBarStatusEffects()
+{
+	if(HealthBarWidget)
+	{
+		HealthBarWidget->SetStatusEffects(&AppliedStatusEffects);
+	}
+}
+
 UCharacterAnimInstance* AGGCharacter::GetAnimInstance()
 {
 	return  AnimInstance;
@@ -695,9 +704,7 @@ bool AGGCharacter::IsApEnoughForSkill(CharacterSkill* Skill, int& OutCost)
 
 	CharacterSkill* CurrentSkill = GetCurrentSkill();
 
-	if(CurrentSkill == nullptr) return false;
-
-	FSkillData* SkillData =  &(CurrentSkill->GetSkillData());
+	FSkillData* SkillData =  &(Skill->GetSkillData());
 
 	if(SkillData == nullptr) return false;
 
@@ -710,10 +717,6 @@ bool AGGCharacter::IsApEnoughForSkill(CharacterSkill* Skill, int& OutCost)
 		OutCost = SkillData->ApCost;
 		return  true;
 	}
-
-	
-
-	
 }
 
 CharacterSkill* AGGCharacter::GetCurrentSkill()
@@ -724,6 +727,22 @@ CharacterSkill* AGGCharacter::GetCurrentSkill()
 	}
 
 	return Skills[CurrentSkillIndex];
+}
+
+CharacterSkill* AGGCharacter::GetOwnedSkillbyID(int ID)
+{
+	for (int i = 0; i < Skills.Num(); ++i)
+	{
+		if(Skills[i])
+		{
+			if(Skills[i]->GetSkillID() == ID)
+			{
+				return  Skills[i];
+			}
+		}
+	}
+
+	return  nullptr;
 }
 
 TArray<CharacterSkill*>* AGGCharacter::GetSkills()
@@ -806,13 +825,16 @@ void AGGCharacter::OnRoundEnds()
 		It.Value().DecreaseRound(1);
 	}
 
-	
+	UpdateHealthBarStatusEffects();
+
 }
 
 void AGGCharacter::OnTurnBegins()
 {
 	StatusEffectManager::ApplyOnTurnBegins(this, &AppliedStatusEffects);
 	UE_LOG(LogTemp, Warning, TEXT("STATUS EFFECTS %d"), AppliedStatusEffects.Num());
+	
+	UpdateHealthBarStatusEffects();
 
 	if(StatsComponent)
 	{
@@ -826,7 +848,7 @@ void AGGCharacter::OnTurnEnds()
 }
 
 
-TMap<EStatusEffectType, struct FStatusEffectData>* AGGCharacter::GetAppliedStatusEffects()
+TArray<struct FStatusEffectData>* AGGCharacter::GetAppliedStatusEffects()
 {
 	return &AppliedStatusEffects;
 }

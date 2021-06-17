@@ -32,7 +32,7 @@ void ATownGameModeBase::BeginPlay()
     //DayTaskManager::UpdateTasks(this);
 
 
-    HudWidgetInstance = Cast<UTownHudWidget>(WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::TownHud, this));
+    HudWidgetInstance = Cast<UTownHudWidget>(WidgetManager::GetWidgetInstanceIfNotCreate(EWidgetKeys::TownHud, this));
     if(HudWidgetInstance)
     {
         HudWidgetInstance->AddToViewport();

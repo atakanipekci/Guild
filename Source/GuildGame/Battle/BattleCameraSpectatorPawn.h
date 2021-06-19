@@ -114,7 +114,14 @@ public:
 	
 	float GetLandTerrainSurfaceAtCoord(float XCoord, float YCoord)const;
 
+	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds)override;
+
+	void LerpCameraToCharacterAndFollow(class AGGCharacter*, float Duration);
+	void LerpCameraToCharacter(class AGGCharacter*, float Duration);
+
+	UFUNCTION()
+	bool IsNotMoving();
 
 private:
 

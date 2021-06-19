@@ -24,10 +24,7 @@ struct FStatusEffectData : public FTableRowBase
 	int RemainingTurns; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MinValue;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MaxValue;
+	float Value;
 
 	UPROPERTY()
 	class AGGCharacter* Caster;

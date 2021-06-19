@@ -4,6 +4,7 @@
 #include "BattlePlayerController.h"
 
 #include "AIController.h"
+#include "BattleCameraSpectatorPawn.h"
 #include "GuildGame/Characters/GGCharacter.h"
 #include "BattleControllerState.h"
 #include "GuildGame/GridSystem/GridFloor.h"
@@ -212,6 +213,16 @@ void ABattlePlayerController::MoveSelectedChar()
 	
 	int ApCost = SelectedCharacter->GetApCostByDistance(Dist);
 	SelectedCharacter->TryToSpendAP(ApCost);
+
+	AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	if(GameMode)
+	{
+		ABattleCameraSpectatorPawn* Spectator = GameMode->CameraSpectatorPawn;
+		if(Spectator)
+		{
+			Spectator->LerpCameraToCharacterAndFollow(SelectedCharacter, 1);
+		}
+	}
 }
 
 void ABattlePlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)
@@ -236,7 +247,16 @@ void ABattlePlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)
 				BattleGameMode->HudWidgetInstance->RefreshSkillsArray(SelectedCharacter);
 			}
 		}
-		
+
+		AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+		if(GameMode)
+		{
+			ABattleCameraSpectatorPawn* Spectator = GameMode->CameraSpectatorPawn;
+			if(Spectator)
+			{
+				Spectator->LerpCameraToCharacter(NewCharacter, 0.5f);
+			}
+		}
 	}
 }
 

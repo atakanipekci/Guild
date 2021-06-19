@@ -29,6 +29,7 @@ void ATimedEventManager::BeginDestroy()
 void ATimedEventManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	SetTickGroup(ETickingGroup::TG_PostPhysics);
 
 	for (int i = 0; i < RotationData.Num(); ++i)
 	{
@@ -43,6 +44,7 @@ void ATimedEventManager::Tick(float DeltaTime)
 			RotationData[i].Timer += DeltaTime;
 			if(RotationData[i].Timer >= RotationData[i].Duration)
 			{
+				RotationData[i].OwnerActor->SetActorRotation(RotationData[i].TargetRotation);
 				RotationData.RemoveAt(i);
 				i--;
 				i = FMath::Max(0, i);
@@ -52,6 +54,85 @@ void ATimedEventManager::Tick(float DeltaTime)
 				FRotator NewRotation = FMath::Lerp(RotationData[i].StartRotation, RotationData[i].TargetRotation, RotationData[i].Timer / RotationData[i].Duration);
 				RotationData[i].OwnerActor->SetActorRotation(NewRotation);
 			}
+		}
+	}
+
+	for (int i = 0; i < LocationData.Num(); ++i)
+	{
+		if(LocationData[i].OwnerActor == nullptr)
+		{
+			LocationData.RemoveAt(i);
+			i--;
+			i = FMath::Max(0, i);
+		}
+		else
+		{
+			LocationData[i].Timer += DeltaTime;
+			if(LocationData[i].bFollowMode == false)
+			{
+				bool CheckCondition = true;
+				if(LocationData[i].ConditionDelegate.IsBound())
+				{
+					CheckCondition = LocationData[i].ConditionDelegate.Execute();
+				}
+
+				if(CheckCondition)
+				{
+					if(LocationData[i].Timer >= LocationData[i].Duration)
+					{
+						LocationData[i].OwnerActor->SetActorLocation(LocationData[i].TargetLocation);
+						LocationData.RemoveAt(i);
+						i--;
+						i = FMath::Max(0, i);
+					}
+					else if(LocationData[i].Duration > 0)
+					{
+						FVector NewLocation = FMath::Lerp(LocationData[i].StartLocation, LocationData[i].TargetLocation, LocationData[i].Timer / LocationData[i].Duration);
+						LocationData[i].OwnerActor->SetActorLocation(NewLocation);
+					}
+				}
+				else
+				{
+					LocationData.RemoveAt(i);
+					i--;
+					i = FMath::Max(0, i);
+				}
+				
+			}
+			else if(LocationData[i].ActorToFollow != nullptr)
+			{
+				bool CheckCondition = true;
+				if(LocationData[i].ConditionDelegate.IsBound())
+				{
+					CheckCondition = LocationData[i].ConditionDelegate.Execute();
+				}
+
+				if(CheckCondition)
+				{
+					if(LocationData[i].Timer >= LocationData[i].Duration)
+					{
+						LocationData[i].Timer = LocationData[i].Duration;
+
+						FVector FollowPos = LocationData[i].ActorToFollow->GetActorLocation();
+						FollowPos.Z = LocationData[i].OverridenLocationZ;
+						LocationData[i].OwnerActor->SetActorLocation(FollowPos);
+					}
+					else if(LocationData[i].Duration > 0)
+					{
+						FVector FollowPos = LocationData[i].ActorToFollow->GetActorLocation();
+						FollowPos.Z = LocationData[i].OverridenLocationZ;
+						FVector NewLocation = FMath::Lerp(LocationData[i].OwnerActor->GetActorLocation(), FollowPos, LocationData[i].Timer / LocationData[i].Duration);
+						LocationData[i].OwnerActor->SetActorLocation(NewLocation);
+					}
+				}
+				else
+				{
+					LocationData.RemoveAt(i);
+					i--;
+					i = FMath::Max(0, i);
+				}
+			}
+			
 		}
 	}
 
@@ -114,6 +195,77 @@ void ATimedEventManager::Rotate(AActor* ActorToRotate, FRotator TargetRotation, 
 	ManagerInstance->RotationData.Add(NewData);
 }
 
+void ATimedEventManager::Move(AActor* ActorToMove, FVector TargetLocation, float Duration, FConditionEvent& ConditionDelegate, UWorld* World)
+{
+	if(ActorToMove == nullptr || World == nullptr) return;
+	
+	CreateTimedEvent(World);
+
+	if(ManagerInstance == nullptr) return;
+	
+	for (int i = 0; i < ManagerInstance->LocationData.Num(); ++i)
+	{
+		if(ManagerInstance->LocationData[i].OwnerActor)
+		{
+			if(ManagerInstance->LocationData[i].OwnerActor == ActorToMove)
+			{
+				ManagerInstance->LocationData.RemoveAt(i);
+				break;
+			}
+		}
+	}
+
+	FTargetLocationData NewData;
+	NewData.bFollowMode = false;
+	NewData.OwnerActor = ActorToMove;
+	NewData.StartLocation = ActorToMove->GetActorLocation();
+	NewData.TargetLocation = TargetLocation;
+	if(ConditionDelegate.IsBound())
+	{
+		NewData.ConditionDelegate = ConditionDelegate;
+	}
+	NewData.ActorToFollow = nullptr;
+	NewData.Duration = Duration;
+	NewData.Timer = 0;
+	
+	ManagerInstance->LocationData.Add(NewData);
+}
+
+void ATimedEventManager::MoveToActorAndFollow(AActor* ActorToMove, AActor* ActorToFollow, float Duration, float OverridenLocationZ, FConditionEvent& ConditionDelegate, UWorld* World)
+{
+	if(ActorToMove == nullptr || ActorToFollow == nullptr || World == nullptr) return;
+	
+	CreateTimedEvent(World);
+
+	if(ManagerInstance == nullptr) return;
+	
+	for (int i = 0; i < ManagerInstance->LocationData.Num(); ++i)
+	{
+		if(ManagerInstance->LocationData[i].OwnerActor)
+		{
+			if(ManagerInstance->LocationData[i].OwnerActor == ActorToMove)
+			{
+				ManagerInstance->LocationData.RemoveAt(i);
+				break;
+			}
+		}
+	}
+
+	FTargetLocationData NewData;
+	NewData.bFollowMode = true;
+	NewData.OverridenLocationZ = OverridenLocationZ;
+	NewData.OwnerActor = ActorToMove;
+	NewData.ActorToFollow = ActorToFollow;
+	if(ConditionDelegate.IsBound())
+	{
+		NewData.ConditionDelegate = ConditionDelegate;
+	}
+	NewData.Duration = Duration;
+	NewData.Timer = 0;
+	
+	ManagerInstance->LocationData.Add(NewData);
+}
+
 void ATimedEventManager::CallEventWithDelay(AActor* EventActor, FString Key, FTimedEvent& EventToCall, float Duration, UWorld* World)
 {
 	if(EventActor == nullptr || World == nullptr) return;
@@ -128,7 +280,10 @@ void ATimedEventManager::CallEventWithDelay(AActor* EventActor, FString Key, FTi
 		EventData.Duration = Duration;
 		EventData.Timer = 0;
 		EventData.OwnerActor = EventActor;
-		EventData.OnTimeEnds = EventToCall;
+		if(EventToCall.IsBound())
+		{
+			EventData.OnTimeEnds = EventToCall;
+		}
 		ManagerInstance->TimedEventMap.Add(Key, EventData);
 	}
 }

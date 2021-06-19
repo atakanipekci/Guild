@@ -36,6 +36,9 @@ public:
 
 	UPROPERTY()
 	class UBattleHudWidget* HudWidgetInstance;
+
+	UPROPERTY()
+	class ABattleCameraSpectatorPawn* CameraSpectatorPawn;
 	
 private:
 	TArray<class AGGCharacter*> Characters;

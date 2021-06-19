@@ -77,8 +77,7 @@ void StatusEffectManager::StackStatus(AGGCharacter* Target, FStatusEffectData* E
 	if(Target == nullptr || ExistingStatusEffect == nullptr || NewStatusEffect == nullptr) return;
 
 	ExistingStatusEffect->Caster = NewStatusEffect->Caster;
-	ExistingStatusEffect->MinValue += NewStatusEffect->MinValue;
-	ExistingStatusEffect->MaxValue += NewStatusEffect->MaxValue;
+	ExistingStatusEffect->Value += NewStatusEffect->Value;
 	ExistingStatusEffect->RemainingTurns += NewStatusEffect->RemainingTurns;
 }
 
@@ -91,13 +90,11 @@ void StatusEffectManager::ApplyOnTurnBegins(AGGCharacter* Target, TArray<struct 
 	{
 		if((*StatusEffects)[i].Type == EStatusEffectType::Bleed)
 		{
-			const int Result = FMath::RandRange((*StatusEffects)[i].MinValue, (*StatusEffects)[i].MaxValue);
-			Target->TakeDefaultDamage(Result, (*StatusEffects)[i].Caster);
+			Target->TakeDefaultDamage((*StatusEffects)[i].Value, (*StatusEffects)[i].Caster);
 		}
 		else if((*StatusEffects)[i].Type == EStatusEffectType::Poison)
 		{
-			const int Result = FMath::RandRange((*StatusEffects)[i].MinValue, (*StatusEffects)[i].MaxValue);
-			Target->TakeDefaultDamage(Result, (*StatusEffects)[i].Caster);
+			Target->TakeDefaultDamage((*StatusEffects)[i].Value, (*StatusEffects)[i].Caster);
 		}
 		else if((*StatusEffects)[i].Type == EStatusEffectType::Stun)
 		{
@@ -105,8 +102,7 @@ void StatusEffectManager::ApplyOnTurnBegins(AGGCharacter* Target, TArray<struct 
 		}
 		else if((*StatusEffects)[i].Type == EStatusEffectType::Heal)
 		{
-			const int Result = FMath::RandRange((*StatusEffects)[i].MinValue, (*StatusEffects)[i].MaxValue);
-			Target->Heal(Result, (*StatusEffects)[i].Caster);
+			Target->Heal((*StatusEffects)[i].Value, (*StatusEffects)[i].Caster);
 		}
 
 		(*StatusEffects)[i].RemainingTurns--;

@@ -9,7 +9,10 @@
 #include "Engine/Classes/Components/InputComponent.h"
 #include "Engine/Classes/Engine/Engine.h"
 #include "BattleControllerState.h"
+#include "DrawDebugHelpers.h"
+#include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Characters/GGCharacter.h"
+#include "GuildGame/Managers/TimedEventManager.h"
 #include "Kismet/GameplayStatics.h"
 
 ABattleCameraSpectatorPawn::ABattleCameraSpectatorPawn(const FObjectInitializer& ObjectInitializer)
@@ -28,11 +31,11 @@ ABattleCameraSpectatorPawn::ABattleCameraSpectatorPawn(const FObjectInitializer&
 	GetCollisionComponent()->SetSimulatePhysics(false);
 
 	CameraXYLimit = 7500.f;
-	CameraHeight = 300.f;
+	CameraHeight = 100.f;
 	CameraHeightMin = 5.f;
 	CameraHeightMax = 5000.f;
 
-	CameraRadius = 1100.f;
+	CameraRadius = 1400.f;
 	CameraRadiusMin = 100.f;
 	CameraRadiusMax = 8000.f;
 
@@ -89,6 +92,7 @@ void ABattleCameraSpectatorPawn::RightClickHandler()
 	{
 		return;
 	}
+
 	if(PlayerController->GetActiveState())
 	{
 		PlayerController->GetActiveState()->RightClickHandler();
@@ -117,7 +121,7 @@ void ABattleCameraSpectatorPawn::RotateInput(float Direction)
 		return;
 	}
 
-	RotateValue = FMath::Abs(Direction);
+	RotateValue = Direction;
 }
 
 void ABattleCameraSpectatorPawn::ZoomInByWheel()
@@ -290,6 +294,17 @@ float ABattleCameraSpectatorPawn::GetLandTerrainSurfaceAtCoord(float XCoord, flo
 	return 0.f;        // water level
 }
 
+void ABattleCameraSpectatorPawn::BeginPlay()
+{
+	Super::BeginPlay();
+	AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	if(GameMode)
+	{
+		GameMode->CameraSpectatorPawn = this;
+	}
+}
+
+
 void ABattleCameraSpectatorPawn::Tick(float DeltaSeconds)
 {
 		Super::Tick(DeltaSeconds);
@@ -310,11 +325,17 @@ void ABattleCameraSpectatorPawn::Tick(float DeltaSeconds)
 		return;
 	}
 
+	
 	GameViewport->GetViewportSize(ViewportSize);
 
 	// if viewport is focused, contains the mouse, and camera movement is allowed
-	if (GameViewport->IsFocused(GameViewport->Viewport)
-		&& GameViewport->GetMousePosition(MousePosition) && bCanMoveCamera)
+	// UE_LOG(LogTemp, Warning, TEXT("IsFocused %d"), GameViewport->IsFocused(GameViewport->Viewport));
+	// 	UE_LOG(LogTemp, Warning, TEXT("GetMousePosition %d"), GameViewport->GetMousePosition(MousePosition));
+	// UE_LOG(LogTemp, Warning, TEXT("bCanMoveCamera %d"), bCanMoveCamera);
+
+	
+	if (/*GameViewport->IsFocused(GameViewport->Viewport)
+		&& */GameViewport->GetMousePosition(MousePosition) && bCanMoveCamera)
 	{
 		// if (MousePosition.X < CameraScrollBoundary)
 		// {
@@ -358,12 +379,49 @@ void ABattleCameraSpectatorPawn::Tick(float DeltaSeconds)
 		if (RotateValue != 0.f)
 		{
 			TurnCameraUp(MoveForwardValue * DeltaSeconds);
-			TurnCameraRight(MoveRightValue * DeltaSeconds);
+			TurnCameraRight(RotateValue * DeltaSeconds);
 		}
 
 		ZoomCameraIn(ZoomInValue * DeltaSeconds);
 		RepositionCamera();
 	}
+}
+
+void ABattleCameraSpectatorPawn::LerpCameraToCharacterAndFollow(AGGCharacter* Char, float Duration)
+{
+	if(Char == nullptr) return;
+
+	FConditionEvent ConditionDelegate;
+	ConditionDelegate.BindDynamic(this, &ABattleCameraSpectatorPawn::IsNotMoving);
+	ATimedEventManager::MoveToActorAndFollow(this, Char, Duration, GetActorLocation().Z, ConditionDelegate, GetWorld());
+	// MoveForwardValue
+	// MoveRightValue
+	// AGGCharacter* SelectedChar = PlayerController->GetSelectedCharacter();
+	// if(SelectedChar)
+	// {
+	// 	FVector NewPosition = SelectedChar->GetActorLocation();
+	// 	NewPosition.Z = GetActorLocation().Z;
+	// 	SetActorLocation(NewPosition);
+	// }
+}
+
+void ABattleCameraSpectatorPawn::LerpCameraToCharacter(AGGCharacter* Char, float Duration)
+{
+	if(Char == nullptr) return;
+	FVector StartLocation = Char->GetActorLocation();
+	StartLocation.Z = GetActorLocation().Z;
+	FConditionEvent ConditionDelegate;
+	ConditionDelegate.BindDynamic(this, &ABattleCameraSpectatorPawn::IsNotMoving);
+	ATimedEventManager::Move(this, StartLocation, Duration, ConditionDelegate, GetWorld());
+}
+
+bool ABattleCameraSpectatorPawn::IsNotMoving()
+{
+	if(MoveForwardValue == 0.0f && MoveRightValue == 0.0f)
+	{
+		return true;
+	}
+	return false;
 }
 
 FVector ABattleCameraSpectatorPawn::MoveCameraForward(float Direction)

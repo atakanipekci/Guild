@@ -17,8 +17,7 @@ void UStatusEffectTooltipWidget::Refresh(const FStatusEffectFileDataTable& File,
 		StatusImage->SetBrushResourceObject(File.Image);
 
 	FFormatNamedArguments Args;
-	Args.Add("MaxValue", Data.MaxValue);
-	Args.Add("MinValue", Data.MinValue);
+	Args.Add("Value", Data.Value);
 	Args.Add("RemainingTurns", Data.RemainingTurns);
 
 	FText FormattedText = FText::Format(

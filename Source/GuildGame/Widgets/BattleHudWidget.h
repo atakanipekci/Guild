@@ -44,4 +44,11 @@ public:
 
 	UFUNCTION()
 	void OnApSpent();
+
+	UFUNCTION()
+	void SetSkillsPanelHidden();
+
+	UFUNCTION()
+	void SetSkillsPanelVisible();
+	
 };

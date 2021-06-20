@@ -46,7 +46,7 @@ ABattleCameraSpectatorPawn::ABattleCameraSpectatorPawn(const FObjectInitializer&
 
 
 	CameraZoomSpeed = 200.f;
-	CameraMovementSpeed = 3000.f;
+	CameraMovementSpeed = 1500.f;
 	CameraRotationSpeed = 10.f;
 
 	CameraScrollBoundary = 30.f; // screen edge margin
@@ -405,14 +405,19 @@ void ABattleCameraSpectatorPawn::LerpCameraToCharacterAndFollow(AGGCharacter* Ch
 	// }
 }
 
-void ABattleCameraSpectatorPawn::LerpCameraToCharacter(AGGCharacter* Char, float Duration)
+void ABattleCameraSpectatorPawn::LerpCameraToCharacter(AGGCharacter* Char, float Duration, bool  EnableMovement, FTimedEvent&  OnComplete)
 {
 	if(Char == nullptr) return;
+
+	FConditionEvent ConditionDelegate;
+	if(EnableMovement)
+	{
+		ConditionDelegate.BindDynamic(this, &ABattleCameraSpectatorPawn::IsNotMoving);
+	}
+
 	FVector StartLocation = Char->GetActorLocation();
 	StartLocation.Z = GetActorLocation().Z;
-	FConditionEvent ConditionDelegate;
-	ConditionDelegate.BindDynamic(this, &ABattleCameraSpectatorPawn::IsNotMoving);
-	ATimedEventManager::Move(this, StartLocation, Duration, ConditionDelegate, GetWorld());
+	ATimedEventManager::Move(this, StartLocation, Duration, ConditionDelegate, OnComplete, GetWorld());
 }
 
 bool ABattleCameraSpectatorPawn::IsNotMoving()

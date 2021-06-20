@@ -80,6 +80,10 @@ void ATimedEventManager::Tick(float DeltaTime)
 				{
 					if(LocationData[i].Timer >= LocationData[i].Duration)
 					{
+						if(LocationData[i].OnCompleteDelegate.IsBound())
+						{
+							LocationData[i].OnCompleteDelegate.Execute();
+						}
 						LocationData[i].OwnerActor->SetActorLocation(LocationData[i].TargetLocation);
 						LocationData.RemoveAt(i);
 						i--;
@@ -93,6 +97,10 @@ void ATimedEventManager::Tick(float DeltaTime)
 				}
 				else
 				{
+					if(LocationData[i].OnCompleteDelegate.IsBound())
+					{
+						LocationData[i].OnCompleteDelegate.Execute();
+					}
 					LocationData.RemoveAt(i);
 					i--;
 					i = FMath::Max(0, i);
@@ -195,7 +203,7 @@ void ATimedEventManager::Rotate(AActor* ActorToRotate, FRotator TargetRotation, 
 	ManagerInstance->RotationData.Add(NewData);
 }
 
-void ATimedEventManager::Move(AActor* ActorToMove, FVector TargetLocation, float Duration, FConditionEvent& ConditionDelegate, UWorld* World)
+void ATimedEventManager::Move(AActor* ActorToMove, FVector TargetLocation, float Duration, FConditionEvent& ConditionDelegate, FTimedEvent& OnComplete, UWorld* World)
 {
 	if(ActorToMove == nullptr || World == nullptr) return;
 	
@@ -223,6 +231,10 @@ void ATimedEventManager::Move(AActor* ActorToMove, FVector TargetLocation, float
 	if(ConditionDelegate.IsBound())
 	{
 		NewData.ConditionDelegate = ConditionDelegate;
+	}
+	if(OnComplete.IsBound())
+	{
+		NewData.OnCompleteDelegate = OnComplete;
 	}
 	NewData.ActorToFollow = nullptr;
 	NewData.Duration = Duration;

@@ -10,6 +10,7 @@
 #include "GuildGame/GridSystem/GridFloor.h"
 #include "GGLogHelper.h"
 #include "GuildGame/GuildGameGameModeBase.h"
+#include "GuildGame/Managers/TimedEventManager.h"
 #include "GuildGame/Widgets/BattleHudWidget.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -222,6 +223,11 @@ void ABattlePlayerController::MoveSelectedChar()
 		{
 			Spectator->LerpCameraToCharacterAndFollow(SelectedCharacter, 1);
 		}
+
+		if(GameMode->HudWidgetInstance)
+		{
+			GameMode->HudWidgetInstance->SetSkillsPanelHidden();
+		}
 	}
 }
 
@@ -246,15 +252,17 @@ void ABattlePlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)
 			{
 				BattleGameMode->HudWidgetInstance->RefreshSkillsArray(SelectedCharacter);
 			}
-		}
 
-		AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-		if(GameMode)
-		{
-			ABattleCameraSpectatorPawn* Spectator = GameMode->CameraSpectatorPawn;
+			ABattleCameraSpectatorPawn* Spectator = BattleGameMode->CameraSpectatorPawn;
 			if(Spectator)
 			{
-				Spectator->LerpCameraToCharacter(NewCharacter, 0.5f);
+				if(BattleGameMode->HudWidgetInstance)
+				{
+					BattleGameMode->HudWidgetInstance->SetSkillsPanelHidden();
+					FTimedEvent OnCompleteDelegate;
+					OnCompleteDelegate.BindDynamic(BattleGameMode->HudWidgetInstance, &UBattleHudWidget::SetSkillsPanelVisible);
+					Spectator->LerpCameraToCharacter(NewCharacter, 0.5f, false,OnCompleteDelegate);
+				}
 			}
 		}
 	}

@@ -3,8 +3,11 @@
 
 #include "BattleAIController.h"
 #include "GGLogHelper.h"
+#include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Characters/CharacterAnimInstance.h"
 #include "GuildGame/Characters/GGCharacter.h"
+#include "GuildGame/Widgets/BattleHudWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 void ABattleAIController::OnMoveCompleted(FAIRequestID Id, const FPathFollowingResult& Result)
 {
@@ -18,4 +21,13 @@ void ABattleAIController::OnMoveCompleted(FAIRequestID Id, const FPathFollowingR
             Char->SetAnimState(ECharacterAnimState::Idle);
         }
     }
+
+    AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(this));
+	if(BattleGameMode)
+	{
+		if(BattleGameMode->HudWidgetInstance)
+		{
+			BattleGameMode->HudWidgetInstance->SetSkillsPanelVisible();
+		}
+	}
 }

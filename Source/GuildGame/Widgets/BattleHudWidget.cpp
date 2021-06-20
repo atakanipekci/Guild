@@ -36,8 +36,6 @@ void UBattleHudWidget::RefreshSkillsArray(AGGCharacter* SelectedChar)
 	
     if(SkillNodesGrid && SkillsPanel)
 	{
-    	SkillsPanel->SetVisibility(ESlateVisibility::Visible);
-    	
         SkillNodes.Empty();
     	UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
@@ -137,5 +135,22 @@ void UBattleHudWidget::OnApSpent()
 	if(ApText && LatestSelectedChar)
 	{
 		ApText->SetText(FText::AsNumber(LatestSelectedChar->GetCurrentAP()));
+	}
+}
+
+void UBattleHudWidget::SetSkillsPanelHidden()
+{
+	if(SkillsPanel)
+	{
+		SkillsPanel->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void UBattleHudWidget::SetSkillsPanelVisible()
+{
+	if(SkillsPanel)
+	{
+		SkillsPanel->SetVisibility(ESlateVisibility::Visible);
+		SkillsPanel->SetIsEnabled(true);
 	}
 }

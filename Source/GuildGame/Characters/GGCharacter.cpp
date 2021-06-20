@@ -15,12 +15,14 @@
 #include "GuildGameInstance.h"
 #include "WeaponAnimInstance.h"
 #include "Components/WidgetComponent.h"
+#include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Battle/BattlePlayerController.h"
 #include "GuildGame/GridSystem/GridFloor.h"
 #include "GuildGame/Managers/TimedEventManager.h"
 #include "GuildGame/Skills/CharacterSkill.h"
 #include "GuildGame/VFX/Projectiles/Projectile.h"
 #include "GuildGame/Widgets/BattleHealthBarWidget.h"
+#include "GuildGame/Widgets/BattleHudWidget.h"
 
 // Sets default values
 AGGCharacter::AGGCharacter()
@@ -415,7 +417,7 @@ void AGGCharacter::SetCustomDepth(bool Active, int StencilValue)
 
 void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 {
-		if(StatsComponent == nullptr) return;
+	if(StatsComponent == nullptr) return;
 
 	CharacterSkill* CurrentSkill = GetCurrentSkill();
 
@@ -458,6 +460,15 @@ void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 		bIsSkillMontagePlaying = true;
 
 		TryToSpendAP(SkillApCost);
+
+		AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+		if(GameMode)
+		{
+			if(GameMode->HudWidgetInstance)
+			{
+				GameMode->HudWidgetInstance->SetSkillsPanelHidden();
+			}
+		}
 
 		if(SkillsCooldownMap.Contains(SkillFiles->SkillID))
 		{
@@ -539,6 +550,15 @@ void AGGCharacter::OnCastingSkillEnds()
 	{
 		SetStatus(ECharacterStatus::Idle);
 		PlayerController->ChangeStateTo(EControllerStateIndex::Movement);
+	}
+
+	AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	if(GameMode)
+	{
+		if(GameMode->HudWidgetInstance)
+		{
+			GameMode->HudWidgetInstance->SetSkillsPanelVisible();
+		}
 	}
 }
 

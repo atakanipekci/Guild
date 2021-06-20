@@ -10,6 +10,7 @@
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "GuildGame/Managers/TimedEventManager.h"
 #include "GuildGame/Managers/WidgetManager.h"
 
 void UBattleHealthBarWidget::NativeConstruct()
@@ -18,16 +19,26 @@ void UBattleHealthBarWidget::NativeConstruct()
 	Tooltip = Cast<UStatusEffectStackableTooltipWidg>(WidgetManager::CreateWidgetInstance(EWidgetKeys::StatusEffectStackableTooltip, GetWorld()));
 }
 
-void UBattleHealthBarWidget::SetHpBar(int CurrentHealth, int MaxHealth)
+void UBattleHealthBarWidget::SetHpBar(int CurrentHealth, int MaxHealth, int StartHealth)
 {
 	if(MaxHealth <= 0 || HealthBar == nullptr || HpText == nullptr)
 		return;
 	
 	const float Percentage = (float)CurrentHealth / MaxHealth;
+	const float StartPercent = (float)StartHealth / MaxHealth;
 
-	HealthBar->SetPercent(Percentage);
-	FString Hp = FString::Printf(TEXT("%d"), CurrentHealth);
-	HpText->SetText(FText::FromString(Hp));
+	if(CurrentHealth != StartHealth)
+	{
+		FText FormatText = NSLOCTEXT("CommonWords", "HP", "{HP}");
+		ATimedEventManager::LerpTextNumber(HpText, FormatText,"HP", 0.4f, StartHealth, CurrentHealth, GetWorld());
+		ATimedEventManager::LerpProgressBar(HealthBar, 0.4f, StartPercent, Percentage, GetWorld());
+	}
+	else
+	{
+		HealthBar->SetPercent(Percentage);
+		FString Hp = FString::Printf(TEXT("%d"), CurrentHealth);
+		HpText->SetText(FText::FromString(Hp));
+	}
 }
 
 void UBattleHealthBarWidget::SetStatusEffects(TArray<FStatusEffectData>* StatusEffects)

@@ -150,7 +150,7 @@ public:
 	
 	virtual void ThrowProjectile(FName SocketName, bool bUseBoneRotation) override;
 
-	void UpdateHealthBar();
+	void UpdateHealthBar(int StartHealth);
 	void UpdateHealthBarStatusEffects();
 	class UCharacterAnimInstance* GetAnimInstance();
 	void PrepareAnimInstance();

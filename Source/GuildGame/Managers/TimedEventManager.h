@@ -62,6 +62,35 @@ struct FTimerEventData
 	float Timer;
 };
 
+USTRUCT()
+struct FProgressBarData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	class UProgressBar* ProgressBar;
+	float StartValue;
+	float EndValue;
+	float Duration;
+	float Timer;
+};
+
+USTRUCT()
+struct FTextData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	class UTextBlock* TextBlock;
+	FText FormatText;
+	FString ArgumentKey;
+	
+	float StartValue;
+	float EndValue;
+	float Duration;
+	float Timer;
+};
+
 UCLASS()
 class GUILDGAME_API ATimedEventManager : public AActor
 {
@@ -82,6 +111,8 @@ public:
 	static ATimedEventManager* ManagerInstance;
 	TArray<FTargetRotationData> RotationData;
 	TArray<FTargetLocationData> LocationData;
+	TArray<FProgressBarData> ProgressBarData;
+	TArray<FTextData> TextData;
 	TMap<FString, FTimerEventData> TimedEventMap;
 
 	// Called every frame
@@ -91,7 +122,17 @@ public:
 	static void Rotate(AActor* ActorToRotate, FRotator TargetRotation, float Duration, UWorld* World);
 	static void Move(AActor* ActorToMove, FVector TargetLocation, float Duration, FConditionEvent& ConditionDelegate, FTimedEvent& OnComplete, UWorld* World);
 	static void MoveToActorAndFollow(AActor* ActorToMove, AActor* ActorToFollow, float Duration, float OverridenLocationZ, FConditionEvent& ConditionDelegate, UWorld* World);
+	
 	static void CallEventWithDelay(AActor* EventActor, FString Key, FTimedEvent& EventToCall, float Duration, UWorld* World);
 	static bool RemoveEventData(FString Key, bool bCallEvent);
+
+	static void LerpProgressBar(class UProgressBar* ProgressBar, float Duration, float StartValue, float EndValue, UWorld* World);
+	static void LerpTextNumber(class UTextBlock* TextBlock, FText FormatText, FString ArgumentKey, float Duration, float StartValue, float EndValue,  UWorld* World);
+	
+	bool UpdateTextNumber(FTextData& Data, float DeltaTime);
+	bool UpdateProgressBar(FProgressBarData& Data, float DeltaTime);
+	bool UpdateRotate(FTargetRotationData& Data, float DeltaTime);
+	bool UpdateMove(FTargetLocationData& Data, float DeltaTime);
+	
 	
 };

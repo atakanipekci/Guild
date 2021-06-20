@@ -3,6 +3,9 @@
 
 #include "TimedEventManager.h"
 
+#include "Components/ProgressBar.h"
+#include "Components/TextBlock.h"
+
 ATimedEventManager* ATimedEventManager::ManagerInstance = nullptr;
 
 // Sets default values
@@ -31,116 +34,19 @@ void ATimedEventManager::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	SetTickGroup(ETickingGroup::TG_PostPhysics);
 
-	for (int i = 0; i < RotationData.Num(); ++i)
+	for (int i = RotationData.Num() - 1; i >= 0; --i)
 	{
-		if(RotationData[i].OwnerActor == nullptr)
+		if(UpdateRotate(RotationData[i], DeltaTime) == false)
 		{
 			RotationData.RemoveAt(i);
-			i--;
-			i = FMath::Max(0, i);
-		}
-		else
-		{
-			RotationData[i].Timer += DeltaTime;
-			if(RotationData[i].Timer >= RotationData[i].Duration)
-			{
-				RotationData[i].OwnerActor->SetActorRotation(RotationData[i].TargetRotation);
-				RotationData.RemoveAt(i);
-				i--;
-				i = FMath::Max(0, i);
-			}
-			else if(RotationData[i].Duration > 0)
-			{
-				FRotator NewRotation = FMath::Lerp(RotationData[i].StartRotation, RotationData[i].TargetRotation, RotationData[i].Timer / RotationData[i].Duration);
-				RotationData[i].OwnerActor->SetActorRotation(NewRotation);
-			}
 		}
 	}
 
-	for (int i = 0; i < LocationData.Num(); ++i)
+	for (int i = LocationData.Num() - 1; i >= 0; --i)
 	{
-		if(LocationData[i].OwnerActor == nullptr)
+		if(UpdateMove(LocationData[i], DeltaTime) == false)
 		{
 			LocationData.RemoveAt(i);
-			i--;
-			i = FMath::Max(0, i);
-		}
-		else
-		{
-			LocationData[i].Timer += DeltaTime;
-			if(LocationData[i].bFollowMode == false)
-			{
-				bool CheckCondition = true;
-				if(LocationData[i].ConditionDelegate.IsBound())
-				{
-					CheckCondition = LocationData[i].ConditionDelegate.Execute();
-				}
-
-				if(CheckCondition)
-				{
-					if(LocationData[i].Timer >= LocationData[i].Duration)
-					{
-						if(LocationData[i].OnCompleteDelegate.IsBound())
-						{
-							LocationData[i].OnCompleteDelegate.Execute();
-						}
-						LocationData[i].OwnerActor->SetActorLocation(LocationData[i].TargetLocation);
-						LocationData.RemoveAt(i);
-						i--;
-						i = FMath::Max(0, i);
-					}
-					else if(LocationData[i].Duration > 0)
-					{
-						FVector NewLocation = FMath::Lerp(LocationData[i].StartLocation, LocationData[i].TargetLocation, LocationData[i].Timer / LocationData[i].Duration);
-						LocationData[i].OwnerActor->SetActorLocation(NewLocation);
-					}
-				}
-				else
-				{
-					if(LocationData[i].OnCompleteDelegate.IsBound())
-					{
-						LocationData[i].OnCompleteDelegate.Execute();
-					}
-					LocationData.RemoveAt(i);
-					i--;
-					i = FMath::Max(0, i);
-				}
-				
-			}
-			else if(LocationData[i].ActorToFollow != nullptr)
-			{
-				bool CheckCondition = true;
-				if(LocationData[i].ConditionDelegate.IsBound())
-				{
-					CheckCondition = LocationData[i].ConditionDelegate.Execute();
-				}
-
-				if(CheckCondition)
-				{
-					if(LocationData[i].Timer >= LocationData[i].Duration)
-					{
-						LocationData[i].Timer = LocationData[i].Duration;
-
-						FVector FollowPos = LocationData[i].ActorToFollow->GetActorLocation();
-						FollowPos.Z = LocationData[i].OverridenLocationZ;
-						LocationData[i].OwnerActor->SetActorLocation(FollowPos);
-					}
-					else if(LocationData[i].Duration > 0)
-					{
-						FVector FollowPos = LocationData[i].ActorToFollow->GetActorLocation();
-						FollowPos.Z = LocationData[i].OverridenLocationZ;
-						FVector NewLocation = FMath::Lerp(LocationData[i].OwnerActor->GetActorLocation(), FollowPos, LocationData[i].Timer / LocationData[i].Duration);
-						LocationData[i].OwnerActor->SetActorLocation(NewLocation);
-					}
-				}
-				else
-				{
-					LocationData.RemoveAt(i);
-					i--;
-					i = FMath::Max(0, i);
-				}
-			}
-			
 		}
 	}
 
@@ -162,6 +68,23 @@ void ATimedEventManager::Tick(float DeltaTime)
 	for (int i = 0; i < KeysToRemove.Num(); ++i)
 	{
 		RemoveEventData(KeysToRemove[i], true);
+	}
+
+
+	for (int i = ProgressBarData.Num() - 1; i >= 0; --i)
+	{
+		if(UpdateProgressBar(ProgressBarData[i], DeltaTime) == false)
+		{
+			ProgressBarData.RemoveAt(i);
+		}
+	}
+
+	for (int i = TextData.Num() - 1; i >= 0; --i)
+	{
+		if(UpdateTextNumber(TextData[i], DeltaTime) == false)
+		{
+			TextData.RemoveAt(i);
+		}
 	}
 }
 
@@ -321,4 +244,228 @@ bool ATimedEventManager::RemoveEventData(FString Key, bool bCallEvent)
 	}
 	return false;
 }
+
+void ATimedEventManager::LerpProgressBar(UProgressBar* ProgressBar, float Duration, float StartValue, float EndValue, UWorld* World)
+{
+	if(ProgressBar == nullptr || World == nullptr) return;
+	
+	CreateTimedEvent(World);
+
+	if(ManagerInstance == nullptr) return;
+	
+	for (int i = 0; i < ManagerInstance->ProgressBarData.Num(); ++i)
+	{
+		if(ManagerInstance->ProgressBarData[i].ProgressBar)
+		{
+			if(ManagerInstance->ProgressBarData[i].ProgressBar == ProgressBar)
+			{
+				ManagerInstance->ProgressBarData.RemoveAt(i);
+				break;
+			}
+		}
+	}
+
+	FProgressBarData NewData;
+	NewData.ProgressBar = ProgressBar;
+	NewData.StartValue = StartValue;
+	NewData.EndValue = EndValue;
+	NewData.Duration = Duration;
+	NewData.Timer = 0;
+	
+	ManagerInstance->ProgressBarData.Add(NewData);
+}
+
+void ATimedEventManager::LerpTextNumber(UTextBlock* TextBlock, FText FormatText, FString ArgumentKey, float Duration,
+	float StartValue, float EndValue, UWorld* World)
+{
+	if(TextBlock == nullptr || World == nullptr) return;
+	
+	CreateTimedEvent(World);
+
+	if(ManagerInstance == nullptr) return;
+	
+	for (int i = 0; i < ManagerInstance->TextData.Num(); ++i)
+	{
+		if(ManagerInstance->TextData[i].TextBlock)
+		{
+			if(ManagerInstance->TextData[i].TextBlock == TextBlock)
+			{
+				ManagerInstance->TextData.RemoveAt(i);
+				break;
+			}
+		}
+	}
+
+	FTextData NewData;
+	NewData.TextBlock = TextBlock;
+	NewData.FormatText = FormatText;
+	NewData.ArgumentKey = ArgumentKey;
+	NewData.StartValue = StartValue;
+	NewData.EndValue = EndValue;
+	NewData.Duration = Duration;
+	NewData.Timer = 0;
+	
+	ManagerInstance->TextData.Add(NewData);
+}
+
+bool ATimedEventManager::UpdateTextNumber(FTextData& Data, float DeltaTime)
+{
+	if(Data.TextBlock == nullptr)
+	{
+		return  false;
+	}
+
+	FFormatNamedArguments Args;
+	
+	Data.Timer += DeltaTime;
+	if(Data.Timer >= Data.Duration)
+	{
+		int NewValue = Data.EndValue;
+		Args.Add(Data.ArgumentKey, NewValue);
+		const FText FormattedText = FText::Format(
+			Data.FormatText,
+			Args
+		);
+		Data.TextBlock->SetText(FormattedText);
+		return  false;
+	}
+	else if(Data.Duration > 0)
+	{
+		int NewValue = FMath::Lerp(Data.StartValue, Data.EndValue, Data.Timer / Data.Duration);
+		Args.Add(Data.ArgumentKey, NewValue);
+
+		const FText FormattedText = FText::Format(
+			Data.FormatText,
+			Args
+		);
+		
+		Data.TextBlock->SetText(FormattedText);
+	}
+
+	return  true;
+}
+
+bool ATimedEventManager::UpdateProgressBar(FProgressBarData& Data, float DeltaTime)
+{
+	if(Data.ProgressBar == nullptr)
+	{
+		return  false;
+	}
+	
+	Data.Timer += DeltaTime;
+	if(Data.Timer >= Data.Duration)
+	{
+		Data.ProgressBar->SetPercent(Data.EndValue);
+		return false;
+	}
+	else if(Data.Duration > 0)
+	{
+		float NewPerc = FMath::Lerp(Data.StartValue, Data.EndValue, Data.Timer / Data.Duration);
+		Data.ProgressBar->SetPercent(NewPerc);
+	}
+
+	return  true;
+}
+
+bool ATimedEventManager::UpdateRotate(FTargetRotationData& Data, float DeltaTime)
+{
+	if(Data.OwnerActor == nullptr)
+	{
+		return  false;
+	}
+	
+	Data.Timer += DeltaTime;
+	if(Data.Timer >= Data.Duration)
+	{
+		Data.OwnerActor->SetActorRotation(Data.TargetRotation);
+		return  false;
+	}
+	else if(Data.Duration > 0)
+	{
+		FRotator NewRotation = FMath::Lerp(Data.StartRotation, Data.TargetRotation, Data.Timer / Data.Duration);
+		Data.OwnerActor->SetActorRotation(NewRotation);
+	}
+	return  true;
+}
+bool ATimedEventManager::UpdateMove(FTargetLocationData& Data, float DeltaTime)
+{
+	if(Data.OwnerActor == nullptr)
+	{
+		return  false;
+	}
+	
+	Data.Timer += DeltaTime;
+	if(Data.bFollowMode == false)
+	{
+		bool CheckCondition = true;
+		if(Data.ConditionDelegate.IsBound())
+		{
+			CheckCondition = Data.ConditionDelegate.Execute();
+		}
+
+		if(CheckCondition)
+		{
+			if(Data.Timer >= Data.Duration)
+			{
+				if(Data.OnCompleteDelegate.IsBound())
+				{
+					Data.OnCompleteDelegate.Execute();
+				}
+				Data.OwnerActor->SetActorLocation(Data.TargetLocation);
+				
+				return  false;
+			}
+			else if(Data.Duration > 0)
+			{
+				FVector NewLocation = FMath::Lerp(Data.StartLocation, Data.TargetLocation, Data.Timer / Data.Duration);
+				Data.OwnerActor->SetActorLocation(NewLocation);
+			}
+		}
+		else
+		{
+			if(Data.OnCompleteDelegate.IsBound())
+			{
+				Data.OnCompleteDelegate.Execute();
+			}
+			
+			return  false;
+		}
+		
+	}
+	else if(Data.ActorToFollow != nullptr)
+	{
+		bool CheckCondition = true;
+		if(Data.ConditionDelegate.IsBound())
+		{
+			CheckCondition = Data.ConditionDelegate.Execute();
+		}
+
+		if(CheckCondition)
+		{
+			if(Data.Timer >= Data.Duration)
+			{
+				Data.Timer = Data.Duration;
+
+				FVector FollowPos = Data.ActorToFollow->GetActorLocation();
+				FollowPos.Z = Data.OverridenLocationZ;
+				Data.OwnerActor->SetActorLocation(FollowPos);
+			}
+			else if(Data.Duration > 0)
+			{
+				FVector FollowPos = Data.ActorToFollow->GetActorLocation();
+				FollowPos.Z = Data.OverridenLocationZ;
+				FVector NewLocation = FMath::Lerp(Data.OwnerActor->GetActorLocation(), FollowPos, Data.Timer / Data.Duration);
+				Data.OwnerActor->SetActorLocation(NewLocation);
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return  true;
+}
+
+
 

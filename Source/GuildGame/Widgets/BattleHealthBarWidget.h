@@ -18,7 +18,7 @@ class GUILDGAME_API UBattleHealthBarWidget : public UUserWidget
 	
 	public:
 	virtual void NativeConstruct() override;
-	void SetHpBar(int GetCurrentHealth, int GetMaxHealth);
+	void SetHpBar(int GetCurrentHealth, int GetMaxHealth, int StartHealth);
 	void SetStatusEffects(TArray<FStatusEffectData>* StatusEffects);
 	class UStatusEffectNodeWidget* GetNodeWithSameType(EStatusEffectType TypeToSearch);
 

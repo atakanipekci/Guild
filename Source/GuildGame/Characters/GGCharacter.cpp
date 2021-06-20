@@ -128,7 +128,7 @@ void AGGCharacter::SetStats(const FCharacterStats& Stats)
 		StatsComponent->SetStats(Stats);
 		StatsComponent->SetCurrentAP(Stats.BaseAP);
 
-		UpdateHealthBar();
+		UpdateHealthBar(StatsComponent->GetCurrentHealth());
 		UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 		for (auto Element : StatsComponent->GetSkillIDs())
 		{
@@ -332,12 +332,13 @@ float AGGCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 {
 	if(StatsComponent)
 	{
+		float PreviousHealth = StatsComponent->GetCurrentHealth();
 		bool bIsDead = StatsComponent->ChangeHealth(-DamageAmount);
 		if(bIsDead == false)
 		{
 			PlayCharacterMontage(CharFile.GetRandomTakeHitMontage());
 		}
-		UpdateHealthBar();
+		UpdateHealthBar(PreviousHealth);
 		UpdateHealthBarStatusEffects();
 	}
 	return DamageAmount;
@@ -352,8 +353,9 @@ float AGGCharacter::Heal(float HealAmount, AGGCharacter* Healer)
 {
 	if(StatsComponent)
 	{
+		int PreviousHealth = StatsComponent->GetCurrentHealth();
 		StatsComponent->ChangeHealth(HealAmount);
-		UpdateHealthBar();
+		UpdateHealthBar(PreviousHealth);
 	}
 	return HealAmount;
 }
@@ -640,11 +642,11 @@ void AGGCharacter::ThrowProjectile(FName SocketName, bool bUseBoneRotation)
 	AActor* Projectile = CreateProjectile(SocketName, bUseBoneRotation);
 }
 
-void AGGCharacter::UpdateHealthBar()
+void AGGCharacter::UpdateHealthBar(int StartHealth)
 {
 	if(HealthBarWidget && StatsComponent)
 	{
-		HealthBarWidget->SetHpBar(StatsComponent->GetCurrentHealth(), StatsComponent->GetMaxHealth());
+		HealthBarWidget->SetHpBar(StatsComponent->GetCurrentHealth(), StatsComponent->GetMaxHealth(), StartHealth);
 	}
 }
 

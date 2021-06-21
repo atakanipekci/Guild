@@ -55,6 +55,13 @@ class GUILDGAME_API ControllerStateCastingSkill: public BattleControllerState
     void ChangeTo() override;
     void ChangeFrom() override;
     bool CanChangeTo() override;
+    void BeginDamagePreview(class AGGCharacter* SelectedChar);
+    void StopDamagePreview();
+
+    UFUNCTION()
+    void OnCurrentSkillChange();
+
+    TArray<class AGGCharacter*> DamagePreviewedCharacters;
 };
 
 class GUILDGAME_API ControllerStatePlacement: public BattleControllerState

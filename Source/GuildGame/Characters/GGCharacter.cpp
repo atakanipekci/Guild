@@ -224,6 +224,8 @@ void AGGCharacter::Deselect()
 	{
 		GridMan->SetGridState(CurrentGridIndex, EGridState::Obstacle);
 	}
+
+	OnSkillChangeDelegate.Unbind();
 }
 
 void AGGCharacter::SetCurrentIndex(int NewIndex)
@@ -751,6 +753,26 @@ CharacterSkill* AGGCharacter::GetCurrentSkill()
 	return Skills[CurrentSkillIndex];
 }
 
+float AGGCharacter::GetCurrentSkillDamage()
+{
+	if(CurrentSkillIndex >= Skills.Num()|| CurrentSkillIndex < 0 || Skills[CurrentSkillIndex] == nullptr)
+	{
+		return 0;
+	}
+
+	float DamageAmount = 0;
+	
+	for (int i = 0; i < Skills[CurrentSkillIndex]->GetSkillData().EffectData.Num(); ++i)
+	{
+		if(Skills[CurrentSkillIndex]->GetSkillData().EffectData[i].Type == EEffectType::DealDamage)
+		{
+			DamageAmount += Skills[CurrentSkillIndex]->GetSkillData().EffectData[i].MinValue;
+		}
+	}
+
+	return  DamageAmount;
+}
+
 CharacterSkill* AGGCharacter::GetOwnedSkillbyID(int ID)
 {
 	for (int i = 0; i < Skills.Num(); ++i)
@@ -782,6 +804,10 @@ bool AGGCharacter::SetCurrentSkillIfContains(int SkillId)
 			if(SkillData.SkillID == SkillId)
 			{
 				CurrentSkillIndex = i;
+				if(OnSkillChangeDelegate.IsBound())
+				{
+					OnSkillChangeDelegate.Execute();
+				}
 				return true;
 			}
 		}
@@ -867,6 +893,24 @@ void AGGCharacter::OnTurnBegins()
 void AGGCharacter::OnTurnEnds()
 {
 	//StatusEffectManager::ApplyOnTurnEnds(this, &AppliedStatusEffects);
+}
+
+void AGGCharacter::BeginDamagePreview(float DamageToPreview)
+{
+	if(HealthBarWidget == nullptr || StatsComponent == nullptr) return;
+	bIsInDamagePreviewMode = true;
+
+	HealthBarWidget->SetDamagePreviewBar(DamageToPreview, StatsComponent->GetMaxHealth());
+
+	
+}
+
+void AGGCharacter::StopDamagePreview()
+{
+	if(HealthBarWidget == nullptr || StatsComponent == nullptr) return;
+	bIsInDamagePreviewMode = false;
+
+	HealthBarWidget->ResetDamagePreviewBar(StatsComponent->GetMaxHealth());
 }
 
 

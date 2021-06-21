@@ -91,6 +91,20 @@ struct FTextData
 	float Timer;
 };
 
+USTRUCT()
+struct FWidgetRenderOpacityData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	class UWidget* Widget;
+	float StartValue;
+	float EndValue;
+	float Duration;
+	float Timer;
+	bool IsLooped = false;
+};
+
 UCLASS()
 class GUILDGAME_API ATimedEventManager : public AActor
 {
@@ -113,8 +127,10 @@ public:
 	TArray<FTargetLocationData> LocationData;
 	TArray<FProgressBarData> ProgressBarData;
 	TArray<FTextData> TextData;
+	TArray<FWidgetRenderOpacityData> WidgetOpacityData;
 	TMap<FString, FTimerEventData> TimedEventMap;
 
+	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -128,11 +144,13 @@ public:
 
 	static void LerpProgressBar(class UProgressBar* ProgressBar, float Duration, float StartValue, float EndValue, UWorld* World);
 	static void LerpTextNumber(class UTextBlock* TextBlock, FText FormatText, FString ArgumentKey, float Duration, float StartValue, float EndValue,  UWorld* World);
+
+	static void LerpWidgetOpacity(class UWidget* Widget, float Duration, float StartValue, float EndValue, bool IsLooped,  UWorld* World);
+	static void RemoveWidgetOpacityTimer(class UWidget* Widget);
 	
 	bool UpdateTextNumber(FTextData& Data, float DeltaTime);
 	bool UpdateProgressBar(FProgressBarData& Data, float DeltaTime);
 	bool UpdateRotate(FTargetRotationData& Data, float DeltaTime);
 	bool UpdateMove(FTargetLocationData& Data, float DeltaTime);
-	
-	
+	bool UpdateWidgetOpacity(FWidgetRenderOpacityData& Data, float DeltaTime);
 };

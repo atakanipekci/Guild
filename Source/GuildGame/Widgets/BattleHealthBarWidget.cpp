@@ -6,9 +6,11 @@
 #include "CharacterSkillTooltipWidget.h"
 #include "StatusEffectNodeWidget.h"
 #include "StatusEffectStackableTooltipWidg.h"
+#include "Components/CanvasPanelSlot.h"
 #include "Components/HorizontalBox.h"
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
+#include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 #include "GuildGame/Managers/TimedEventManager.h"
 #include "GuildGame/Managers/WidgetManager.h"
@@ -27,15 +29,26 @@ void UBattleHealthBarWidget::SetHpBar(int CurrentHealth, int MaxHealth, int Star
 	const float Percentage = (float)CurrentHealth / MaxHealth;
 	const float StartPercent = (float)StartHealth / MaxHealth;
 
+	SetHpText(CurrentHealth, MaxHealth, StartHealth);
 	if(CurrentHealth != StartHealth)
 	{
-		FText FormatText = NSLOCTEXT("CommonWords", "HP", "{HP}");
-		ATimedEventManager::LerpTextNumber(HpText, FormatText,"HP", 0.4f, StartHealth, CurrentHealth, GetWorld());
 		ATimedEventManager::LerpProgressBar(HealthBar, 0.4f, StartPercent, Percentage, GetWorld());
 	}
 	else
 	{
 		HealthBar->SetPercent(Percentage);
+	}
+}
+
+void UBattleHealthBarWidget::SetHpText(int CurrentHealth, int MaxHealth, int StartHealth)
+{
+	if(CurrentHealth != StartHealth)
+	{
+		FText FormatText = NSLOCTEXT("CommonWords", "HP", "{HP}");
+		ATimedEventManager::LerpTextNumber(HpText, FormatText,"HP", 0.4f, StartHealth, CurrentHealth, GetWorld());
+	}
+	else
+	{
 		FString Hp = FString::Printf(TEXT("%d"), CurrentHealth);
 		HpText->SetText(FText::FromString(Hp));
 	}
@@ -54,7 +67,7 @@ void UBattleHealthBarWidget::SetStatusEffects(TArray<FStatusEffectData>* StatusE
 		{
 			UStatusEffectNodeWidget* NodeInstance = nullptr;
 
-			UStatusEffectNodeWidget* StackableNode = GetNodeWithSameType((*StatusEffects)[i].Type);
+			UStatusEffectNodeWidget* StackableNode = GetStatusEffectNodeWithSameType((*StatusEffects)[i].Type);
 
 			bool bIstack = false;
 
@@ -118,7 +131,7 @@ void UBattleHealthBarWidget::SetStatusEffects(TArray<FStatusEffectData>* StatusE
 	}
 }
 
-UStatusEffectNodeWidget* UBattleHealthBarWidget::GetNodeWithSameType(EStatusEffectType TypeToSearch)
+UStatusEffectNodeWidget* UBattleHealthBarWidget::GetStatusEffectNodeWithSameType(EStatusEffectType TypeToSearch)
 {
 	for (int i = HorzBoxChildrenIndex - 1; i >= 0; --i)
 	{
@@ -131,4 +144,47 @@ UStatusEffectNodeWidget* UBattleHealthBarWidget::GetNodeWithSameType(EStatusEffe
 		}
 	}
 	return  nullptr;
+}
+
+void UBattleHealthBarWidget::SetDamagePreviewBar(float DamageToPreview, int MaxHealth)
+{
+	if(PreviewBar == nullptr || HealthBar == nullptr || HpSizeBox == nullptr || MaxHealth == 0) return;
+
+
+	float CalculatedCurrentHP = MaxHealth * HealthBar->Percent;
+	float DamagePerc = DamageToPreview/MaxHealth;
+
+	DamagePerc = FMath::Clamp(DamagePerc,0.0f, HealthBar->Percent);
+	
+	PreviewBar->SetPercent(DamagePerc);
+
+	// Set(HpSizeBox->WidthOverride * (HealthBar->Percent - DamagePerc), PreviewBar->RenderTransform.Translation.Y);
+	FVector2D RenderTranslition = PreviewBar->RenderTransform.Translation;
+	RenderTranslition.X = HpSizeBox->WidthOverride * (HealthBar->Percent - DamagePerc);
+	PreviewBar->SetRenderTranslation(RenderTranslition);
+	
+	// UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(PreviewBar->Slot);
+	// if(CanvasSlot && DamagePerc > 0.0f)
+	// {	
+	// 	UE_LOG(LogTemp, Warning, TEXT("HpSizeBox->WidthOverride %f"), HpSizeBox->WidthOverride * (HealthBar->Percent - DamagePerc));
+	// 	FMargin Margin;
+	// 	Margin.Left += HpSizeBox->WidthOverride * (HealthBar->Percent - DamagePerc);
+	// 	CanvasSlot->SetOffsets(Margin);
+	// }
+	PreviewBar->SetVisibility(ESlateVisibility::Visible);
+	ATimedEventManager::LerpWidgetOpacity(PreviewBar, 0.75f, 1, 0, true,  GetWorld());
+
+	float PreviewHP = (int)CalculatedCurrentHP - (int)DamageToPreview;
+	SetHpText(PreviewHP, MaxHealth, PreviewHP);
+}
+
+void UBattleHealthBarWidget::ResetDamagePreviewBar(int MaxHealth)
+{
+	if(PreviewBar == nullptr || HealthBar == nullptr) return;
+
+	PreviewBar->SetVisibility(ESlateVisibility::Hidden);
+	ATimedEventManager::RemoveWidgetOpacityTimer(PreviewBar);
+
+	float CalculatedCurrentHP = MaxHealth * HealthBar->Percent;
+	SetHpText(CalculatedCurrentHP, MaxHealth, CalculatedCurrentHP);
 }

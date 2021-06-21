@@ -86,6 +86,13 @@ void ATimedEventManager::Tick(float DeltaTime)
 			TextData.RemoveAt(i);
 		}
 	}
+	for (int i = WidgetOpacityData.Num() - 1; i >= 0; --i)
+	{
+		if(UpdateWidgetOpacity(WidgetOpacityData[i], DeltaTime) == false)
+		{
+			WidgetOpacityData.RemoveAt(i);
+		}
+	}
 }
 
 void ATimedEventManager::CreateTimedEvent(UWorld* World)
@@ -308,6 +315,52 @@ void ATimedEventManager::LerpTextNumber(UTextBlock* TextBlock, FText FormatText,
 	ManagerInstance->TextData.Add(NewData);
 }
 
+void ATimedEventManager::LerpWidgetOpacity(UWidget* Widget, float Duration, float StartValue, float EndValue,
+	bool IsLooped, UWorld* World)
+{
+	if(Widget == nullptr || World == nullptr) return;
+	
+	CreateTimedEvent(World);
+
+	if(ManagerInstance == nullptr) return;
+	
+	for (int i = 0; i < ManagerInstance->WidgetOpacityData.Num(); ++i)
+	{
+		if(ManagerInstance->WidgetOpacityData[i].Widget)
+		{
+			if(ManagerInstance->WidgetOpacityData[i].Widget == Widget)
+			{
+				ManagerInstance->WidgetOpacityData.RemoveAt(i);
+				break;
+			}
+		}
+	}
+
+	FWidgetRenderOpacityData NewData;
+	NewData.Widget = Widget;
+	NewData.StartValue = StartValue;
+	NewData.EndValue = EndValue;
+	NewData.Duration = Duration;
+	NewData.IsLooped = IsLooped;
+	NewData.Timer = 0;
+	
+	ManagerInstance->WidgetOpacityData.Add(NewData);
+}
+
+void ATimedEventManager::RemoveWidgetOpacityTimer(UWidget* Widget)
+{
+	if(ManagerInstance == nullptr) return;
+
+	for (int i = 0; i < ManagerInstance->WidgetOpacityData.Num(); ++i)
+	{
+		if(ManagerInstance->WidgetOpacityData[i].Widget == Widget)
+		{
+			ManagerInstance->WidgetOpacityData.RemoveAt(i);
+			return;
+		}
+	}
+}
+
 bool ATimedEventManager::UpdateTextNumber(FTextData& Data, float DeltaTime)
 {
 	if(Data.TextBlock == nullptr)
@@ -466,6 +519,36 @@ bool ATimedEventManager::UpdateMove(FTargetLocationData& Data, float DeltaTime)
 
 	return  true;
 }
+
+bool ATimedEventManager::UpdateWidgetOpacity(FWidgetRenderOpacityData& Data, float DeltaTime)
+{
+	if(Data.Widget == nullptr)
+	{
+		return  false;
+	}
+	
+	Data.Timer += DeltaTime;
+	if(Data.Timer >= Data.Duration)
+	{
+		if(Data.IsLooped == false)
+		{
+			Data.Widget->SetRenderOpacity(Data.EndValue);
+			return  false;
+		}
+
+		float EndVal = Data.StartValue;
+		Data.StartValue = Data.EndValue;
+		Data.EndValue = EndVal;
+		Data.Timer = 0;
+	}
+	else if(Data.Duration > 0)
+	{
+		float NewOpacity = FMath::Lerp(Data.StartValue, Data.EndValue, Data.Timer / Data.Duration);
+		Data.Widget->SetRenderOpacity(NewOpacity);
+	}
+	return  true;
+}
+
 
 
 

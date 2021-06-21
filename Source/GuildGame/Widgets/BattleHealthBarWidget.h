@@ -18,15 +18,26 @@ class GUILDGAME_API UBattleHealthBarWidget : public UUserWidget
 	
 	public:
 	virtual void NativeConstruct() override;
-	void SetHpBar(int GetCurrentHealth, int GetMaxHealth, int StartHealth);
+	void SetHpBar(int CurrentHealth, int MaxHealth, int StartHealth);
+	void SetHpText(int CurrentHealth, int MaxHealth, int StartHealth);
 	void SetStatusEffects(TArray<FStatusEffectData>* StatusEffects);
-	class UStatusEffectNodeWidget* GetNodeWithSameType(EStatusEffectType TypeToSearch);
+	class UStatusEffectNodeWidget* GetStatusEffectNodeWithSameType(EStatusEffectType TypeToSearch);
+
+	void SetDamagePreviewBar(float DamageToPreview, int MaxHealth);
+	void ResetDamagePreviewBar(int MaxHealth);
+
 
 	UPROPERTY()
 	class UStatusEffectStackableTooltipWidg* Tooltip;
 
 	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* HealthBar;
+
+	UPROPERTY(meta = (BindWidget))
+	class UProgressBar* PreviewBar;
+
+	UPROPERTY(meta = (BindWidget))
+	class USizeBox* HpSizeBox;
 	
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* HpText;

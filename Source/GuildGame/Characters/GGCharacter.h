@@ -13,6 +13,7 @@
 #include "GGCharacter.generated.h"
 
 DECLARE_DYNAMIC_DELEGATE(FCharacterDelegate);
+DECLARE_DELEGATE(FCharacterRawDelegate)
 
 enum class ECharacterAnimState : uint8;
 
@@ -89,6 +90,7 @@ public:
 	TArray<Grid*>* GetDamageableGrids();
 	bool TryToSpendAP(int ApCost);
 	FCharacterDelegate RefreshHudOnApSpendDelegate;
+	FCharacterRawDelegate OnSkillChangeDelegate;
 
 
 protected:
@@ -160,6 +162,7 @@ public:
 
 	bool IsApEnoughForSkill(CharacterSkill* Skill, int& OutCost);
 	class CharacterSkill* GetCurrentSkill();
+	float GetCurrentSkillDamage();
 	class CharacterSkill* GetOwnedSkillbyID(int ID);
 	TArray<class CharacterSkill*>* GetSkills();
 
@@ -178,6 +181,10 @@ public:
 	void OnTurnEnds();
 	
 	TArray<struct FStatusEffectData>* GetAppliedStatusEffects();
+	
+	bool bIsInDamagePreviewMode = false;
+	void BeginDamagePreview(float DamageToPreview);
+	void StopDamagePreview();	
 
 private:
 	TArray<Grid*> MovableGrids;

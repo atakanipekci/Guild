@@ -80,6 +80,6 @@ public:
 	UFUNCTION()
 	void OnSkillCasted();
 
-	void OnApSpent();
+	void OnApChange();
 	void OnRoundEnds();
 };

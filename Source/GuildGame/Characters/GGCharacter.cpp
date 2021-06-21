@@ -82,11 +82,7 @@ bool AGGCharacter::TryToSpendAP(int ApCost)
 	if(StatsComponent == nullptr || StatsComponent->GetCurrentAP() < ApCost) return  false;
 
 	int NewApBalance = StatsComponent->GetCurrentAP() - ApCost;
-	StatsComponent->SetCurrentAP(NewApBalance);
-	if(RefreshHudOnApSpendDelegate.IsBound())
-	{
-		RefreshHudOnApSpendDelegate.Execute();
-	}
+	SetCurrentAP(NewApBalance);
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Current AP %d"), NewApBalance));
 	return  true;
 }
@@ -281,6 +277,18 @@ int AGGCharacter::GetCurrentAP() const
 	}
 	
 	return StatsComponent->GetCurrentAP();
+}
+
+void AGGCharacter::SetCurrentAP(int NewAP) const
+{
+	if(StatsComponent)
+	{
+		StatsComponent->SetCurrentAP(NewAP);
+		if(RefreshHudOnApChangeDelegate.IsBound())
+		{
+			RefreshHudOnApChangeDelegate.Execute();
+		}
+	}
 }
 
 int AGGCharacter::GetApCostByDistance(float Distance)
@@ -886,13 +894,34 @@ void AGGCharacter::OnTurnBegins()
 
 	if(StatsComponent)
 	{
-		StatsComponent->SetCurrentAP(StatsComponent->GetBaseAP());
+		SetCurrentAP(StatsComponent->GetBaseAP());
 	}
+
+	UpdateMovableGrids();
+	GridManager* GridMan = CharacterManager::CharGridManager;
+	if(GridMan && GridMan->GetAttachedFloor())
+	{
+		GridMan->GetAttachedFloor()->UpdateGridMeshes(MovableGrids);
+	}
+	
 }
 
 void AGGCharacter::OnTurnEnds()
 {
 	//StatusEffectManager::ApplyOnTurnEnds(this, &AppliedStatusEffects);
+}
+
+bool AGGCharacter::IsStunned()
+{
+	for (int i = 0; i < AppliedStatusEffects.Num(); ++i)
+	{
+		if(AppliedStatusEffects[i].Type == EStatusEffectType::Stun)
+		{
+			return  true;
+		}
+	}
+
+	return  false;
 }
 
 void AGGCharacter::BeginDamagePreview(float DamageToPreview)

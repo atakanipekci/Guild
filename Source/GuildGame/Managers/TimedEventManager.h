@@ -28,12 +28,14 @@ struct FTargetLocationData
 	FVector StartLocation;
 	FVector TargetLocation;
 	float Duration;
+	float Delay;
 	float Timer;
 	float OverridenLocationZ;
 	bool bFollowMode;
 
 	FConditionEvent ConditionDelegate;
-	FTimedEvent OnCompleteDelegate;
+	TArray<FTimedEvent> OnCompleteDelegate;
+	FTimedEvent OnDelayedCompleteDelegate;
 };
 
 USTRUCT()
@@ -136,8 +138,9 @@ public:
 
 	
 	static void Rotate(AActor* ActorToRotate, FRotator TargetRotation, float Duration, UWorld* World);
-	static void Move(AActor* ActorToMove, FVector TargetLocation, float Duration, FConditionEvent& ConditionDelegate, FTimedEvent& OnComplete, UWorld* World);
+	static void Move(AActor* ActorToMove, FVector TargetLocation, float Duration, float Delay, FConditionEvent& ConditionDelegate, TArray<FTimedEvent> OnComplete, FTimedEvent& OnDelayedCompleteDelegate, UWorld* World);
 	static void MoveToActorAndFollow(AActor* ActorToMove, AActor* ActorToFollow, float Duration, float OverridenLocationZ, FConditionEvent& ConditionDelegate, UWorld* World);
+	static void RemoveLocationTimer(AActor* ActorToMove);
 	
 	static void CallEventWithDelay(AActor* EventActor, FString Key, FTimedEvent& EventToCall, float Duration, UWorld* World);
 	static bool RemoveEventData(FString Key, bool bCallEvent);

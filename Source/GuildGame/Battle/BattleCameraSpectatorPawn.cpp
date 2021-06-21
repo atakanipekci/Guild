@@ -405,10 +405,11 @@ void ABattleCameraSpectatorPawn::LerpCameraToCharacterAndFollow(AGGCharacter* Ch
 	// }
 }
 
-void ABattleCameraSpectatorPawn::LerpCameraToCharacter(AGGCharacter* Char, float Duration, bool  EnableMovement, FTimedEvent&  OnComplete)
+void ABattleCameraSpectatorPawn::LerpCameraToCharacter(AGGCharacter* Char, float Duration, float Delay, bool  EnableMovement, TArray<FTimedEvent>  OnComplete, FTimedEvent& DelayedOnComplete)
 {
 	if(Char == nullptr) return;
 
+	UE_LOG(LogTemp, Warning, TEXT("LerpCameraToCharacter"));
 	FConditionEvent ConditionDelegate;
 	if(EnableMovement)
 	{
@@ -417,7 +418,7 @@ void ABattleCameraSpectatorPawn::LerpCameraToCharacter(AGGCharacter* Char, float
 
 	FVector StartLocation = Char->GetActorLocation();
 	StartLocation.Z = GetActorLocation().Z;
-	ATimedEventManager::Move(this, StartLocation, Duration, ConditionDelegate, OnComplete, GetWorld());
+	ATimedEventManager::Move(this, StartLocation, Duration, Delay, ConditionDelegate, OnComplete, DelayedOnComplete, GetWorld());
 }
 
 bool ABattleCameraSpectatorPawn::IsNotMoving()

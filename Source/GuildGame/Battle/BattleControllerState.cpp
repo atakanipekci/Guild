@@ -155,7 +155,7 @@ void ControllerStateCastingSkill::LeftClickReleaseHandler()
 				if(GridMan)
 				{
 					FPredictProjectilePathResult Result;
-					if(GridMan->CanAttackTargetGrid(SelectedCharacter, Result))
+					if(GridMan->CanAttackTargetGrid(SelectedCharacter, Result) && GridMan->DoesInclude(SelectedCharacter->GetDamageableGrids(), PlayerController->GetSelectedGridIndex()))
 					{
 						TArray<AGGCharacter*> Targets;
 						GridMan->GetCharactersInArray(SelectedCharacter->GetDamageableGrids(), &Targets);

@@ -118,7 +118,7 @@ public:
 	virtual void Tick(float DeltaSeconds)override;
 
 	void LerpCameraToCharacterAndFollow(class AGGCharacter*, float Duration);
-	void LerpCameraToCharacter(class AGGCharacter*, float Duration, bool  EnableMovement, class FTimedEvent&  OnComplete);
+	void LerpCameraToCharacter(class AGGCharacter*, float Duration, float Delay, bool  EnableMovement, TArray<class FTimedEvent>  OnComplete, FTimedEvent& DelayedOnComplete);
 
 	UFUNCTION()
 	bool IsNotMoving();

@@ -88,9 +88,10 @@ public:
 	TArray<Grid*>* GetMovableGrids();
 	TArray<Grid*>* GetTargetableGrids();
 	TArray<Grid*>* GetDamageableGrids();
+	
 	bool TryToSpendAP(int ApCost);
-	FCharacterDelegate RefreshHudOnApSpendDelegate;
 	FCharacterRawDelegate OnSkillChangeDelegate;
+	FCharacterDelegate RefreshHudOnApChangeDelegate;
 
 
 protected:
@@ -125,6 +126,7 @@ public:
 	int GetSpeed() const;
 	int GetBaseDamage()const;
 	int GetCurrentAP() const;
+	void SetCurrentAP(int NewAP) const;
 	int GetApCostByDistance(float Distance);
 	ECharacterStatus GetStatus()const;
 	void SetStatus(ECharacterStatus);
@@ -177,10 +179,15 @@ public:
 	TMap<int, FCooldownTimer> SkillsCooldownMap;
 
 	void OnRoundEnds();
+	
+	UFUNCTION()
 	void OnTurnBegins();
+	
 	void OnTurnEnds();
 	
 	TArray<struct FStatusEffectData>* GetAppliedStatusEffects();
+
+	bool IsStunned();
 	
 	bool bIsInDamagePreviewMode = false;
 	void BeginDamagePreview(float DamageToPreview);

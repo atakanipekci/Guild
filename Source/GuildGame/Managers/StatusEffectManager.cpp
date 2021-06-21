@@ -85,7 +85,6 @@ void StatusEffectManager::ApplyOnTurnBegins(AGGCharacter* Target, TArray<struct 
 {
 	if(Target == nullptr || StatusEffects == nullptr) return;
 
-	bool bSkipTurn = false;
 	for (int i = StatusEffects->Num() - 1; i >= 0; --i)
 	{
 		if((*StatusEffects)[i].Type == EStatusEffectType::Bleed)
@@ -98,7 +97,7 @@ void StatusEffectManager::ApplyOnTurnBegins(AGGCharacter* Target, TArray<struct 
 		}
 		else if((*StatusEffects)[i].Type == EStatusEffectType::Stun)
 		{
-			bSkipTurn = true;
+			
 		}
 		else if((*StatusEffects)[i].Type == EStatusEffectType::Heal)
 		{
@@ -113,14 +112,14 @@ void StatusEffectManager::ApplyOnTurnBegins(AGGCharacter* Target, TArray<struct 
 		}
 	}
 
-	if(bSkipTurn)
-	{
-		AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(Target));
-		if(GameMode)
-		{
-			GameMode->Next();
-		}
-	}
+	// if(bSkipTurn)
+	// {
+	// 	AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(Target));
+	// 	if(GameMode)
+	// 	{
+	// 		GameMode->Next();
+	// 	}
+	// }
 }
 
 // void StatusEffectManager::ApplyOnTurnEnds(AGGCharacter* Target, TMap<EStatusEffectType, struct FStatusEffectData>* StatusEffects)

@@ -61,7 +61,7 @@ void TurnManager::NextCharacter()
 	if(CharactersList[CurrentCharacterIndex] != nullptr)
 	{
 		CharactersList[CurrentCharacterIndex]->SetSelected();
-		CharactersList[CurrentCharacterIndex]->OnTurnBegins();
+		// CharactersList[CurrentCharacterIndex]->OnTurnBegins();
 	}
 	
 	

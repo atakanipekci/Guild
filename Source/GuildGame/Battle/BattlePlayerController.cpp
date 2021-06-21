@@ -259,9 +259,25 @@ void ABattlePlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)
 				if(BattleGameMode->HudWidgetInstance)
 				{
 					BattleGameMode->HudWidgetInstance->SetSkillsPanelHidden();
-					FTimedEvent OnCompleteDelegate;
-					OnCompleteDelegate.BindDynamic(BattleGameMode->HudWidgetInstance, &UBattleHudWidget::SetSkillsPanelVisible);
-					Spectator->LerpCameraToCharacter(NewCharacter, 0.5f, false,OnCompleteDelegate);
+					TArray<FTimedEvent> OnCompleteDelegates;
+					FTimedEvent OnCompleteDelegate1;
+					FTimedEvent OnCompleteDelegate2;
+					OnCompleteDelegate1.BindDynamic(BattleGameMode->HudWidgetInstance, &UBattleHudWidget::SetSkillsPanelVisible);
+					OnCompleteDelegate2.BindDynamic(NewCharacter, &AGGCharacter::OnTurnBegins);
+
+					OnCompleteDelegates.Add(OnCompleteDelegate1);
+					OnCompleteDelegates.Add(OnCompleteDelegate2);
+
+					FTimedEvent OnDelayedComplete;
+					
+					float DelayTime = 0;
+					if(NewCharacter->IsStunned())
+					{
+						DelayTime = 1;
+						OnDelayedComplete.BindDynamic(BattleGameMode, &AGuildGameGameModeBase::Next);
+					}
+
+					Spectator->LerpCameraToCharacter(NewCharacter, 0.5f, DelayTime,false,OnCompleteDelegates,OnDelayedComplete);
 				}
 			}
 		}

@@ -214,7 +214,7 @@ void UBattleCharSkillNodeWidget::OnSkillCasted()
 	RefreshNodeState();
 }
 
-void UBattleCharSkillNodeWidget::OnApSpent()
+void UBattleCharSkillNodeWidget::OnApChange()
 {
 	RefreshNodeState();
 }

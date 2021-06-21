@@ -43,7 +43,7 @@ public:
 	void RefreshSkillButtonsState();
 
 	UFUNCTION()
-	void OnApSpent();
+	void OnApChange();
 
 	UFUNCTION()
 	void SetSkillsPanelHidden();

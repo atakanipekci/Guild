@@ -41,6 +41,7 @@ class GUILDGAME_API UDroppableAreaWidget : public UUserWidget
 	
 	virtual bool DropTo(class UDraggedCharacterWidget* DraggedWidget);
 	virtual void DropFrom( UDraggedCharacterWidget* DraggedWidget);
+	virtual void UpdateChildIndices();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UPanelWidget* ContentPanel;

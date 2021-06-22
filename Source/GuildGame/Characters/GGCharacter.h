@@ -7,9 +7,13 @@
 #include "CharacterStats.h"
 #include "GGCharacterBase.h"
 #include "GuildGame/GridSystem/Grid.h"
+#include "GuildGame/Managers/StatusEffectManager.h"
 //#include "GuildGame/Skills/CharacterSkills.h"
 
 #include "GGCharacter.generated.h"
+
+DECLARE_DYNAMIC_DELEGATE(FCharacterDelegate);
+DECLARE_DELEGATE(FCharacterRawDelegate)
 
 enum class ECharacterAnimState : uint8;
 
@@ -19,6 +23,56 @@ enum class ECharacterStatus : uint8
 	Moving = 1,
 	Dead = 2,
 	Casting = 3
+};
+
+struct FCooldownTimer
+{
+private:
+	int Timer = 0;
+	int Cooldown = 0;
+
+public:
+
+	FCharacterDelegate RefreshHudOnSkillCastDelegate;
+
+	FCooldownTimer(float Cooldown)
+	{
+		this->Cooldown = Cooldown;
+	}
+	
+	void SetCooldown(float NewCooldown)
+	{
+		Cooldown = NewCooldown;
+		Timer = 0;
+	}
+
+	void RestartTimer()
+	{
+		Timer = Cooldown;
+	}
+
+	void DecreaseRound(int Amount) 
+	{
+		if(Timer > 0)
+		{
+			Timer -= Amount;
+			Timer = FMath::Max(Timer, 0);
+		}
+	}
+	
+	bool IsTimeUp() const
+	{
+		if(Timer <= 0)
+		{
+			return  true;
+		}
+		return  false;
+	}
+
+	float HowMuchLeft() const
+	{
+		return Timer;
+	}
 };
 
 UCLASS()
@@ -34,6 +88,11 @@ public:
 	TArray<Grid*>* GetMovableGrids();
 	TArray<Grid*>* GetTargetableGrids();
 	TArray<Grid*>* GetDamageableGrids();
+	
+	bool TryToSpendAP(int ApCost);
+	FCharacterRawDelegate OnSkillChangeDelegate;
+	FCharacterDelegate RefreshHudOnApChangeDelegate;
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -67,6 +126,9 @@ public:
 	int GetSpeed() const;
 	ECharacterSize GetSize() const;
 	int GetBaseDamage()const;
+	int GetCurrentAP() const;
+	void SetCurrentAP(int NewAP) const;
+	int GetApCostByDistance(float Distance);
 	ECharacterStatus GetStatus()const;
 	void SetStatus(ECharacterStatus);
 	float TakeDamage(float DamageAmount,struct FDamageEvent const & DamageEvent,class AController * EventInstigator, AActor * DamageCause) override;
@@ -93,23 +155,44 @@ public:
 	
 	virtual void ThrowProjectile(FName SocketName, bool bUseBoneRotation) override;
 
-	void UpdateHealthBar();
+	void UpdateHealthBar(int StartHealth);
+	void UpdateHealthBarStatusEffects();
 	class UCharacterAnimInstance* GetAnimInstance();
 	void PrepareAnimInstance();
 
 	void SetAnimState(ECharacterAnimState AnimState);
 	void PlayCharacterMontage(UAnimMontage* Montage);
 
+	bool IsApEnoughForSkill(CharacterSkill* Skill, int& OutCost);
 	class CharacterSkill* GetCurrentSkill();
+	float GetCurrentSkillDamage();
+	class CharacterSkill* GetOwnedSkillbyID(int ID);
 	TArray<class CharacterSkill*>* GetSkills();
 
-	void SetCurrentSkillIfContains(int SkillID);
+	bool SetCurrentSkillIfContains(int SkillID);
 	
 	FVector GetTargetTrajectoryLocation();
 	FVector GetStartTrajectoryLocation();
 
 	AGGCharacter* GetCharacterAtTargetGridIndex();
 	bool CanTrajectoryBeShown();
+
+	TMap<int, FCooldownTimer> SkillsCooldownMap;
+
+	void OnRoundEnds();
+	
+	UFUNCTION()
+	void OnTurnBegins();
+	
+	void OnTurnEnds();
+	
+	TArray<struct FStatusEffectData>* GetAppliedStatusEffects();
+
+	bool IsStunned();
+	
+	bool bIsInDamagePreviewMode = false;
+	void BeginDamagePreview(float DamageToPreview);
+	void StopDamagePreview();	
 
 private:
 	TArray<Grid*> MovableGrids;
@@ -133,13 +216,14 @@ private:
 	UPROPERTY()
 	class USplineComponent* SplineComponent;
 	
-	int CurrentGridIndex;
 	TArray<class CharacterSkill*> Skills;
+	int CurrentGridIndex;
 	int CurrentSkillIndex = 0;
-
 	int CurrentTargetGridIndex = 0;
 
 	TArray<AGGCharacter*> SelectedTargetCharacters;
+
+	TArray<FStatusEffectData> AppliedStatusEffects;
 
 	bool bIsSkillMontagePlaying;
 

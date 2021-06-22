@@ -98,6 +98,21 @@ bool UOwnedCharactersDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWid
 	return false;
 }
 
+void UOwnedCharactersDroppableWidget::UpdateChildIndices()
+{
+	if(ScrollBox)
+	{
+		for (int i = 0; i < ScrollBox->GetChildrenCount(); ++i)
+		{
+			UDraggedCharacterWidget* Child = Cast<UDraggedCharacterWidget>(ScrollBox->GetChildAt(i));
+			if(Child)
+			{
+				Child->SetPreviousChildIndex(i);
+			}
+		}
+	}
+}
+
 void UOwnedCharactersDroppableWidget::Refresh()
 {
 	if(ScrollBox)
@@ -142,7 +157,9 @@ UDraggedCharacterWidget* UOwnedCharactersDroppableWidget::CreateChildWidget(UDra
 		NewWidget->SetOwnerAreaWidget(this);
 
 		NewWidget->SetStat(DraggedWidget->Stat);
-		NewWidget->LatestChildIndex = ScrollBox->GetChildIndex(NewWidget);
+		// NewWidget->LatestChildIndex = ScrollBox->GetChildIndex(NewWidget);
+
+		UpdateChildIndices();
 
 		if(DraggedWidget->Stat)
 			ImageManager::SetPortraitTextureByClass(DraggedWidget->Stat->ClassType, NewWidget->Portrait);
@@ -165,8 +182,7 @@ UDraggedCharacterWidget* UOwnedCharactersDroppableWidget::CreateChildWidget(FCha
 		NewWidget->SetOwnerAreaWidget(this);
 
 		NewWidget->SetStat(Stat);
-		NewWidget->LatestChildIndex = ScrollBox->GetChildIndex(NewWidget);
-
+		// NewWidget->LatestChildIndex = ScrollBox->GetChildIndex(NewWidget);
 		if(Stat)
 			ImageManager::SetPortraitTextureByClass(Stat->ClassType, NewWidget->Portrait);
 

@@ -60,6 +60,10 @@ FString WidgetManager::GetWidgetRowName(const EWidgetKeys Key)
     {
         return  FString(TEXT("DraggedSquadWidget"));
     }
+     else if(Key == EWidgetKeys::DraggedRecruitWidget)
+    {
+        return  FString(TEXT("DraggedRecruitWidget"));
+    }
     else if(Key == EWidgetKeys::TavernMenuWidget)
     {
         return  FString(TEXT("TavernWidget"));
@@ -108,8 +112,19 @@ FString WidgetManager::GetWidgetRowName(const EWidgetKeys Key)
     {
         return FString(TEXT("CharacterSkillTooltip"));
     }
+    else if(Key == EWidgetKeys::StatusEffectNodeWidget)
+    {
+        return FString(TEXT("StatusEffectNodeWidget"));
+    }
+    else if(Key == EWidgetKeys::StatusEffectTooltip)
+    {
+        return FString(TEXT("StatusEffectTooltip"));
+    }
+    else if(Key == EWidgetKeys::StatusEffectStackableTooltip)
+    {
+        return FString(TEXT("StatusEffectStackableTooltip"));
+    }
     
-
     return FString(TEXT("EMPTY"));
 }
 
@@ -134,32 +149,35 @@ UUserWidget* WidgetManager::GetWidgetInstance(const EWidgetKeys Key)
     return  nullptr;
 }
 
-UUserWidget* WidgetManager::GetOrCreateWidgetInstance(const EWidgetKeys Key, UObject* Owner)
+UUserWidget* WidgetManager::GetWidgetInstanceIfNotCreate(const EWidgetKeys Key, UObject* Owner)
 {
      UUserWidget* NewWidget = GetWidgetInstance(Key);
      if(NewWidget == nullptr)
      {
-         NewWidget = CreateWidget<UUserWidget>(Owner->GetWorld(), GetWidget(Key));
+         NewWidget = CreateWidgetInstance(Key, Owner);
          SetWidgetInstance(Key, NewWidget);
      }
-   
-
     return  NewWidget;
+}
+
+UUserWidget* WidgetManager::CreateWidgetInstance(const EWidgetKeys Key, UObject* Owner)
+{
+     return CreateWidget<UUserWidget>(Owner->GetWorld(), GetWidget(Key));
 }
 
 UUserWidget* WidgetManager::GetSkillsWidgetByType(ECharacterClassType ClassType, UObject* Owner)
 {
     if(ClassType == ECharacterClassType::Knight)
     {
-        return GetOrCreateWidgetInstance(EWidgetKeys::KnightSkills, Owner);
+        return GetWidgetInstanceIfNotCreate(EWidgetKeys::KnightSkills, Owner);
     }
     else if(ClassType == ECharacterClassType::Mage)
     {
-        return GetOrCreateWidgetInstance(EWidgetKeys::MageSkills, Owner);
+        return GetWidgetInstanceIfNotCreate(EWidgetKeys::MageSkills, Owner);
     }
     else if(ClassType == ECharacterClassType::Archer)
     {
-        return GetOrCreateWidgetInstance(EWidgetKeys::ArcherSkills, Owner);
+        return GetWidgetInstanceIfNotCreate(EWidgetKeys::ArcherSkills, Owner);
     }
     else
     {

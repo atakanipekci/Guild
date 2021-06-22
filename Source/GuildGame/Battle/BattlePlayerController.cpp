@@ -4,11 +4,13 @@
 #include "BattlePlayerController.h"
 
 #include "AIController.h"
+#include "BattleCameraSpectatorPawn.h"
 #include "GuildGame/Characters/GGCharacter.h"
 #include "BattleControllerState.h"
 #include "GuildGame/GridSystem/GridFloor.h"
 #include "GGLogHelper.h"
 #include "GuildGame/GuildGameGameModeBase.h"
+#include "GuildGame/Managers/TimedEventManager.h"
 #include "GuildGame/Widgets/BattleHudWidget.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -146,7 +148,7 @@ bool ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)
 		{
 			GridFloor->UpdateSelectedGrid(GridMan->GetGridBottomLeft(GridIndex), true);
 		}
-		if(SelectedCharacter && SelectedCharacter->GetStatus() == ECharacterStatus::Idle && DrawPathTo)
+		if(SelectedCharacter && SelectedCharacter->GetStatus() == ECharacterStatus::Idle && DrawPathTo && SelectedCharacter->GetCurrentAP() > 0)
 		{
 			int start = GridMan->WorldToGrid(SelectedCharacter->GetActorLocation());
 			int end = SelectedGridIndex;
@@ -159,6 +161,12 @@ bool ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)
 			{
 				GridFloor->DrawPath(start,end);
 			}
+
+			float Dist = GridFloor->GetPathLength(GridMan->WorldToGrid(SelectedCharacter->GetActorLocation()), SelectedGridIndex);
+
+			int ApCost = SelectedCharacter->GetApCostByDistance(Dist);
+
+			UE_LOG(LogTemp, Warning, TEXT("AP COST At Location %d"), ApCost);
 		}
 
 		if(SelectedCharacter)
@@ -261,9 +269,10 @@ void ABattlePlayerController::MoveSelectedChar()
 		return;
 	}
 
+	float Dist = 0;
 	if(SelectedCharacter->GetSize() == ECharacterSize::Normal)
 	{
-		float Dist = GridFloor->GetPathLength(GridMan->WorldToGrid(SelectedCharacter->GetActorLocation()), SelectedGridIndex);
+		Dist = GridFloor->GetPathLength(GridMan->WorldToGrid(SelectedCharacter->GetActorLocation()), SelectedGridIndex);
 		if(Dist <= 0 || Dist > SelectedCharacter->GetDefaultMovementRange())
 		{
 			return;
@@ -282,7 +291,7 @@ void ABattlePlayerController::MoveSelectedChar()
 		}
 		FVector NewPos = GridMan->GetClosestLineIntersection(TraceResult.ImpactPoint);
 		int Index = GridMan->WorldToGrid(NewPos);
-		float Dist = GridFloor->GetPathLength(GridMan->WorldToGrid(SelectedCharacter->GetActorLocation()), Index);
+		Dist = GridFloor->GetPathLength(GridMan->WorldToGrid(SelectedCharacter->GetActorLocation()), Index);
 		if(Dist <= 0 || Dist > SelectedCharacter->GetDefaultMovementRange())
 		{
 			return;
@@ -290,6 +299,24 @@ void ABattlePlayerController::MoveSelectedChar()
 		FVector Target = GridMan->GetGridBottomLeft(Index);
 		Target.Z = SelectedCharacter->GetActorLocation().Z;
 		SelectedCharacter->MoveTo(Target);
+	}
+	
+	int ApCost = SelectedCharacter->GetApCostByDistance(Dist);
+	SelectedCharacter->TryToSpendAP(ApCost);
+
+	AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	if(GameMode)
+	{
+		ABattleCameraSpectatorPawn* Spectator = GameMode->CameraSpectatorPawn;
+		if(Spectator)
+		{
+			Spectator->LerpCameraToCharacterAndFollow(SelectedCharacter, 1);
+		}
+
+		if(GameMode->HudWidgetInstance)
+		{
+			GameMode->HudWidgetInstance->SetSkillsPanelHidden();
+		}
 	}
 }
 
@@ -314,8 +341,35 @@ void ABattlePlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)
 			{
 				BattleGameMode->HudWidgetInstance->RefreshSkillsArray(SelectedCharacter);
 			}
+
+			ABattleCameraSpectatorPawn* Spectator = BattleGameMode->CameraSpectatorPawn;
+			if(Spectator)
+			{
+				if(BattleGameMode->HudWidgetInstance)
+				{
+					BattleGameMode->HudWidgetInstance->SetSkillsPanelHidden();
+					TArray<FTimedEvent> OnCompleteDelegates;
+					FTimedEvent OnCompleteDelegate1;
+					FTimedEvent OnCompleteDelegate2;
+					OnCompleteDelegate1.BindDynamic(BattleGameMode->HudWidgetInstance, &UBattleHudWidget::SetSkillsPanelVisible);
+					OnCompleteDelegate2.BindDynamic(NewCharacter, &AGGCharacter::OnTurnBegins);
+
+					OnCompleteDelegates.Add(OnCompleteDelegate1);
+					OnCompleteDelegates.Add(OnCompleteDelegate2);
+
+					FTimedEvent OnDelayedComplete;
+					
+					float DelayTime = 0;
+					if(NewCharacter->IsStunned())
+					{
+						DelayTime = 1;
+						OnDelayedComplete.BindDynamic(BattleGameMode, &AGuildGameGameModeBase::Next);
+					}
+
+					Spectator->LerpCameraToCharacter(NewCharacter, 0.5f, DelayTime,false,OnCompleteDelegates,OnDelayedComplete);
+				}
+			}
 		}
-		
 	}
 }
 

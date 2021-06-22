@@ -24,6 +24,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Next();
 
+	void OnRoundEnds();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	TSubclassOf<class AGGCharacter> BattleCharactersBP;
 	const TArray<class AGGCharacter*>& GetCharacterList() const
@@ -34,6 +36,9 @@ public:
 
 	UPROPERTY()
 	class UBattleHudWidget* HudWidgetInstance;
+
+	UPROPERTY()
+	class ABattleCameraSpectatorPawn* CameraSpectatorPawn;
 	
 private:
 	TArray<class AGGCharacter*> Characters;

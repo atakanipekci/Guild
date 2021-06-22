@@ -44,8 +44,14 @@ struct FSkillData : public FTableRowBase
 	int SkillID;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString SkillName;
+	FText SkillName;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int ApCost;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Cooldown;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Range;
 
@@ -67,6 +73,7 @@ struct FSkillData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ELineOfSightType EffectLineOfSight;
 
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ClampMax = "80.0", UIMin = "0.0", UIMax = "80.0"))
 	float LineOfSightAngle;
 
@@ -78,6 +85,9 @@ struct FSkillData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FEffectData> EffectData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<struct FStatusEffectData> StatusEffects;
 };
 
 /**
@@ -89,6 +99,7 @@ public:
 	CharacterSkill(const FSkillData&, const FCharSkillFileDataTable&);
 	~CharacterSkill();
 	void ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& TargetCharacters);
+	void ApplyStatus(AGGCharacter* Caster, TArray<AGGCharacter*>& TargetCharacters);
 	FSkillData& GetSkillData()
 	{
 		return SkillData;
@@ -104,11 +115,17 @@ public:
 	}
 	static FCharSkillFileDataTable* GetSkillFilesFromTable(int SkillID, UWorld* World);
 
+	int GetSkillID()
+	{
+		return  SkillID;
+	}
+
 private:
 	FSkillData SkillData;
 	FCharSkillFileDataTable SkillFile;
 	SkillShape* Shape;
 	TArray<SkillEffect*> SkillEffects;
+	int SkillID;
 };
 
 

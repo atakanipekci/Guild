@@ -54,14 +54,11 @@ public:
 		}
 	}
 	
-	float GetMovementRange() const
-	{
-		return Stats.MovementRange;
-	}
+	float GetMovementRange() const;
 
 	void SetMovementRange(float NewMovementRange)
 	{
-		this->Stats.MovementRange = NewMovementRange;
+		this->Stats.MovableGridAmountPerAP = NewMovementRange;
 	}
 
 	float GetAttackRange() const
@@ -87,6 +84,26 @@ public:
 	int GetSpeed() const
 	{
 		return Stats.Speed;
+	}
+
+	void SetCurrentAP(int NewAP)
+	{
+		this->Stats.CurrentAP = NewAP;
+	}
+
+	int GetCurrentAP() const
+	{
+		return this->Stats.CurrentAP;
+	}
+
+	int GetBaseAP() const
+	{
+		return this->Stats.BaseAP;
+	}
+
+	void SetBaseAP(int NewAP)
+	{
+		this->Stats.BaseAP = NewAP;
 	}
 
 	ECharacterSize GetSize() const

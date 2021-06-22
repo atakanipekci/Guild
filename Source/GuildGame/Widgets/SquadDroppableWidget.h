@@ -17,6 +17,7 @@ class GUILDGAME_API USquadDroppableWidget : public UDroppableAreaWidget
 		virtual void NativeConstruct() override;
 		virtual void DropFrom(UDraggedCharacterWidget* DraggedWidget) override;
 		virtual bool DropTo(UDraggedCharacterWidget* DraggedWidget) override;
+		virtual void UpdateChildIndices() override; 
 		UDraggedCharacterWidget* CreateChildWidget(UDraggedCharacterWidget* DraggedWidget);
 
 

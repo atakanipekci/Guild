@@ -27,19 +27,31 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UImage* PortraitBg;
 
-	// UPROPERTY(meta = (BindWidget))
-	// class UImage* Portrait;
+	UPROPERTY(meta = (BindWidget))
+	class UImage* CooldownImage;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* CooldownText;
+
+	UPROPERTY(meta = (BindWidget))
+	class UOverlay* CooldownPanel;
 
 	UPROPERTY(EditAnywhere)
-	FSlateColor CooldownButtonBrushColor;
+	FSlateBrush CooldownBrush;
+
+	UPROPERTY(EditAnywhere)
+	FSlateBrush PressedBrush;
+
+	FSlateBrush NormalBrush;
 
 	FButtonStyle ButtonStyle;
 
 	FSkillData SkillsData;
 	
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	UTexture* SkillTexture;
 
+	UPROPERTY(EditAnywhere)
 	FText DescText;
 
 	UPROPERTY()
@@ -51,8 +63,23 @@ public:
 	UPROPERTY()
 	class ABattlePlayerController* PlayerController;
 
+	FCooldownTimer* SkillCooldownData;
+
+	UPROPERTY()
+	class UBattleHudWidget* OwnerHud;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsMovementButton;
+
 	UFUNCTION()
 	void OnPressed();
+	void RefreshNodeState();
 
-	void RefreshNode(AGGCharacter* SelectedChar);
+	void RefreshNode(AGGCharacter* SelectedChar, class UBattleHudWidget* Hud);
+
+	UFUNCTION()
+	void OnSkillCasted();
+
+	void OnApChange();
+	void OnRoundEnds();
 };

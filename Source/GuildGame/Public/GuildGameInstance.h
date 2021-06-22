@@ -42,6 +42,8 @@ public:
 	UDataTable* CharacterSkillsTable;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	UDataTable* CharacterSkillsFileTable;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	UDataTable* StatusEffectsFileTable;
 	
 	UFUNCTION()
 	bool TryToPurchase(int Amount);

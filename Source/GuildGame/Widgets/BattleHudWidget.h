@@ -28,6 +28,27 @@ class GUILDGAME_API UBattleHudWidget : public UUserWidget
 	UPROPERTY()
 	class UCharacterSkillTooltipWidget* Tooltip;
 
+	UPROPERTY()
+	class AGGCharacter* LatestSelectedChar;
+
+	UPROPERTY( meta = (BindWidget))
+	class UTextBlock* ApText;
+
 public:
 	void RefreshSkillsArray(class AGGCharacter* SelectedChar);
+
+	void OnRoundEnds();
+
+	UFUNCTION()
+	void RefreshSkillButtonsState();
+
+	UFUNCTION()
+	void OnApChange();
+
+	UFUNCTION()
+	void SetSkillsPanelHidden();
+
+	UFUNCTION()
+	void SetSkillsPanelVisible();
+	
 };

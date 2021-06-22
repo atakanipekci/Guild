@@ -20,13 +20,13 @@ class GUILDGAME_API UDraggedCharacterWidget : public UUserWidget
 	virtual void NativeOnDragEnter(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
-	int DraggedIndex = 0;
+	int PreviousChildIndex = 0;
 
 	public:
-		void OnDragLeaveFromArea();
+		void OnDragLeaveFromArea(class UDroppableAreaWidget* Area);
 
 		
-		int LatestChildIndex = 0;
+		//int LatestChildIndex = 0;
 
 		UPROPERTY()
 		class UDroppableAreaWidget* OwnerDroppableArea;
@@ -53,4 +53,5 @@ class GUILDGAME_API UDraggedCharacterWidget : public UUserWidget
 
 		void SetCharacterNameText(FText Text);
 		void SetStat(FCharacterStats* NewStat);
+		void SetPreviousChildIndex(int NewIndex); 
 };

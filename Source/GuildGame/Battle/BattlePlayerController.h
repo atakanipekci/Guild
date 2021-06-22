@@ -41,8 +41,11 @@ public:
 	{
 		return SelectedGridIndex;
 	}
-	
 
+	EControllerStateIndex GetStateType()
+	{
+		return static_cast<EControllerStateIndex>(StateIndex);
+	}
 
 private:
 	class AGGCharacter* SelectedCharacter = nullptr;

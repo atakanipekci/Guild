@@ -7,12 +7,15 @@
 #include "EffectFactory.h"
 #include "GGLogHelper.h"
 #include "GuildGameInstance.h"
+#include "GuildGame/Managers/StatusEffectManager.h"
 #include "Kismet/GameplayStatics.h"
 
 CharacterSkill::CharacterSkill(const FSkillData& Data, const FCharSkillFileDataTable& File)
 {
 	SkillData = Data;
 	SkillFile = File;
+
+	SkillID = SkillData.SkillID;
 	
 	Shape = ShapeFactory::CreateShape(Data.ShapeType, Data.ShapeParameters);
 	for (auto Element : Data.EffectData)
@@ -78,6 +81,20 @@ void CharacterSkill::ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& T
 			}
 		}
 	}
+}
+
+void CharacterSkill::ApplyStatus(AGGCharacter* Caster, TArray<AGGCharacter*>& TargetCharacters)
+{
+	if(Caster == nullptr) return;
+
+	for (int i = 0; i < TargetCharacters.Num(); ++i)
+	{
+		if(TargetCharacters[i])
+		{
+			StatusEffectManager::AddStatusEffect(TargetCharacters[i], Caster, &SkillData.StatusEffects);
+		}
+	}
+	
 }
 
 

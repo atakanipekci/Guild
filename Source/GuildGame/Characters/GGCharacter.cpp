@@ -15,12 +15,14 @@
 #include "GuildGameInstance.h"
 #include "WeaponAnimInstance.h"
 #include "Components/WidgetComponent.h"
+#include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Battle/BattlePlayerController.h"
 #include "GuildGame/GridSystem/GridFloor.h"
 #include "GuildGame/Managers/TimedEventManager.h"
 #include "GuildGame/Skills/CharacterSkill.h"
 #include "GuildGame/VFX/Projectiles/Projectile.h"
 #include "GuildGame/Widgets/BattleHealthBarWidget.h"
+#include "GuildGame/Widgets/BattleHudWidget.h"
 
 // Sets default values
 AGGCharacter::AGGCharacter()
@@ -75,6 +77,16 @@ TArray<Grid*>* AGGCharacter::GetDamageableGrids()
 	return &DamageableGrids;
 }
 
+bool AGGCharacter::TryToSpendAP(int ApCost)
+{
+	if(StatsComponent == nullptr || StatsComponent->GetCurrentAP() < ApCost) return  false;
+
+	int NewApBalance = StatsComponent->GetCurrentAP() - ApCost;
+	SetCurrentAP(NewApBalance);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Current AP %d"), NewApBalance));
+	return  true;
+}
+
 // Called when the game starts or when spawned
 void AGGCharacter::BeginPlay()
 {
@@ -97,6 +109,12 @@ void AGGCharacter::BeginPlay()
 void AGGCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	// for (auto It = SkillsCooldownMap.CreateIterator(); It; ++It)
+	// {
+	// 	It.Value().RunClockAFrame(DeltaTime);
+	// }
+
 }
 
 void AGGCharacter::SetStats(const FCharacterStats& Stats)
@@ -104,7 +122,9 @@ void AGGCharacter::SetStats(const FCharacterStats& Stats)
 	if(StatsComponent)
 	{
 		StatsComponent->SetStats(Stats);
-		UpdateHealthBar();
+		StatsComponent->SetCurrentAP(Stats.BaseAP);
+
+		UpdateHealthBar(StatsComponent->GetCurrentHealth());
 		UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 		for (auto Element : StatsComponent->GetSkillIDs())
 		{
@@ -120,6 +140,9 @@ void AGGCharacter::SetStats(const FCharacterStats& Stats)
 					if(SkillFile)
 					{
 						Skills.Add(new CharacterSkill(*SkillData, *SkillFile));
+
+						FCooldownTimer CooldownData(SkillData->Cooldown);
+						SkillsCooldownMap.Add(SkillData->SkillID, CooldownData);
 					}
 				}
 			}
@@ -144,7 +167,7 @@ void AGGCharacter::MoveTo(FVector TargetPos)
 			GridMan->GetAttachedFloor()->ClearGridMeshes();
 			GridMan->GetAttachedFloor()->ClearPath();
 		}
-		AIController->MoveToLocation(TargetPos,0,false,true,false,true,nullptr,false);
+		AIController->MoveToLocation(TargetPos,5,false,true,false,true,nullptr,false);
 		SetAnimState(ECharacterAnimState::Run);
 	}
 }
@@ -202,6 +225,8 @@ void AGGCharacter::SetSelected()
 void AGGCharacter::Deselect()
 {
 	CharacterManager::SetCharacterGrids(this, EGridState::Obstacle);
+
+	OnSkillChangeDelegate.Unbind();
 }
 
 void AGGCharacter::SetCurrentIndex(int NewIndex)
@@ -259,6 +284,43 @@ int AGGCharacter::GetBaseDamage() const
 	return StatsComponent->GetBaseDamage();
 }
 
+int AGGCharacter::GetCurrentAP() const
+{
+	if(StatsComponent == nullptr)
+	{
+		return 0;
+	}
+	
+	return StatsComponent->GetCurrentAP();
+}
+
+void AGGCharacter::SetCurrentAP(int NewAP) const
+{
+	if(StatsComponent)
+	{
+		StatsComponent->SetCurrentAP(NewAP);
+		if(RefreshHudOnApChangeDelegate.IsBound())
+		{
+			RefreshHudOnApChangeDelegate.Execute();
+		}
+	}
+}
+
+int AGGCharacter::GetApCostByDistance(float Distance)
+{
+	if(StatsComponent == nullptr) return 0;
+	float MovementRange = StatsComponent->GetMovementRange();
+
+	if(MovementRange > 0)
+	{
+		float ApCost = (Distance / MovementRange) * StatsComponent->GetCurrentAP();
+		
+		return  FMath::CeilToInt(ApCost);
+	}
+
+	return -1;
+}
+
 ECharacterStatus AGGCharacter::GetStatus() const
 {
 	return Status;
@@ -295,12 +357,14 @@ float AGGCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 {
 	if(StatsComponent)
 	{
+		float PreviousHealth = StatsComponent->GetCurrentHealth();
 		bool bIsDead = StatsComponent->ChangeHealth(-DamageAmount);
 		if(bIsDead == false)
 		{
 			PlayCharacterMontage(CharFile.GetRandomTakeHitMontage());
 		}
-		UpdateHealthBar();
+		UpdateHealthBar(PreviousHealth);
+		UpdateHealthBarStatusEffects();
 	}
 	return DamageAmount;
 }
@@ -314,8 +378,9 @@ float AGGCharacter::Heal(float HealAmount, AGGCharacter* Healer)
 {
 	if(StatsComponent)
 	{
+		int PreviousHealth = StatsComponent->GetCurrentHealth();
 		StatsComponent->ChangeHealth(HealAmount);
-		UpdateHealthBar();
+		UpdateHealthBar(PreviousHealth);
 	}
 	return HealAmount;
 }
@@ -379,6 +444,8 @@ void AGGCharacter::SetCustomDepth(bool Active, int StencilValue)
 
 void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 {
+	if(StatsComponent == nullptr) return;
+
 	CharacterSkill* CurrentSkill = GetCurrentSkill();
 
 	if(CurrentSkill== nullptr) return;
@@ -386,10 +453,16 @@ void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 	//UpdateTrajectoryPath();
 
 	SelectedTargetCharacters = TargetCharacters;
-	
+
 	FCharSkillFileDataTable* SkillFiles = &(CurrentSkill->GetSkillFiles());
-	if(SkillFiles )
+	if(SkillFiles)
 	{
+		int SkillApCost = 0;
+		if(IsApEnoughForSkill(CurrentSkill, SkillApCost) == false)
+		{
+			return;
+		}
+		
 		GridManager* GridMan = CharacterManager::CharGridManager;
 		if(GridMan && GridMan->GetAttachedFloor())
 		{
@@ -403,7 +476,7 @@ void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 			GridMan->GetAttachedFloor()->ClearTrajectory();
 		}
 
-		FString TimerKey = CurrentSkill->GetSkillData().SkillName;
+		FString TimerKey = CurrentSkill->GetSkillData().SkillName.ToString();
 		FTimedEvent TimedEvent;
 		TimedEvent.BindDynamic(this, &AGGCharacter::OnCastingSkillEnds);
 		ATimedEventManager::CallEventWithDelay(this, TimerKey, TimedEvent, 10, GetWorld());
@@ -412,6 +485,30 @@ void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 
 		PlayCharacterMontage(SkillFiles->SkillMontage);
 		bIsSkillMontagePlaying = true;
+
+		TryToSpendAP(SkillApCost);
+
+		AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+		if(GameMode)
+		{
+			if(GameMode->HudWidgetInstance)
+			{
+				GameMode->HudWidgetInstance->SetSkillsPanelHidden();
+			}
+		}
+
+		if(SkillsCooldownMap.Contains(SkillFiles->SkillID))
+		{
+			FCooldownTimer* Timer = SkillsCooldownMap.Find(SkillFiles->SkillID);
+			if(Timer)
+			{
+				Timer->RestartTimer();
+				if(Timer->RefreshHudOnSkillCastDelegate.IsBound())
+				{
+					Timer->RefreshHudOnSkillCastDelegate.Execute();
+				}
+			}
+		}
 	}
 }
 
@@ -425,6 +522,7 @@ void AGGCharacter::OnAttackHitsEnemies()
 
 	if(SelectedTargetCharacters.Num() > 0)
 	{
+		CurrentSkill->ApplyStatus(this, SelectedTargetCharacters);
 		CurrentSkill->ApplyEffects(this, SelectedTargetCharacters);
 	}
 }
@@ -446,6 +544,7 @@ void AGGCharacter::OnAttackHitsEnemy(AActor* TargetToHit)
 	if(CharacterToHit && SelectedTargetCharacters.Contains(TargetToHit))
 	{
 		Enemies.Add(CharacterToHit);
+		CurrentSkill->ApplyStatus(this, Enemies);
 		CurrentSkill->ApplyEffects(this, Enemies);
 	}
 	
@@ -469,7 +568,7 @@ void AGGCharacter::OnCastingSkillEnds()
 
 	if(CurrentSkill != nullptr)
 	{
-		FString TimerKey = Skills[CurrentSkillIndex]->GetSkillData().SkillName;
+		FString TimerKey = Skills[CurrentSkillIndex]->GetSkillData().SkillName.ToString();;
 		ATimedEventManager::RemoveEventData(TimerKey, false);
 	}
 
@@ -478,6 +577,15 @@ void AGGCharacter::OnCastingSkillEnds()
 	{
 		SetStatus(ECharacterStatus::Idle);
 		PlayerController->ChangeStateTo(EControllerStateIndex::Movement);
+	}
+
+	AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	if(GameMode)
+	{
+		if(GameMode->HudWidgetInstance)
+		{
+			GameMode->HudWidgetInstance->SetSkillsPanelVisible();
+		}
 	}
 }
 
@@ -559,11 +667,19 @@ void AGGCharacter::ThrowProjectile(FName SocketName, bool bUseBoneRotation)
 	AActor* Projectile = CreateProjectile(SocketName, bUseBoneRotation);
 }
 
-void AGGCharacter::UpdateHealthBar()
+void AGGCharacter::UpdateHealthBar(int StartHealth)
 {
 	if(HealthBarWidget && StatsComponent)
 	{
-		HealthBarWidget->SetHpBar(StatsComponent->GetCurrentHealth(), StatsComponent->GetMaxHealth());
+		HealthBarWidget->SetHpBar(StatsComponent->GetCurrentHealth(), StatsComponent->GetMaxHealth(), StartHealth);
+	}
+}
+
+void AGGCharacter::UpdateHealthBarStatusEffects()
+{
+	if(HealthBarWidget)
+	{
+		HealthBarWidget->SetStatusEffects(&AppliedStatusEffects);
 	}
 }
 
@@ -624,11 +740,30 @@ void AGGCharacter::SetAnimState(ECharacterAnimState AnimState)
 
 void AGGCharacter::PlayCharacterMontage(UAnimMontage* Montage)
 {
-	UE_LOG(LogTemp, Warning, TEXT("PlayCharacterMontage1"));
 	if(AnimInstance == nullptr || bIsSkillMontagePlaying/* || AnimInstance->Montage_IsPlaying(nullptr) == true*/) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("PlayCharacterMontage2"));
 	AnimInstance->PlayMontage(Montage);
+}
+
+bool AGGCharacter::IsApEnoughForSkill(CharacterSkill* Skill, int& OutCost)
+{
+	if(Skill == nullptr || StatsComponent == nullptr) return  false;
+
+	CharacterSkill* CurrentSkill = GetCurrentSkill();
+
+	FSkillData* SkillData =  &(Skill->GetSkillData());
+
+	if(SkillData == nullptr) return false;
+
+	if(StatsComponent->GetCurrentAP() < SkillData->ApCost)
+	{
+		return  false;
+	}
+	else
+	{
+		OutCost = SkillData->ApCost;
+		return  true;
+	}
 }
 
 CharacterSkill* AGGCharacter::GetCurrentSkill()
@@ -641,12 +776,48 @@ CharacterSkill* AGGCharacter::GetCurrentSkill()
 	return Skills[CurrentSkillIndex];
 }
 
+float AGGCharacter::GetCurrentSkillDamage()
+{
+	if(CurrentSkillIndex >= Skills.Num()|| CurrentSkillIndex < 0 || Skills[CurrentSkillIndex] == nullptr)
+	{
+		return 0;
+	}
+
+	float DamageAmount = 0;
+	
+	for (int i = 0; i < Skills[CurrentSkillIndex]->GetSkillData().EffectData.Num(); ++i)
+	{
+		if(Skills[CurrentSkillIndex]->GetSkillData().EffectData[i].Type == EEffectType::DealDamage)
+		{
+			DamageAmount += Skills[CurrentSkillIndex]->GetSkillData().EffectData[i].MinValue;
+		}
+	}
+
+	return  DamageAmount;
+}
+
+CharacterSkill* AGGCharacter::GetOwnedSkillbyID(int ID)
+{
+	for (int i = 0; i < Skills.Num(); ++i)
+	{
+		if(Skills[i])
+		{
+			if(Skills[i]->GetSkillID() == ID)
+			{
+				return  Skills[i];
+			}
+		}
+	}
+
+	return  nullptr;
+}
+
 TArray<CharacterSkill*>* AGGCharacter::GetSkills()
 {
 	return  &Skills;
 }
 
-void AGGCharacter::SetCurrentSkillIfContains(int SkillId)
+bool AGGCharacter::SetCurrentSkillIfContains(int SkillId)
 {
 	for (int i = 0; i < Skills.Num(); ++i)
 	{
@@ -656,9 +827,16 @@ void AGGCharacter::SetCurrentSkillIfContains(int SkillId)
 			if(SkillData.SkillID == SkillId)
 			{
 				CurrentSkillIndex = i;
+				if(OnSkillChangeDelegate.IsBound())
+				{
+					OnSkillChangeDelegate.Execute();
+				}
+				return true;
 			}
 		}
 	}
+
+	return false;
 }
 
 FVector AGGCharacter::GetTargetTrajectoryLocation()
@@ -709,5 +887,79 @@ bool AGGCharacter::CanTrajectoryBeShown()
 	}
 
 	return  false;
+}
+
+void AGGCharacter::OnRoundEnds()
+{
+	for (auto It = SkillsCooldownMap.CreateIterator(); It; ++It)
+	{
+		It.Value().DecreaseRound(1);
+	}
+
+	UpdateHealthBarStatusEffects();
+
+}
+
+void AGGCharacter::OnTurnBegins()
+{
+	StatusEffectManager::ApplyOnTurnBegins(this, &AppliedStatusEffects);
+	UE_LOG(LogTemp, Warning, TEXT("STATUS EFFECTS %d"), AppliedStatusEffects.Num());
+	
+	UpdateHealthBarStatusEffects();
+
+	if(StatsComponent)
+	{
+		SetCurrentAP(StatsComponent->GetBaseAP());
+	}
+
+	UpdateMovableGrids();
+	GridManager* GridMan = CharacterManager::CharGridManager;
+	if(GridMan && GridMan->GetAttachedFloor())
+	{
+		GridMan->GetAttachedFloor()->UpdateGridMeshes(MovableGrids);
+	}
+	
+}
+
+void AGGCharacter::OnTurnEnds()
+{
+	//StatusEffectManager::ApplyOnTurnEnds(this, &AppliedStatusEffects);
+}
+
+bool AGGCharacter::IsStunned()
+{
+	for (int i = 0; i < AppliedStatusEffects.Num(); ++i)
+	{
+		if(AppliedStatusEffects[i].Type == EStatusEffectType::Stun)
+		{
+			return  true;
+		}
+	}
+
+	return  false;
+}
+
+void AGGCharacter::BeginDamagePreview(float DamageToPreview)
+{
+	if(HealthBarWidget == nullptr || StatsComponent == nullptr) return;
+	bIsInDamagePreviewMode = true;
+
+	HealthBarWidget->SetDamagePreviewBar(DamageToPreview, StatsComponent->GetMaxHealth());
+
+	
+}
+
+void AGGCharacter::StopDamagePreview()
+{
+	if(HealthBarWidget == nullptr || StatsComponent == nullptr) return;
+	bIsInDamagePreviewMode = false;
+
+	HealthBarWidget->ResetDamagePreviewBar(StatsComponent->GetMaxHealth());
+}
+
+
+TArray<struct FStatusEffectData>* AGGCharacter::GetAppliedStatusEffects()
+{
+	return &AppliedStatusEffects;
 }
 

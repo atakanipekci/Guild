@@ -18,6 +18,7 @@ class GUILDGAME_API UOwnedCharactersDroppableWidget : public UDroppableAreaWidge
 		virtual void NativeConstruct() override;
 		virtual void DropFrom(UDraggedCharacterWidget* DraggedWidget) override;
 		virtual bool DropTo(UDraggedCharacterWidget* DraggedWidget) override;
+		virtual void UpdateChildIndices() override; 
 	    void Refresh() ;
 		UDraggedCharacterWidget* CreateChildWidget(UDraggedCharacterWidget* DraggedWidget);
 		UDraggedCharacterWidget* CreateChildWidget(struct FCharacterStats* Stat);

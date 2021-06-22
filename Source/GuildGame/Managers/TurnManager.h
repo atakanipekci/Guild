@@ -42,6 +42,6 @@ private:
 	
     class AGuildGameGameModeBase* GameMode = nullptr;
 	int CurrentCharacterIndex = 0;
-	int TurnCount = 0;
+	int RoundCount = 0;
 	TArray<class AGGCharacter*> CharactersList;
 };

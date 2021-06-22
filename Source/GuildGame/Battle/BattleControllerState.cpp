@@ -7,6 +7,7 @@
 #include "GuildGame/GridSystem/GridFloor.h"
 #include "GGLogHelper.h"
 #include "GuildGame/GuildGameGameModeBase.h"
+#include "GuildGame/Widgets/BattleHudWidget.h"
 #include "GuildGame/GridSystem/Grid.h"
 #include "GuildGame/Managers/CharacterManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -113,29 +114,28 @@ void ControllerStateCastingSkill::Update()
 
 	if(PlayerController->UpdateSelectedGrid(false))
 	{
-		if(PlayerController->GetSelectedCharacter() && PlayerController->GetSelectedCharacter()->GetStatus() == ECharacterStatus::Idle)
+		if(PlayerController->GetSelectedCharacter() && PlayerController->GetSelectedCharacter()->GetStatus() == ECharacterStatus::Idle && PlayerController->GetGridFloor() && PlayerController->GetGridFloor()->GetGridManager())
 		{
-			if(PlayerController->GetGridFloor() && PlayerController->GetGridFloor()->GetGridManager())
+			GridManager* GridMan = PlayerController->GetGridFloor()->GetGridManager();
+			TArray<Grid*>* Targetables = PlayerController->GetSelectedCharacter()->GetTargetableGrids();
+			AGGCharacter* Char = PlayerController->GetSelectedCharacter();
+
+			if(GridMan->DoesInclude(Targetables, PlayerController->GetSelectedGridIndex()))
 			{
-				GridManager* GridMan = PlayerController->GetGridFloor()->GetGridManager();
-				TArray<Grid*>* Targetables = PlayerController->GetSelectedCharacter()->GetTargetableGrids();
-				AGGCharacter* Char = PlayerController->GetSelectedCharacter();
-
-				if(Char)
-				{
-					if(GridMan->DoesInclude(Targetables, PlayerController->GetSelectedGridIndex()))
-					{
-						Char->ShowDamageableGrids(PlayerController->GetSelectedGridIndex(), false);
-					}
-					else
-					{
-						Char->ShowDamageableGrids(GridMan->GetClosestInArray(Targetables, PlayerController->GetSelectedGridIndex()), false);
-					}
-
-					PlayerController->GetGridFloor()->DrawTrajectory(Char);
-				}
-				
+				Char->ShowDamageableGrids(PlayerController->GetSelectedGridIndex(), false);
 			}
+			else
+			{
+				Char->ShowDamageableGrids(GridMan->GetClosestInArray(Targetables, PlayerController->GetSelectedGridIndex()), false);
+			}
+
+			PlayerController->GetGridFloor()->DrawTrajectory(Char);
+
+			BeginDamagePreview(Char);
+		}
+		else
+		{
+			StopDamagePreview();
 		}
 	}
 }
@@ -157,7 +157,7 @@ void ControllerStateCastingSkill::LeftClickReleaseHandler()
 				if(GridMan)
 				{
 					FPredictProjectilePathResult Result;
-					if(GridMan->CanAttackTargetGrid(SelectedCharacter, Result))
+					if(GridMan->CanAttackTargetGrid(SelectedCharacter, Result) && GridMan->DoesInclude(SelectedCharacter->GetDamageableGrids(), PlayerController->GetSelectedGridIndex()))
 					{
 						TArray<AGGCharacter*> Targets;
 						GridMan->GetCharactersInArray(SelectedCharacter->GetDamageableGrids(), &Targets);
@@ -165,6 +165,7 @@ void ControllerStateCastingSkill::LeftClickReleaseHandler()
 						TArray<AGGCharacter*> TargetsToEffect;
 						GridMan->GetCharsInEffectSight(Targets, TargetsToEffect, SelectedCharacter, PlayerController->GetWorld());
 						SelectedCharacter->CastSkill(TargetsToEffect);
+						StopDamagePreview();
 					}
 				}
 			}
@@ -187,6 +188,15 @@ void ControllerStateCastingSkill::RightClickReleaseHandler()
 	}
 
 	PlayerController->ChangeStateTo(EControllerStateIndex::Movement);
+
+	AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(PlayerController));
+	if(BattleGameMode)
+	{
+		if(BattleGameMode->HudWidgetInstance)
+		{
+			BattleGameMode->HudWidgetInstance->RefreshSkillButtonsState();
+		}
+	}
 }
 
 void ControllerStateCastingSkill::ESCHandler()
@@ -201,6 +211,7 @@ void ControllerStateCastingSkill::ChangeTo()
 		return;
 	}
 
+	
 	AGGCharacter* SelectedCharacter = PlayerController->GetSelectedCharacter();
 	if(SelectedCharacter)
 	{
@@ -212,6 +223,11 @@ void ControllerStateCastingSkill::ChangeTo()
 			SelectedCharacter->ShowDamageableGrids(GridMan->GetClosestInArray(Targetables, PlayerController->GetSelectedGridIndex()));
 
 			PlayerController->GetGridFloor()->DrawTrajectory(SelectedCharacter);
+		}
+
+		if (SelectedCharacter->OnSkillChangeDelegate.IsBound() == false)
+		{
+			SelectedCharacter->OnSkillChangeDelegate.BindRaw(this, &ControllerStateCastingSkill::OnCurrentSkillChange);
 		}
 	}
 }
@@ -228,6 +244,8 @@ void ControllerStateCastingSkill::ChangeFrom()
 		PlayerController->GetGridFloor()->ClearGridMeshes();
 		PlayerController->GetGridFloor()->ClearTrajectory();
 	}
+
+	StopDamagePreview();
 }
 
 bool ControllerStateCastingSkill::CanChangeTo()
@@ -243,6 +261,56 @@ bool ControllerStateCastingSkill::CanChangeTo()
 	}
 
 	return true;
+}
+
+void ControllerStateCastingSkill::BeginDamagePreview(AGGCharacter* SelectedChar)
+{
+	if(SelectedChar == nullptr || PlayerController == nullptr || PlayerController->GetGridFloor() == nullptr) return;
+
+	StopDamagePreview();
+	
+	GridManager* GridMan = PlayerController->GetGridFloor()->GetGridManager();
+
+	if(GridMan == nullptr) return;
+	
+	TArray<AGGCharacter*> Targets;
+	GridMan->GetCharactersInArray(SelectedChar->GetDamageableGrids(), &Targets);
+
+	TArray<AGGCharacter*> TargetsToEffect;
+	GridMan->GetCharsInEffectSight(Targets, TargetsToEffect, SelectedChar, PlayerController->GetWorld());
+
+	for (int i = 0; i < TargetsToEffect.Num(); ++i)
+	{
+		if(TargetsToEffect[i])
+		{
+			TargetsToEffect[i]->BeginDamagePreview(SelectedChar->GetCurrentSkillDamage());
+			DamagePreviewedCharacters.Add(TargetsToEffect[i]);
+		}
+	}
+}
+
+void ControllerStateCastingSkill::StopDamagePreview()
+{
+	for (int i = 0; i < DamagePreviewedCharacters.Num(); ++i)
+	{
+		if(DamagePreviewedCharacters[i])
+		{
+			DamagePreviewedCharacters[i]->StopDamagePreview();
+		}
+	}
+	DamagePreviewedCharacters.Empty();
+}
+
+void ControllerStateCastingSkill::OnCurrentSkillChange()
+{
+	if (PlayerController != nullptr)
+	{
+		AGGCharacter* SelectedCharacter = PlayerController->GetSelectedCharacter();
+		if(SelectedCharacter)
+		{
+			BeginDamagePreview(SelectedCharacter);
+		}
+	}
 }
 
 ControllerStatePlacement::ControllerStatePlacement(ABattlePlayerController* Controller)

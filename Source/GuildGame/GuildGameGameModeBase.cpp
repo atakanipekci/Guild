@@ -96,9 +96,10 @@ void AGuildGameGameModeBase::BeginPlay()
 
 	
 	BattleTurnManager.SetCharactersList(Characters);
+	BattleTurnManager.SetGameMode(this);
 	//BattleTurnManager.Start();
 
-	HudWidgetInstance = Cast<UBattleHudWidget>(WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::BattleHud, this));
+	HudWidgetInstance = Cast<UBattleHudWidget>(WidgetManager::GetWidgetInstanceIfNotCreate(EWidgetKeys::BattleHud, this));
     if(HudWidgetInstance)
     {
         HudWidgetInstance->AddToViewport();
@@ -125,5 +126,21 @@ void AGuildGameGameModeBase::Next()
 		PlayerController->ChangeStateTo(EControllerStateIndex::Movement);
 		BattleTurnManager.NextCharacter();
 		PlayerController->SetSelectedCharacter(BattleTurnManager.GetCurrentCharacter());
+	}
+}
+
+void AGuildGameGameModeBase::OnRoundEnds()
+{
+	for (int i = 0; i < Characters.Num(); ++i)
+	{
+		if(Characters[i])
+		{
+			Characters[i]->OnRoundEnds();
+		}
+	}
+
+	if(HudWidgetInstance)
+	{
+		HudWidgetInstance->OnRoundEnds();
 	}
 }

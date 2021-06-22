@@ -25,6 +25,7 @@ ABattlePlayerController::ABattlePlayerController()
 	if(States.Num() != 0)
 	{
 		ActiveState = States[0];
+		StateIndex = 0;
 	}
 }
 
@@ -56,19 +57,20 @@ BattleControllerState* ABattlePlayerController::GetActiveState() const
 	return ActiveState;
 }
 
-void ABattlePlayerController::SetState(int StateIndex)
+void ABattlePlayerController::SetState(int AStateIndex)
 {
-	if(StateIndex >= States.Num())
+	if(AStateIndex >= States.Num())
 	{
 		return;
 	}
+	StateIndex = AStateIndex;
 
-	ActiveState = States[StateIndex];
+	ActiveState = States[AStateIndex];
 }
 
-void ABattlePlayerController::ChangeStateTo(EControllerStateIndex StateIndex)
+void ABattlePlayerController::ChangeStateTo(EControllerStateIndex AStateIndex)
 {
-	int Index = static_cast<int>(StateIndex);
+	int Index = static_cast<int>(AStateIndex);
 	if(Index >= States.Num())
 	{
 		return;
@@ -86,7 +88,7 @@ void ABattlePlayerController::ChangeStateTo(EControllerStateIndex StateIndex)
 	{
 		ActiveState->ChangeFrom();
 	}
-
+	StateIndex = Index;
 	ActiveState = States[Index];
 	ActiveState->ChangeTo();
 }
@@ -122,23 +124,90 @@ bool ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)
 		return false;
 	}
 	
-	if(GridIndex!=SelectedGridIndex)
+	if(GridIndex!=SelectedGridIndex || (SelectedCharacter != nullptr && SelectedCharacter->GetSize() == ECharacterSize::Large))
 	{
 		//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, FString::Printf(TEXT(" %d"), GridIndex));
 		SelectedGridIndex = GridIndex;
-		GridFloor->UpdateSelectedGrid(GridMan->GetGridBottomLeft(GridIndex), true);
+		if(SelectedCharacter)
+		{
+			if(SelectedCharacter->GetSize() == ECharacterSize::Large && StateIndex == static_cast<int>(EControllerStateIndex::Movement))
+			{
+				FVector NewPos = GridMan->GetClosestLineIntersection(TraceResult.ImpactPoint) -
+					FVector(GridMan->GetGridSize(), GridMan->GetGridSize(), 0);
+				GridFloor->UpdateSelectedGrid(NewPos, true, 2);
+				
+			}
+			else
+			{
+				GridFloor->UpdateSelectedGrid(GridMan->GetGridBottomLeft(GridIndex), true);
+			}
+		}
+		else
+		{
+			GridFloor->UpdateSelectedGrid(GridMan->GetGridBottomLeft(GridIndex), true);
+		}
 		if(SelectedCharacter && SelectedCharacter->GetStatus() == ECharacterStatus::Idle && DrawPathTo)
 		{
 			int start = GridMan->WorldToGrid(SelectedCharacter->GetActorLocation());
 			int end = SelectedGridIndex;
-			GridFloor->DrawPath(start,end);
+			if(SelectedCharacter->GetSize() == ECharacterSize::Large)
+			{
+				end = GridMan->WorldToGrid(GridMan->GetClosestLineIntersection(TraceResult.ImpactPoint));
+				GridFloor->DrawPath(start,end, true);
+			}
+			else
+			{
+				GridFloor->DrawPath(start,end);
+			}
 		}
 
 		if(SelectedCharacter)
 		{
-			if(GridMan->DoesInclude(SelectedCharacter->GetMovableGrids(), SelectedGridIndex))
+			TArray<Grid*> CharacterGrids;
+			GridMan->GetLargeCharacterGrids(SelectedCharacter->GetCurrentIndex(), CharacterGrids);
+
+			if(GridMan->DoesInclude(SelectedCharacter->GetMovableGrids(), SelectedGridIndex)
+				|| (SelectedCharacter->GetSize() == ECharacterSize::Large &&
+					GridMan->DoesInclude(&CharacterGrids, SelectedGridIndex)))
 			{
-				GridFloor->SetSelectedGridColorType(EISMType::Movement);
+				if(SelectedCharacter->GetSize() == ECharacterSize::Large)
+				{
+					FVector NewPos = GridMan->GetClosestLineIntersection(TraceResult.ImpactPoint);
+					int Index = GridMan->WorldToGrid(NewPos);
+					TArray<Grid*> Neighbours;
+					
+					GridMan->GetLargeCharacterGrids(Index, Neighbours);
+					bool Flag = true;
+					for (auto Element : Neighbours)
+					{
+						if(Element == nullptr)
+						{
+							Flag = false;
+							break;
+						}
+						if(!(GridMan->DoesInclude(SelectedCharacter->GetMovableGrids(), Element->Index)))
+						{
+							if(!(GridMan->DoesInclude(&CharacterGrids, Element->Index)))
+							{
+								Flag = false;
+								break;
+							}
+						}
+					}
+
+					if(Flag)
+					{
+						GridFloor->SetSelectedGridColorType(EISMType::Movement);
+					}
+					else
+					{
+						GridFloor->SetSelectedGridColorType(EISMType::Empty);
+					}				
+				}
+				else
+				{
+					GridFloor->SetSelectedGridColorType(EISMType::Movement);
+				}
 			}
 			else
 			{
@@ -151,14 +220,14 @@ bool ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)
 	return false;
 }
 
-void ABattlePlayerController::DrawPath(int StartIndex, int EndIndex) const
+void ABattlePlayerController::DrawPath(int StartIndex, int EndIndex, bool LargeCharacter) const
 {
 	if(StartIndex == EndIndex || GridFloor == nullptr)
 	{
 		return;
 	}
 
-	GridFloor->DrawPath(StartIndex,EndIndex);
+	GridFloor->DrawPath(StartIndex,EndIndex, LargeCharacter);
 }
 
 void ABattlePlayerController::SetGridFloor(AGridFloor* Grid)
@@ -192,14 +261,36 @@ void ABattlePlayerController::MoveSelectedChar()
 		return;
 	}
 
-	float Dist = GridFloor->GetPathLength(GridMan->WorldToGrid(SelectedCharacter->GetActorLocation()), SelectedGridIndex);
-	if(Dist <= 0 || Dist > SelectedCharacter->GetDefaultMovementRange())
+	if(SelectedCharacter->GetSize() == ECharacterSize::Normal)
 	{
-		return;
+		float Dist = GridFloor->GetPathLength(GridMan->WorldToGrid(SelectedCharacter->GetActorLocation()), SelectedGridIndex);
+		if(Dist <= 0 || Dist > SelectedCharacter->GetDefaultMovementRange())
+		{
+			return;
+		}
+		FVector Target = GridMan->GetGridCenter(SelectedGridIndex);
+		Target.Z = SelectedCharacter->GetActorLocation().Z;
+		SelectedCharacter->MoveTo(Target);
 	}
-	FVector Target = GridMan->GetGridCenter(SelectedGridIndex);
-	Target.Z = SelectedCharacter->GetActorLocation().Z;
-	SelectedCharacter->MoveTo(Target);
+	else if(SelectedCharacter->GetSize() == ECharacterSize::Large)
+	{
+		FHitResult TraceResult(ForceInit);
+		this->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, TraceResult);
+		if(TraceResult.IsValidBlockingHit())
+		{
+			
+		}
+		FVector NewPos = GridMan->GetClosestLineIntersection(TraceResult.ImpactPoint);
+		int Index = GridMan->WorldToGrid(NewPos);
+		float Dist = GridFloor->GetPathLength(GridMan->WorldToGrid(SelectedCharacter->GetActorLocation()), Index);
+		if(Dist <= 0 || Dist > SelectedCharacter->GetDefaultMovementRange())
+		{
+			return;
+		}
+		FVector Target = GridMan->GetGridBottomLeft(Index);
+		Target.Z = SelectedCharacter->GetActorLocation().Z;
+		SelectedCharacter->MoveTo(Target);
+	}
 }
 
 void ABattlePlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)

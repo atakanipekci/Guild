@@ -38,10 +38,10 @@ void CharacterManager::SetTargetableGrids(AGGCharacter* Character, const FSkillD
     TArray<Grid*> UnavailableGrids;
     if(SkillData->DiagonalRange)
     {
-        CharGridManager->GetGridsFromCenter(Index, GridRange*2+1, GridRange*2+1, &(Character->TargetableGrids));
+        CharGridManager->GetGridsFromCenter(Index, GridRange*2+1, GridRange*2+1, &(Character->TargetableGrids), Character->GetSize() == ECharacterSize::Large);
         UnavailableGrids.Empty();
         GridRange = SkillData->MinRange;
-        CharGridManager->GetGridsFromCenter(Index, GridRange*2+1, GridRange*2+1, &UnavailableGrids);
+        CharGridManager->GetGridsFromCenter(Index, GridRange*2+1, GridRange*2+1, &UnavailableGrids, Character->GetSize() == ECharacterSize::Large);
     }
     else
     {
@@ -114,6 +114,39 @@ bool CharacterManager::CanAttackTo(const AGGCharacter* Dealer, const AGGCharacte
     }
 
     return true;
+}
+
+void CharacterManager::SetCharacterGrids(const AGGCharacter* Char, EGridState State)
+{
+    if(CharGridManager == nullptr || Char == nullptr)
+    {
+        return;
+    }
+
+    int Index = Char->GetCurrentIndex();
+    CharGridManager->SetGridState(Index, State);
+
+    if(Char->GetSize() == ECharacterSize::Large)
+    {
+        FIntPoint Point = CharGridManager->IndexToPoint(Index);
+        if((Point - FIntPoint(1,0)).X >= 0)
+        {
+            int LeftIndex = CharGridManager->PointToIndex(Point - FIntPoint(1,0));
+            CharGridManager->SetGridState(LeftIndex, State);
+        }
+
+        if((Point - FIntPoint(1,1)).X >= 0 && (Point - FIntPoint(1,1)).Y >= 0)
+        {
+            int BotLeftIndex = CharGridManager->PointToIndex(Point - FIntPoint(1,1));
+            CharGridManager->SetGridState(BotLeftIndex, State);
+        }
+
+        if((Point - FIntPoint(0,1)).Y >= 0)
+        {
+            int BotIndex = CharGridManager->PointToIndex(Point - FIntPoint(0,1));
+            CharGridManager->SetGridState(BotIndex, State);
+        }
+    }
 }
 
 FString CharacterManager::GetCharFileRowName(ECharacterClassType CharacterType)

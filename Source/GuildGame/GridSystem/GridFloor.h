@@ -155,11 +155,11 @@ public:
 
 	virtual void OnConstruction(const FTransform& Transform) override;
 
-	void UpdateSelectedGrid(FVector NewPos, bool IsVisible);
+	void UpdateSelectedGrid(FVector NewPos, bool IsVisible, int Scale = 1);
 
 	void SetSelectedGridColorType(EISMType);
 
-	void DrawPath(int StartIndex, int EndIndex);
+	void DrawPath(int StartIndex, int EndIndex, bool LargeGrid = false);
 
 	float GetPathLength(int StartIndex, int EndIndex);
 

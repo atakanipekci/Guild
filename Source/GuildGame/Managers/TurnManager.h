@@ -29,6 +29,10 @@ public:
 
 	AGGCharacter* GetCurrentCharacter() const
 	{
+		if(CharactersList.Num() == 0)
+		{
+			return nullptr;
+		}
 		return CharactersList[CurrentCharacterIndex];
 	}
  

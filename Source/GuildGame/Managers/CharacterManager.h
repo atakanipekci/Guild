@@ -22,6 +22,7 @@ public:
     static void SetTargetableGrids(class AGGCharacter* Character, const struct FSkillData* SkillData);
     static void SetDamageableGrids(class AGGCharacter* Character, const class CharacterSkill*, int Index);
     static bool CanAttackTo(const class AGGCharacter*, const class AGGCharacter* );
+    static void SetCharacterGrids(const class AGGCharacter*, EGridState State);
     static class GridManager* CharGridManager;
 
 	template<typename T, typename E>

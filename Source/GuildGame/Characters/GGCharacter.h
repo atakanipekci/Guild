@@ -65,6 +65,7 @@ public:
 	float GetDefaultMovementRange()const;
 	float GetDefaultDamageRange()const;
 	int GetSpeed() const;
+	ECharacterSize GetSize() const;
 	int GetBaseDamage()const;
 	ECharacterStatus GetStatus()const;
 	void SetStatus(ECharacterStatus);

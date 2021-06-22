@@ -38,7 +38,22 @@ void AGuildGameGameModeBase::BeginPlay()
      				LOG_ERR("GameMode : Grid null %d", Count);
      				continue;
      			}
-     			FVector Location = GridMan->GetGridCenter(Placeables[Count]->Index);
+     			if(Element->CharacterSize == ECharacterSize::Large)
+     			{
+     				GridMan->SetLargeGridActive(true);
+     			}
+
+     			while(!GridMan->IsGridWalkable(Placeables[Count]->Index, true) && Count < Placeables.Num())
+     			{
+     				Count+=1;
+     			}
+     			if(!GridMan->IsGridWalkable(Placeables[Count]->Index, true))
+     			{
+     				LOG_ERR("GameMode : Grid null %d", Count);
+     				continue;
+     			}
+     			FVector Location = GridMan->GetNavigationPoint(Placeables[Count]->Index);
+     			GridMan->SetLargeGridActive(false);
      			Location.Z = 100;
 				AGGCharacter* Char = CharacterManager::SpawnCharacter<AGGCharacter,AGGCharacter>(BattleCharactersBP,Element->ClassType,
            										Location, FRotator::ZeroRotator, GetWorld());

@@ -89,6 +89,11 @@ public:
 		return Stats.Speed;
 	}
 
+	ECharacterSize GetSize() const
+	{
+		return Stats.CharacterSize;
+	}
+
 	const TArray<int>& GetSkillIDs() const;
 	
 private:

@@ -283,7 +283,7 @@ void AGridFloor::OnConstruction(const FTransform& Transform)
 	SelectionMesh->SetVisibility(false);
 }
 
-void AGridFloor::UpdateSelectedGrid(FVector NewPos, bool IsVisible)
+void AGridFloor::UpdateSelectedGrid(FVector NewPos, bool IsVisible, int Scale)
 {
 	if(SelectionMesh == nullptr)
 	{
@@ -291,6 +291,7 @@ void AGridFloor::UpdateSelectedGrid(FVector NewPos, bool IsVisible)
 		return;
 	}
 
+	SelectionMesh->SetWorldScale3D(FVector{static_cast<float>(Scale),static_cast<float>(Scale),1});
 	SelectionMesh->SetWorldLocation(FVector(NewPos.X, NewPos.Y, GetActorLocation().Z));
 	SelectionMesh->SetVisibility(IsVisible);
 	//SelectionMesh->SetRenderCustomDepth(true);
@@ -311,7 +312,7 @@ void AGridFloor::SetSelectedGridColorType(EISMType Type)
 	}
 }
 
-void AGridFloor::DrawPath(int StartIndex, int EndIndex)
+void AGridFloor::DrawPath(int StartIndex, int EndIndex, bool LargeGrid)
 {
 	if(!FloorGridManager || !PathActor)
 	{
@@ -324,6 +325,11 @@ void AGridFloor::DrawPath(int StartIndex, int EndIndex)
 	{
 		FVector start = FloorGridManager->GetGridCenter(StartIndex);
 		FVector end = FloorGridManager->GetGridCenter(EndIndex);
+		if(LargeGrid)
+		{
+			start = FloorGridManager->GetGridBottomLeft(StartIndex);
+			end = FloorGridManager->GetGridBottomLeft(EndIndex);
+		}
 		UNavigationPath* path =  UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), start, end, nullptr,nullptr);
 		if(path && path->IsValid())
 		{
@@ -350,13 +356,13 @@ void AGridFloor::DrawPath(int StartIndex, int EndIndex)
 
 float AGridFloor::GetPathLength(int StartIndex, int EndIndex)
 {
-	FVector start = FloorGridManager->GetGridCenter(StartIndex);
-	FVector end = FloorGridManager->GetGridCenter(EndIndex);
+	FVector start = FloorGridManager->GetNavigationPoint(StartIndex);
+	FVector end = FloorGridManager->GetNavigationPoint(EndIndex);
 	UNavigationPath* path =  UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), start, end, nullptr,nullptr);
 	if(path && path->IsValid())
 	{
 		int Num = path->PathPoints.Num();
-        if(Num > 1 && FVector::Dist(path->PathPoints[Num-1], FloorGridManager->GetGridCenter(EndIndex)) >= GridSize)
+        if(Num > 1 && FVector::Dist(path->PathPoints[Num-1], FloorGridManager->GetNavigationPoint(EndIndex)) >= GridSize)
         {
         	return -1;
         }

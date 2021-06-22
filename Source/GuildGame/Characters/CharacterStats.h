@@ -5,6 +5,13 @@
 enum class ENpcBehaviourStates: uint8;
 
 UENUM(Blueprintable)
+enum class ECharacterSize: uint8
+{
+	Normal,
+	Large
+};
+
+UENUM(Blueprintable)
 enum class ECharacterClassType: uint8
 {
 	Knight,
@@ -102,6 +109,9 @@ struct FCharacterStats : public FTableRowBase
 	float MovementRange = 850;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float AttackRange = 150;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ECharacterSize CharacterSize;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Price;
 

@@ -144,7 +144,7 @@ void AGGCharacter::MoveTo(FVector TargetPos)
 			GridMan->GetAttachedFloor()->ClearGridMeshes();
 			GridMan->GetAttachedFloor()->ClearPath();
 		}
-		AIController->MoveToLocation(TargetPos,5,false,true,false,true,nullptr,false);
+		AIController->MoveToLocation(TargetPos,0,false,true,false,true,nullptr,false);
 		SetAnimState(ECharacterAnimState::Run);
 	}
 }
@@ -184,19 +184,24 @@ void AGGCharacter::SetSelected()
 	GridManager* GridMan = CharacterManager::CharGridManager;
 	if(GridMan && GridMan->GetAttachedFloor())
 	{
-		GridMan->SetGridState(CurrentGridIndex, EGridState::Empty);
+		if(GetSize() == ECharacterSize::Large)
+		{
+			GridMan->SetLargeGridActive(true);
+		}
+		else
+		{
+			GridMan->SetLargeGridActive(false);
+		}
+		CharacterManager::SetCharacterGrids(this, EGridState::Empty);
 		UpdateMovableGrids();
 		GridMan->GetAttachedFloor()->UpdateGridMeshes(MovableGrids);
+
 	}
 }
 
 void AGGCharacter::Deselect()
 {
-	GridManager* GridMan = CharacterManager::CharGridManager;
-	if(GridMan && GridMan->GetAttachedFloor())
-	{
-		GridMan->SetGridState(CurrentGridIndex, EGridState::Obstacle);
-	}
+	CharacterManager::SetCharacterGrids(this, EGridState::Obstacle);
 }
 
 void AGGCharacter::SetCurrentIndex(int NewIndex)
@@ -232,6 +237,16 @@ int AGGCharacter::GetSpeed() const
 	}
 	
 	return StatsComponent->GetSpeed();
+}
+
+ECharacterSize AGGCharacter::GetSize() const
+{
+	if(StatsComponent == nullptr)
+	{
+		return ECharacterSize::Normal;
+	}
+	
+	return StatsComponent->GetSize();
 }
 
 int AGGCharacter::GetBaseDamage() const
@@ -346,9 +361,9 @@ void AGGCharacter::UpdateCurrentGridIndex()
 	
 	if(GridMan && GridMan->GetAttachedFloor())
 	{
-		GridMan->SetGridState(CurrentGridIndex, EGridState::Empty);
+		CharacterManager::SetCharacterGrids(this, EGridState::Empty);
 		CurrentGridIndex = GridMan->WorldToGrid(GetActorLocation());
-		GridMan->SetGridState(CurrentGridIndex, EGridState::Obstacle);
+		CharacterManager::SetCharacterGrids(this, EGridState::Obstacle);
 	}
 }
 

@@ -118,7 +118,7 @@ FPathFindingResult AGridNavigationData::FindPath(const FNavAgentProperties& Agen
 
 			for (auto& point : Path)
 			{
-				NavPath->GetPathPoints().Add(FNavPathPoint(AStar->NavGridManager->GetGridCenter(AStar->NavGridManager->PointToIndex(point))));
+				NavPath->GetPathPoints().Add(FNavPathPoint(AStar->NavGridManager->GetNavigationPoint(AStar->NavGridManager->PointToIndex(point))));
 			}
 
 			//UE_LOG(LogTemp, Warning, TEXT("WorldGridNav path (%d points):"), Path.Num());

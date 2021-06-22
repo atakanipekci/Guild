@@ -29,7 +29,7 @@ public:
 	void SetState(int StateIndex);
 	void ChangeStateTo(EControllerStateIndex StateIndex);
 	bool UpdateSelectedGrid(bool DrawPathTo = true);
-	void DrawPath(int StartIndex, int EndIndex) const;
+	void DrawPath(int StartIndex, int EndIndex, bool LargeCharacter = false) const;
 	void SetGridFloor(class AGridFloor* Grid);
 	class AGridFloor* GetGridFloor() const;
 	void SelectCharAtMousePos();
@@ -50,5 +50,6 @@ private:
 	class AGridFloor* GridFloor = nullptr;
 	int SelectedGridIndex = -1;
 	class BattleControllerState* ActiveState;
+	int StateIndex;
 	TArray<class BattleControllerState*> States;
 };

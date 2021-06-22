@@ -7,6 +7,8 @@
 #include "GuildGame/GridSystem/GridFloor.h"
 #include "GGLogHelper.h"
 #include "GuildGame/GuildGameGameModeBase.h"
+#include "GuildGame/GridSystem/Grid.h"
+#include "GuildGame/Managers/CharacterManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStaticsTypes.h"
 
@@ -258,7 +260,7 @@ void ControllerStatePlacement::LeftClickHandler()
 
 void ControllerStatePlacement::LeftClickReleaseHandler()
 {
-	if (PlayerController == nullptr)
+	if (PlayerController == nullptr || PlayerController->GetGridFloor() == nullptr)
 	{
 		return;
 	}
@@ -267,12 +269,27 @@ void ControllerStatePlacement::LeftClickReleaseHandler()
 	SelectedCharacter = PlayerController->GetCharacterFromMousePos();
 	if(SelectedCharacter)
 	{
+		CharacterManager::SetCharacterGrids(SelectedCharacter, EGridState::Empty);
 		SelectedCharacter->SetCustomDepth(true,2);
+		if(PlayerController->GetGridFloor()->GetGridManager())
+		{
+			if(SelectedCharacter->GetSize() == ECharacterSize::Large)
+			{
+				PlayerController->GetGridFloor()->GetGridManager()->SetLargeGridActive(true);
+			}
+			else
+			{
+				PlayerController->GetGridFloor()->GetGridManager()->SetLargeGridActive(false);
+			}
+		}
 	}
 	if(Old)
 	{
+		Old->UpdateCurrentGridIndex();
 		Old->SetCustomDepth(false,0);
 	}
+	
+	PlayerController->GetGridFloor()->ShowPlaceableGrids();
 }
 
 void ControllerStatePlacement::RightClickHandler()
@@ -281,7 +298,7 @@ void ControllerStatePlacement::RightClickHandler()
 
 void ControllerStatePlacement::RightClickReleaseHandler()
 {
-	if(SelectedCharacter != nullptr && PlayerController != nullptr)
+	if(SelectedCharacter != nullptr && PlayerController != nullptr && SelectedCharacter != nullptr)
 	{
 		if(PlayerController->GetGridFloor() && PlayerController->GetGridFloor()->GetGridManager())
 		{
@@ -295,13 +312,18 @@ void ControllerStatePlacement::RightClickReleaseHandler()
 			PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, TraceResult);
 			if (TraceResult.IsValidBlockingHit())
 			{
-				int Index = GridMan->WorldToGrid(TraceResult.Location);
+				FVector Location = TraceResult.Location;
+				if(SelectedCharacter->GetSize() == ECharacterSize::Large)
+				{
+					Location = GridMan->GetClosestLineIntersection(Location);
+				}
+				int Index = GridMan->WorldToGrid(Location);
 				if(GridMan->IsGridWalkable(Index))
 				{
 					if(GridMan->DoesInclude(&(PlayerController->GetGridFloor()->GetPlaceableGrids()), Index))
 					{
-						SelectedCharacter->TeleportTo(GridMan->GetGridCenter(Index), SelectedCharacter->GetActorRotation());
-						SelectedCharacter->UpdateCurrentGridIndex();
+						SelectedCharacter->TeleportTo(GridMan->GetNavigationPoint(Index), SelectedCharacter->GetActorRotation());
+						//SelectedCharacter->UpdateCurrentGridIndex();
 						PlayerController->GetGridFloor()->ShowPlaceableGrids();
 					}
 				}
@@ -323,6 +345,7 @@ void ControllerStatePlacement::ChangeFrom()
 	if(SelectedCharacter)
 	{
 		SelectedCharacter->SetCustomDepth(false, 1);
+		SelectedCharacter->UpdateCurrentGridIndex();
 	}
 }
 

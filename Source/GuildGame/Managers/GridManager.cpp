@@ -31,22 +31,70 @@ GridManager::~GridManager()
 {
 }
 
-bool GridManager::IsGridWalkable(int Index) const
+bool GridManager::IsGridWalkable(int Index,  bool CheckLargeGrid) const
 {
     if(Index < 0 || Index >= ColumnCount*RowCount || GGGrids[Index].GridState != EGridState::Empty)
     {
         return false;
     }
+
+    if(LargeGridActive && CheckLargeGrid)
+    {
+        TArray<Grid*> Out;
+        if(GetLargeCharacterGrids(Index, Out))
+        {
+            for (auto Element : Out)
+            {
+                if(Element == nullptr)
+                {
+                    return false;
+                }
+
+                if(Element->GridState != EGridState::Empty)
+                {
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
     
     return true;
 }
 
-bool GridManager::IsGridWalkable(FIntPoint Point) const
+bool GridManager::IsGridWalkable(FIntPoint Point,  bool CheckLargeGrid) const
 {
     int Index = PointToIndex(Point);
     if(Index < 0 || Index >= ColumnCount*RowCount || GGGrids[Index].GridState != EGridState::Empty)
     {
         return false;
+    }
+
+    if(LargeGridActive && CheckLargeGrid)
+    {
+        TArray<Grid*> Out;
+        if(GetLargeCharacterGrids(Index, Out))
+        {
+            for (auto Element : Out)
+            {
+                if(Element == nullptr)
+                {
+                    return false;
+                }
+
+                if(Element->GridState != EGridState::Empty)
+                {
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            return false;
+        }
     }
     
     return true;
@@ -122,6 +170,18 @@ int GridManager::PointToIndex(FIntPoint Point) const
     return row*ColumnCount + col;
 }
 
+FVector GridManager::GetNavigationPoint(int Index) const
+{
+    if(LargeGridActive)
+    {
+        return GetGridBottomLeft(Index);
+    }
+    else
+    {
+        return GetGridCenter(Index);
+    }
+}
+
 FVector GridManager::GetGridCenter(int Index) const
 {
     int row = 0;
@@ -155,6 +215,11 @@ FVector GridManager::GetGridTopLeft(int Index) const
     return GetGridCenter(Index) + FVector(GridSize/2,-GridSize/2,0);
 }
 
+FVector GridManager::GetGridTopRight(int Index) const
+{
+    return GetGridCenter(Index) + FVector(GridSize/2,+GridSize/2,0);
+}
+
 FVector GridManager::GetGridBottomMid(int Index) const
 {
     return  GetGridCenter(Index) + FVector(-GridSize/2,0,0);
@@ -170,6 +235,51 @@ FVector GridManager::GetGridBottomLeft(int Index) const
     return GetGridCenter(Index) + FVector(-GridSize/2,-GridSize/2,0);
 }
 
+FVector GridManager::GetGridBottomRight(int Index) const
+{
+    return GetGridCenter(Index) + FVector(-GridSize/2,+GridSize/2,0);
+}
+
+FVector GridManager::GetClosestLineIntersection(FVector& Pos) const
+{
+    float TopLeftDist = 0;
+    float TopRightDist = 0;
+    float BotLeftDist = 0;
+    float BotRightDist = 0;
+
+    int Index = WorldToGrid(Pos);
+    
+    TopLeftDist = FVector::Dist(Pos,GetGridTopLeft(Index));
+    TopRightDist = FVector::Dist(Pos,GetGridTopRight(Index));
+    BotLeftDist = FVector::Dist(Pos,GetGridBottomLeft(Index));
+
+    //closer to right
+    if(TopLeftDist > TopRightDist)
+    {
+        //closer to top
+        if(BotLeftDist > TopLeftDist)
+        {
+            return GetGridTopRight(Index);
+        }
+        else//closer to bottom
+        {
+            return GetGridBottomRight(Index);
+        }
+    }
+    else//closer to left
+    {
+        //closer to top
+        if(BotLeftDist > TopLeftDist)
+        {
+            return GetGridTopLeft(Index);
+        }
+        else//closer to bottom
+        {
+            return GetGridBottomLeft(Index);
+        }
+    }
+}
+
 float GridManager::GetDistBetween(int Index1, int Index2) const
 {
     return FVector::Dist(GetGridCenter(Index1), GetGridCenter(Index2));
@@ -177,7 +287,7 @@ float GridManager::GetDistBetween(int Index1, int Index2) const
 
 void GridManager::SetGridState(int Index, EGridState NewState)
 {
-    if(GGGrids.Num() <= 0)
+    if(GGGrids.Num() <= 0 || Index >= GGGrids.Num())
     {
         return;
     }
@@ -185,7 +295,7 @@ void GridManager::SetGridState(int Index, EGridState NewState)
     GridToSet->GridState = NewState;
 }
 
-bool GridManager::GetGridsFromCenter(int Index, int ARowCount, int AColumnCount,  TArray<Grid*>* GridsResult)
+bool GridManager::GetGridsFromCenter(int Index, int ARowCount, int AColumnCount,  TArray<Grid*>* GridsResult, bool LargeGrid)
 {
     //todo: add controls for the edges of the map
     if(Index < 0 || GridsResult == nullptr)
@@ -202,6 +312,12 @@ bool GridManager::GetGridsFromCenter(int Index, int ARowCount, int AColumnCount,
         ColStart = 0;
     }
     int RowStart = RowIndex - ARowCount/2;
+    if(LargeGrid)
+    {
+        //RowStart -= 1;
+        AColumnCount -= 1;
+        ARowCount -= 1;
+    }
     int StartIndex = RowStart*this->ColumnCount + ColStart;
 
     GridsResult->Reserve(ARowCount*AColumnCount);
@@ -224,6 +340,21 @@ bool GridManager::GetGridsFromCenter(int Index, int ARowCount, int AColumnCount,
         }
     }
     return true; 
+}
+
+bool GridManager::GetGridsFromIntersection(int Index, int ARowCount, int AColumnCount, TArray<Grid*>* GridsResult)
+{
+    if(Index < 0 || GridsResult == nullptr)
+    {
+        return false;  
+    }
+
+    FVector CenterPos = GetGridBottomLeft(Index);
+    
+
+    
+
+    return true;
 }
 
 bool GridManager::GetNeighbours(int Index, int ARowCount, int AColumnCount, TArray<Grid*>* GridsResult)
@@ -286,7 +417,7 @@ bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<Grid*>* Gr
     int IndexDist = Dist/GridSize;
     int TopLeft = CenterIndex - IndexDist - IndexDist*ColumnCount;
 
-    FVector start = GetGridCenter(CenterIndex);
+    FVector start = GetNavigationPoint(CenterIndex);
     FVector end;
     int result = 0;
     for(int i = 0; i <= IndexDist*2; i++)
@@ -298,8 +429,20 @@ bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<Grid*>* Gr
             
             if(result >= 0 && result < RowCount*ColumnCount && AttachedFloor)
             {
-                end = GetGridCenter(result);
-                if(IsGridWalkable(result))
+                end = GetNavigationPoint(result);
+                TArray<Grid*> CharGrids;
+                if(LargeGridActive)
+                {
+                    if(!GetLargeCharacterGrids(CenterIndex,CharGrids))
+                    {
+                        //continue;
+                    }
+                    if(DoesInclude(&CharGrids, result))
+                    {
+                        //continue;
+                    }
+                }
+                if(IsGridWalkable(result, false))
                 {
                     if(UsePathfinding)
                     {
@@ -310,13 +453,32 @@ bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<Grid*>* Gr
                             if(PathDist<=Dist && path->IsValid())
                             {
                                 int Num = path->PathPoints.Num();
-                                if(Num > 1 && FVector::Dist(path->PathPoints[Num-1], GetGridCenter(result)) >= GridSize)
+                                if(Num > 1 && FVector::Dist(path->PathPoints[Num-1], GetNavigationPoint(result)) >= GridSize)
                                 {
                                     continue;
                                 }
                                 else
                                 {
-                                    GridsResult->Add(&GGGrids[result]);
+                                    if(LargeGridActive == false)
+                                    {
+                                        GridsResult->Add(&GGGrids[result]);
+                                    }
+                                    else if(LargeGridActive)
+                                    {
+                                        TArray<Grid*> Neighbours;
+                                        GetLargeCharacterGrids(result, Neighbours);
+                                        for (auto Element : Neighbours)
+                                        {
+                                            if(Element == nullptr)
+                                            {
+                                                continue;
+                                            }
+                                            if(!DoesInclude(GridsResult, Element->Index) && !DoesInclude(&CharGrids, Element->Index))
+                                            {
+                                                GridsResult->Add(Element);
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -334,6 +496,51 @@ bool GridManager::GetGridsInRange(int CenterIndex, float Dist, TArray<Grid*>* Gr
         }
     }
     return true;
+}
+
+bool GridManager::GetLargeCharacterGrids(int Index, TArray<Grid*>& Out) const
+{
+    if(Index < 0 || Index >= GGGrids.Num())
+    {
+        return false;
+    }
+    bool Result = true;
+    Out.Empty();
+    Out.Add(const_cast<Grid*>(&GGGrids[Index]));
+    
+    FIntPoint Point = IndexToPoint(Index);
+    if((Point - FIntPoint(1,0)).X >= 0)
+    {
+        int LeftIndex = PointToIndex(Point - FIntPoint(1,0));
+        Out.Add(const_cast<Grid*>(&GGGrids[LeftIndex]));
+    }
+    else
+    {
+        Result = false;
+    }
+
+    if((Point - FIntPoint(1,1)).X >= 0 && (Point - FIntPoint(1,1)).Y >= 0)
+    {
+        int BotLeftIndex = PointToIndex(Point - FIntPoint(1,1));
+        Out.Add(const_cast<Grid*>(&GGGrids[BotLeftIndex]));
+    }
+    else
+    {
+        Result = false;
+    }
+
+    if((Point - FIntPoint(0,1)).Y >= 0)
+    {
+        int BotIndex = PointToIndex(Point - FIntPoint(0,1));
+        Out.Add(const_cast<Grid*>(&GGGrids[BotIndex]));
+    }
+    else
+    {
+        Result = false;
+    }
+
+    return Result;
+    
 }
 
 int GridManager::GetIntercept(TArray<Grid*>* Grids1, TArray<Grid*>* Grids2, TArray<Grid*>* GridsResult)

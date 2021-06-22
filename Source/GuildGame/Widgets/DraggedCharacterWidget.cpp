@@ -47,36 +47,41 @@ void UDraggedCharacterWidget::NativeConstruct()
 void UDraggedCharacterWidget::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent,
     UDragDropOperation* InOperation)
 {
+    Super::NativeOnDragCancelled(InDragDropEvent, InOperation);
     if(OwnerDroppableArea)
     {
         if(OwnerDroppableArea->ContentPanel)
         {
             this->SetVisibility(ESlateVisibility::Visible);
 
-            if(this->OwnerDroppableArea->AreaType == EDroppableAreaType::OwnedCharacters)
+            if(this->OwnerDroppableArea->AreaType == EDroppableAreaType::OwnedCharacters || this->OwnerDroppableArea->AreaType == EDroppableAreaType::RecruitableCharacters)
             {
-                OwnerDroppableArea->ContentPanel->InsertChildAt(DraggedIndex, this);
-                LatestChildIndex = DraggedIndex;
-
-                
-                TArray<UWidget*> Childs;
-                UPanelWidget* Parent = this->GetParent();
-
-                if(Parent)
+                if(OwnerDroppableArea->ContentPanel->HasChild(this) == false)
                 {
-                    for (int i = 0; i < Parent->GetChildrenCount(); ++i)
+                    OwnerDroppableArea->ContentPanel->InsertChildAt(PreviousChildIndex, this);
+                    OwnerDroppableArea->UpdateChildIndices();
+
+                    
+                    TArray<UWidget*> Childs;
+                    UPanelWidget* Parent = this->GetParent();
+
+                    if(Parent)
                     {
-                        UWidget* Child = Parent->GetChildAt(i);
-                        Childs.Add(Child);
-                    }
-                    Parent->ClearChildren();
-                    for (int i = 0; i < Childs.Num(); ++i)
-                    {
-                        Parent->AddChild(Childs[i]);
+                        for (int i = 0; i < Parent->GetChildrenCount(); ++i)
+                        {
+                            UWidget* Child = Parent->GetChildAt(i);
+                            Childs.Add(Child);
+                        }
+                        Parent->ClearChildren();
+                        for (int i = 0; i < Childs.Num(); ++i)
+                        {
+                            Parent->AddChild(Childs[i]);
+                        }
                     }
                 }
+               
             }
-            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("DRAG CANCEL INDEX %d"), DraggedIndex ));
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("DRAG CANCEL INDEX %d"), PreviousChildIndex ));
         }
     }
 }
@@ -84,6 +89,7 @@ void UDraggedCharacterWidget::NativeOnDragCancelled(const FDragDropEvent& InDrag
 void UDraggedCharacterWidget::NativeOnDragEnter(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent,
     UDragDropOperation* InOperation)
 {
+    Super::NativeOnDragEnter(InGeometry, InDragDropEvent, InOperation);
      if(InOperation->Payload && this->OwnerDroppableArea != nullptr)
     {
          if(this->OwnerDroppableArea->AreaType == EDroppableAreaType::OwnedCharacters)
@@ -93,46 +99,64 @@ void UDraggedCharacterWidget::NativeOnDragEnter(const FGeometry& InGeometry, con
             {
                if(this->GetParent() && DraggedWidget != this)
                {
-			       bool bShouldResetList = true;
-                  // if(DraggedWidget->GetParent() != nullptr)
-                  // {
-                      if(DraggedWidget->GetParent() == this->GetParent())
+			      bool bShouldResetList = true;
+                  int StartIndex = 0;
+                  if(DraggedWidget->GetParent() == this->GetParent())
+                  {
+                      int MyIndex = this->GetParent()->GetChildIndex(this);
+                      int DraggedWidgetIndex = DraggedWidget->GetParent()->GetChildIndex(DraggedWidget);
+                      //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("SWAP %d"), ));
+                      StartIndex = MyIndex <= DraggedWidgetIndex ? MyIndex : DraggedWidgetIndex;
+                       this->GetParent()->ShiftChild(this->GetParent()->GetChildIndex(this), DraggedWidget);
+
+                      if(DraggedWidget->OwnerDroppableArea && DraggedWidget->OwnerDroppableArea->AreaType == EDroppableAreaType::OwnedCharacters)
                       {
-                          //bShouldResetList = false;
-                           this->GetParent()->ShiftChild(this->GetParent()->GetChildIndex(this), DraggedWidget);
+                          DraggedWidget->SetPreviousChildIndex(MyIndex);
+                          this->SetPreviousChildIndex(DraggedWidgetIndex);
                       }
-                      else
-                      {
-                           this->GetParent()->InsertChildAt(this->GetParent()->GetChildIndex(this), DraggedWidget);
-                      }
-                  // }
+                  }
+                  else
+                  {
+                      StartIndex = this->GetParent()->GetChildIndex(this);
+                      this->GetParent()->InsertChildAt(this->GetParent()->GetChildIndex(this), DraggedWidget);
+                  }
                   if(bShouldResetList == true)
                   {
-                        DraggedWidget->SetVisibility(ESlateVisibility::Hidden);
-                       TArray<UWidget*> Childs;
-                       UPanelWidget* Parent = this->GetParent();
+                      DraggedWidget->SetVisibility(ESlateVisibility::Hidden);
+                      TArray<UWidget*> Childs;
+                      UPanelWidget* Parent = this->GetParent();
                       if(Parent)
                       {
-                          for (int i = 0; i < Parent->GetChildrenCount(); ++i)
+                          for (int i = StartIndex; i < Parent->GetChildrenCount(); ++i)
                           {
                               UWidget* Child = Parent->GetChildAt(i);
                               Childs.Add(Child);
                           }
-                          Parent->ClearChildren();
+                          for (int i = Parent->GetChildrenCount() - 1; i >= StartIndex; --i)
+                          {
+                              Parent->RemoveChildAt(i);
+                          }
                           for (int i = 0; i < Childs.Num(); ++i)
                           {
-                              Parent->AddChild(Childs[i]);
+                              if(i != Childs.Num() - 1)
+                              {
+                                Parent->InsertChildAt(Parent->GetChildrenCount(), Childs[i]);
+                              }
+                              else
+                              {
+                                  Parent->AddChild(Childs[i]);
+                              }
                           }
                       }
                   }
 
-                  DraggedWidget->DraggedIndex = DraggedWidget->GetParent()->GetChildIndex(DraggedWidget);
-                  GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ONENTER DRAGINDEX %d"), DraggedIndex));
+                  // DraggedWidget->SetDraggedIndex(DraggedWidget->GetParent()->GetChildIndex(DraggedWidget));
+                  GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("ONENTER DRAGINDEX %d"), PreviousChildIndex));
                  // GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Child Index %d"), GetParent()->GetChildIndex(DraggedWidget)));
                   //GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Child Count %d"), GetParent()->GetChildrenCount()));
                }
             }
-            else
+            else 
             {
                
             }
@@ -143,6 +167,7 @@ void UDraggedCharacterWidget::NativeOnDragEnter(const FGeometry& InGeometry, con
 void UDraggedCharacterWidget::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent,
     UDragDropOperation*& OutOperation)
 {
+    Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
     SetVisibility(ESlateVisibility::Hidden);
     if(DraggedVisualInstance == nullptr)
     {
@@ -171,10 +196,9 @@ void UDraggedCharacterWidget::NativeOnDragDetected(const FGeometry& InGeometry, 
 
 FReply UDraggedCharacterWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+    Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
     if(InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
 	{
-		 GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Right Mouse Button Down"));
-
         UUserWidget* NewWidget = WidgetManager::GetWidgetInstanceIfNotCreate(EWidgetKeys::CharacterDetail, this);
         if(NewWidget)
         {
@@ -196,15 +220,31 @@ FReply UDraggedCharacterWidget::NativeOnMouseButtonDown(const FGeometry& InGeome
     return Reply.NativeReply;
 }
 
-void UDraggedCharacterWidget::OnDragLeaveFromArea()
+void UDraggedCharacterWidget::OnDragLeaveFromArea(UDroppableAreaWidget* Area)
 {
-     if(this->OwnerDroppableArea->AreaType == EDroppableAreaType::OwnedCharacters)
+    if(this->OwnerDroppableArea == nullptr || Area == nullptr || this->GetParent() == nullptr)
+        return;
+    
+     if(this->OwnerDroppableArea->AreaType == EDroppableAreaType::OwnedCharacters && Area->AreaType == EDroppableAreaType::OwnedCharacters)
      {
+         SetPreviousChildIndex(this->GetParent()->GetChildIndex(this));
          this->RemoveFromParent();
-         DraggedIndex = LatestChildIndex;
+         Area->UpdateChildIndices();
      }
+    else if(this->OwnerDroppableArea->AreaType == EDroppableAreaType::RecruitableCharacters && Area->AreaType == EDroppableAreaType::RecruitableCharacters)
+    {
+        SetPreviousChildIndex(this->GetParent()->GetChildIndex(this));
+        this->RemoveFromParent();
+        Area->UpdateChildIndices();
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("REMOVED FROM RECR %d"), PreviousChildIndex ));
+    }
+    else if(Area->AreaType == EDroppableAreaType::OwnedCharacters)
+    {
+        this->RemoveFromParent();
+        Area->UpdateChildIndices();
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("REMOVED FROM Owned but parent not Owned  %d"), PreviousChildIndex ));
+    }
 }
-
 
 void UDraggedCharacterWidget::SetOwnerAreaWidget(UDroppableAreaWidget* Owner)
 {
@@ -225,5 +265,12 @@ void UDraggedCharacterWidget::SetStat(FCharacterStats* NewStat)
     if(Stat)
     {
         SetCharacterNameText(FText::FromString(FString::FromInt(Stat->UniqueID)+ " " + Stat->ClassName));
+        // SetCharacterNameText(FText::FromString(FString::FromInt(PreviousChildIndex)+ " " + Stat->ClassName));
     }
+}
+
+void UDraggedCharacterWidget::SetPreviousChildIndex(int NewIndex)
+{
+    PreviousChildIndex = NewIndex;
+    //SetCharacterNameText(FText::FromString(FString::FromInt(PreviousChildIndex)+ " " + Stat->ClassName));
 }

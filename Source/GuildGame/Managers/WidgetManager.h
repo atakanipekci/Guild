@@ -21,6 +21,7 @@ enum class EWidgetKeys: uint8
 	YesOrNo,
 	DraggedOwnedWidget,
 	DraggedSquadWidget,
+	DraggedRecruitWidget,
 	TavernMenuWidget,
 	RecruitMenuWidget,
 	RecruitUpgradeWidget,

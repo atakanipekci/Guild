@@ -34,7 +34,7 @@ void UDroppableAreaWidget::NativeOnDragLeave(const FDragDropEvent& InDragDropEve
         UDraggedCharacterWidget* DraggedWidget = Cast<UDraggedCharacterWidget>(InOperation->Payload);
         if(DraggedWidget)
         {
-            DraggedWidget->OnDragLeaveFromArea();
+            DraggedWidget->OnDragLeaveFromArea(this);
         }
     }
 }
@@ -46,5 +46,10 @@ bool UDroppableAreaWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
 
 void UDroppableAreaWidget::DropFrom(UDraggedCharacterWidget* DraggedWidget)
 {
+}
+
+void UDroppableAreaWidget::UpdateChildIndices()
+{
+    
 }
 

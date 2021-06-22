@@ -37,6 +37,21 @@ bool URecruitableCharactersDroppableWidget::DropTo(UDraggedCharacterWidget* Drag
 	return false;
 }
 
+void URecruitableCharactersDroppableWidget::UpdateChildIndices()
+{
+	if(ScrollBox)
+	{
+		for (int i = 0; i < ScrollBox->GetChildrenCount(); ++i)
+		{
+			UDraggedCharacterWidget* Child = Cast<UDraggedCharacterWidget>(ScrollBox->GetChildAt(i));
+			if(Child)
+			{
+				Child->SetPreviousChildIndex(i);
+			}
+		}
+	}
+}
+
 void URecruitableCharactersDroppableWidget::RefreshRecruitables()
 {
 	if(ScrollBox)
@@ -54,12 +69,13 @@ void URecruitableCharactersDroppableWidget::RefreshRecruitables()
 		
 		for (int i = 0; i < 4; ++i)
 		{
-			UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), WidgetManager::GetWidget(EWidgetKeys::DraggedOwnedWidget));
+			UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), WidgetManager::GetWidget(EWidgetKeys::DraggedRecruitWidget));
 			if(NewWidget)
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("REFRESH"));
 				ScrollBox->AddChild(NewWidget);
 				NewWidget->SetOwnerAreaWidget(this);
+				// NewWidget->LatestChildIndex = ScrollBox->GetChildIndex(NewWidget);
 
 				 // if(NewWidget->Stat == nullptr)
 			  //   {

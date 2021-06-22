@@ -60,6 +60,10 @@ FString WidgetManager::GetWidgetRowName(const EWidgetKeys Key)
     {
         return  FString(TEXT("DraggedSquadWidget"));
     }
+     else if(Key == EWidgetKeys::DraggedRecruitWidget)
+    {
+        return  FString(TEXT("DraggedRecruitWidget"));
+    }
     else if(Key == EWidgetKeys::TavernMenuWidget)
     {
         return  FString(TEXT("TavernWidget"));

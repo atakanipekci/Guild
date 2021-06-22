@@ -98,7 +98,9 @@ bool USquadDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
 	return false;
 }
 
-
+void USquadDroppableWidget::UpdateChildIndices()
+{
+}
 
 
 UDraggedCharacterWidget* USquadDroppableWidget::CreateChildWidget(UDraggedCharacterWidget* DraggedWidget)

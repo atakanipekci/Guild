@@ -12,5 +12,5 @@
 class GUILDGAME_API EffectFactory
 {
 public:
-	static SkillEffect* CreateEffect(const FEffectData&);
+	static SkillEffect* CreateEffect(const FEffectData&, class AGGCharacter*);
 };

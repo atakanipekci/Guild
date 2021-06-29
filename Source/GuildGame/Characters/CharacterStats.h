@@ -99,12 +99,33 @@ struct FCharacterStats : public FTableRowBase
 	FString ClassName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int MaxHealth = 100;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int CurrentHealth;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int BaseDamage = 5;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Speed = 5;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int MaxArmor = 100;
+	int CurrentArmor;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int MaxMagicArmor = 100;
+	int CurrentMagicArmor;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Accuracy = 80;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Dodge = 10;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Luck = 0;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int ArmorPiercing = 0;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int MagicPiercing = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int PhysicalResistance = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int MagicalResistance = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int MovableGridAmountPerAP = 2;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

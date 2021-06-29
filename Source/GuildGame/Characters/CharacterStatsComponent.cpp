@@ -44,9 +44,7 @@ void UCharacterStatsComponent::SetStats(const FCharacterStats& NewStats)
 
 bool UCharacterStatsComponent::ChangeHealth(int Amount)
 {
-	LOG("Health : %d", GetCurrentHealth());
 	SetCurrentHealth(GetCurrentHealth()+Amount);
-	LOG("Health : %d", GetCurrentHealth());
 	if(GetCurrentHealth() <= 0)
 	{
 		AGGCharacter* Char = Cast<AGGCharacter> (this->GetOwner());
@@ -57,6 +55,35 @@ bool UCharacterStatsComponent::ChangeHealth(int Amount)
 		}
 	}
 	return  false;
+}
+
+int UCharacterStatsComponent::ChangeArmor(int Amount)
+{
+	if(GetCurrentArmor() > 0)
+	{
+		SetCurrentArmor(GetCurrentArmor() + Amount);
+		if(GetCurrentArmor() <= 0)
+		{
+			return GetCurrentArmor();
+		}
+		return  0;
+	}
+	return Amount;
+}
+
+int UCharacterStatsComponent::ChangeMagicArmor(int Amount)
+{
+	if(GetCurrentMagicArmor() > 0)
+	{
+		SetCurrentMagicArmor(GetCurrentMagicArmor() + Amount);
+		if(GetCurrentMagicArmor() <= 0)
+		{
+			return GetCurrentMagicArmor();
+		}
+		return  0;
+	}
+
+	return Amount;
 }
 
 float UCharacterStatsComponent::GetMovementRange() const

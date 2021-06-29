@@ -12,6 +12,8 @@ UENUM()
 enum class EEffectType: uint8
 {
 	DealDamage,
+	DealPhysicalDamage,
+	DealMagicalDamage,
 	Heal,
 	Stun,
 	ApplyStatus,
@@ -55,6 +57,9 @@ struct FEffectData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxValue;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ExtraValue;
 };
 
 
@@ -72,18 +77,33 @@ public:
 	}
 protected:
 	FEffectData Data;
+	AGGCharacter* Owner = nullptr;
 };
 
 class GUILDGAME_API EffectDealDamage : public SkillEffect
 {
 public:
-	explicit EffectDealDamage(const FEffectData&);
+	explicit EffectDealDamage(const FEffectData&, AGGCharacter* Owner);
+	virtual bool ApplyEffectToCharacter(AGGCharacter*) override;
+};
+
+class GUILDGAME_API EffectDealPhysicalDamage : public SkillEffect
+{
+public:
+	explicit EffectDealPhysicalDamage(const FEffectData&, AGGCharacter* Owner);
+	virtual bool ApplyEffectToCharacter(AGGCharacter*) override;
+};
+
+class GUILDGAME_API EffectDealMagicalDamage : public SkillEffect
+{
+public:
+	explicit EffectDealMagicalDamage(const FEffectData&, AGGCharacter* Owner);
 	virtual bool ApplyEffectToCharacter(AGGCharacter*) override;
 };
 
 class GUILDGAME_API EffectHeal : public SkillEffect
 {
 public:
-	explicit EffectHeal(const FEffectData&);
+	explicit EffectHeal(const FEffectData& , AGGCharacter* OwnerChar);
 	virtual bool ApplyEffectToCharacter(AGGCharacter*) override;
 };

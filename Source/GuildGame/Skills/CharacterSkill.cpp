@@ -10,17 +10,18 @@
 #include "GuildGame/Managers/StatusEffectManager.h"
 #include "Kismet/GameplayStatics.h"
 
-CharacterSkill::CharacterSkill(const FSkillData& Data, const FCharSkillFileDataTable& File)
+CharacterSkill::CharacterSkill(const FSkillData& Data, const FCharSkillFileDataTable& File, AGGCharacter* CharOwner)
 {
 	SkillData = Data;
 	SkillFile = File;
+	Owner = CharOwner;
 
 	SkillID = SkillData.SkillID;
 	
 	Shape = ShapeFactory::CreateShape(Data.ShapeType, Data.ShapeParameters);
 	for (auto Element : Data.EffectData)
 	{
-		SkillEffects.Add(EffectFactory::CreateEffect(Element));		
+		SkillEffects.Add(EffectFactory::CreateEffect(Element, Owner));		
 	}
 }
 
@@ -35,51 +36,68 @@ CharacterSkill::~CharacterSkill()
 
 void CharacterSkill::ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& TargetCharacters)
 {
-	//todo: add team controls
-	for (auto Element : SkillEffects)
+	for (auto TargetCharacter : TargetCharacters)
 	{
-		if(Element)
+		int HitChance = FMath::RandRange(0, 100);
+		if(HitChance > Caster->GetAccuracy() - TargetCharacter->GetDodge())
 		{
-			int Chance = FMath::RandRange(0,100);
-			if(Chance > Element->GetEffectData().Chance)
+			//dodged
+			continue;
+		}
+
+		for (auto Effect : SkillEffects)
+		{
+			int EffectChance = FMath::RandRange(0,100);
+			if(EffectChance > Effect->GetEffectData().Chance)
 			{
+				//missed effect
 				continue;
 			}
-			switch(Element->GetEffectData().Target)
+
+			switch(Effect->GetEffectData().Target)
 			{
 				case ESkillTargetingType::Caster:
-					Element->ApplyEffectToCharacter(Caster);
+					
 					break;
 
 				case ESkillTargetingType::AllCharacters:
-					for (auto TargetCharacter : TargetCharacters)
-					{
-						Element->ApplyEffectToCharacter(TargetCharacter);
-					}
+					
+					Effect->ApplyEffectToCharacter(TargetCharacter);
 					break;
+				
 				case ESkillTargetingType::Enemy:
-					for (auto TargetCharacter : TargetCharacters)
-					{
-						Element->ApplyEffectToCharacter(TargetCharacter);
-					}
+
+					Effect->ApplyEffectToCharacter(TargetCharacter);
 					break;
 
 				case ESkillTargetingType::Friend:
-					for (auto TargetCharacter : TargetCharacters)
-					{
-						Element->ApplyEffectToCharacter(TargetCharacter);
-					}
+
+					Effect->ApplyEffectToCharacter(TargetCharacter);
 					break;
 				
-				
 				default:
-					for (auto TargetCharacter : TargetCharacters)
-					{
-						Element->ApplyEffectToCharacter(TargetCharacter);
-					}
+
+					Effect->ApplyEffectToCharacter(TargetCharacter);
 					break;
 			}
 		}
+
+	}
+	
+	for (auto CasterEffect : SkillEffects)
+	{
+		if(CasterEffect == nullptr || CasterEffect->GetEffectData().Target != ESkillTargetingType::Caster)
+		{
+			continue;
+		}
+		int EffectChance = FMath::RandRange(0,100);
+		if(EffectChance > CasterEffect->GetEffectData().Chance)
+		{
+			//missed effect
+			continue;
+		}
+
+		CasterEffect->ApplyEffectToCharacter(Caster);
 	}
 }
 

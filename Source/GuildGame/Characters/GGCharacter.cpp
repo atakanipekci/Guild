@@ -139,7 +139,7 @@ void AGGCharacter::SetStats(const FCharacterStats& Stats)
     				FCharSkillFileDataTable* SkillFile = CharacterSkill::GetSkillFilesFromTable(SkillData->SkillID, GetWorld());
 					if(SkillFile)
 					{
-						Skills.Add(new CharacterSkill(*SkillData, *SkillFile));
+						Skills.Add(new CharacterSkill(*SkillData, *SkillFile, this));
 
 						FCooldownTimer CooldownData(SkillData->Cooldown);
 						SkillsCooldownMap.Add(SkillData->SkillID, CooldownData);
@@ -284,6 +284,36 @@ int AGGCharacter::GetBaseDamage() const
 	return StatsComponent->GetBaseDamage();
 }
 
+int AGGCharacter::GetAccuracy() const
+{
+	if(StatsComponent == nullptr)
+	{
+		return 0;
+	}
+	
+	return StatsComponent->GetAccuracy();
+}
+
+int AGGCharacter::GetLuck() const
+{
+	if(StatsComponent == nullptr)
+	{
+		return 0;
+	}
+	
+	return StatsComponent->GetLuck();
+}
+
+int AGGCharacter::GetDodge() const
+{
+	if(StatsComponent == nullptr)
+	{
+		return 0;
+	}
+	
+	return StatsComponent->GetDodge();
+}
+
 int AGGCharacter::GetCurrentAP() const
 {
 	if(StatsComponent == nullptr)
@@ -329,7 +359,6 @@ ECharacterStatus AGGCharacter::GetStatus() const
 void AGGCharacter::SetStatus(ECharacterStatus NewStatus)
 {
 	Status = NewStatus;
-	LOG("Status = %d", NewStatus);
 	GridManager* GridMan = CharacterManager::CharGridManager;
 	if(Status == ECharacterStatus::Idle)
 	{
@@ -344,7 +373,6 @@ void AGGCharacter::SetStatus(ECharacterStatus NewStatus)
 
 	if(Status == ECharacterStatus::Moving || Status == ECharacterStatus::Casting)
 	{
-	LOG("22Status = %d", NewStatus);
 		if(GridMan && GridMan->GetAttachedFloor())
 		{
 			GridMan->GetAttachedFloor()->ClearGridMeshes();
@@ -352,8 +380,7 @@ void AGGCharacter::SetStatus(ECharacterStatus NewStatus)
 	}
 }
 
-float AGGCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
-	AActor* DamageCause)
+int AGGCharacter::TakeDefaultDamage(int DamageAmount, AActor* Dealer)
 {
 	if(StatsComponent)
 	{
@@ -367,11 +394,29 @@ float AGGCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 		UpdateHealthBarStatusEffects();
 	}
 	return DamageAmount;
+	//return TakeDamage(DamageAmount, FDamageEvent(), nullptr,this);
 }
 
-float AGGCharacter::TakeDefaultDamage(float DamageAmount, AActor* Dealer)
+int AGGCharacter::TakePhysicalDamage(int DamageAmount, AActor* Dealer)
 {
-	return TakeDamage(DamageAmount, FDamageEvent(), nullptr,this);
+	if(StatsComponent == nullptr)
+	{
+		return 0;
+	}
+	int RemainingAmount = StatsComponent->ChangeArmor(-DamageAmount);
+	TakeDefaultDamage(RemainingAmount, Dealer);
+	return DamageAmount;
+}
+
+int AGGCharacter::TakeMagicalDamage(int DamageAmount, AActor* Dealer)
+{
+	if(StatsComponent == nullptr)
+	{
+		return 0;
+	}
+	int RemainingAmount = StatsComponent->ChangeMagicArmor(-DamageAmount);
+	TakeDefaultDamage(RemainingAmount, Dealer);
+	return DamageAmount;
 }
 
 float AGGCharacter::Heal(float HealAmount, AGGCharacter* Healer)

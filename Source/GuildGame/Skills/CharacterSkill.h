@@ -96,7 +96,7 @@ struct FSkillData : public FTableRowBase
 class GUILDGAME_API CharacterSkill
 {
 public:
-	CharacterSkill(const FSkillData&, const FCharSkillFileDataTable&);
+	CharacterSkill(const FSkillData&, const FCharSkillFileDataTable&, AGGCharacter* Owner);
 	~CharacterSkill();
 	void ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& TargetCharacters);
 	void ApplyStatus(AGGCharacter* Caster, TArray<AGGCharacter*>& TargetCharacters);
@@ -126,6 +126,7 @@ private:
 	SkillShape* Shape;
 	TArray<SkillEffect*> SkillEffects;
 	int SkillID;
+	AGGCharacter* Owner = nullptr;
 };
 
 

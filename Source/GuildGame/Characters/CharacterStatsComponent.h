@@ -29,6 +29,8 @@ public:
 	void SetStats(const FCharacterStats&);
 
 	bool ChangeHealth(int Amount);
+	int ChangeArmor(int Amount);
+	int ChangeMagicArmor(int Amount);
 
 	int GetMaxHealth() const
 	{
@@ -52,6 +54,124 @@ public:
 		{
 			Stats.CurrentHealth = Stats.MaxHealth;
 		}
+	}
+
+	int GetMaxArmor() const
+	{
+		return Stats.MaxArmor;
+	}
+
+	int GetCurrentArmor() const
+	{
+		return Stats.CurrentArmor;
+	}
+
+	void SetMaxArmor(int Amount)
+	{
+		Stats.MaxArmor = Amount;
+	}
+
+	void SetCurrentArmor(int Amount)
+	{
+		Stats.CurrentArmor = Amount;
+		if(Stats.CurrentArmor > Stats.MaxArmor)
+		{
+			Stats.CurrentArmor = Stats.MaxArmor;
+		}
+	}
+
+	int GetMaxMagicArmor() const
+	{
+		return Stats.MaxMagicArmor;
+	}
+
+	int GetCurrentMagicArmor() const
+	{
+		return Stats.CurrentMagicArmor;
+	}
+
+	void SetMaxMagicArmor(int Amount)
+	{
+		Stats.MaxMagicArmor = Amount;
+	}
+
+	void SetCurrentMagicArmor(int Amount)
+	{
+		Stats.CurrentMagicArmor = Amount;
+		if(Stats.CurrentMagicArmor > Stats.MaxMagicArmor)
+		{
+			Stats.CurrentMagicArmor = Stats.MaxMagicArmor;
+		}
+	}
+
+	float GetAccuracy() const
+	{
+		return Stats.Accuracy;
+	}
+
+	void SetAccuracy(float NewAccuracy)
+	{
+		this->Stats.Accuracy = NewAccuracy;
+	}
+
+	float GetDodge() const
+	{
+		return Stats.Dodge;
+	}
+
+	void SetDodge(float NewDodge)
+	{
+		this->Stats.Dodge = NewDodge;
+	}
+
+	float GetLuck() const
+	{
+		return Stats.Luck;
+	}
+
+	void SetLuck(float NewLuck)
+	{
+		this->Stats.Luck = NewLuck;
+	}
+
+	float GetArmorPiercing() const
+	{
+		return Stats.ArmorPiercing;
+	}
+
+	void SetArmorPiercing(float NewArmorPiercing)
+	{
+		this->Stats.ArmorPiercing = NewArmorPiercing;
+	}
+
+	float GetMagicPiercing() const
+	{
+		return Stats.MagicPiercing;
+	}
+
+	void SetMagicPiercing(float NewMagicPiercing)
+	{
+		this->Stats.MagicPiercing = NewMagicPiercing;
+	}
+
+	float GetPhysicalResistance() const
+	{
+		return Stats.PhysicalResistance;
+	}
+
+	void SetPhysicalResistance(float NewPhysicalResistance)
+	{
+		this->Stats.PhysicalResistance = NewPhysicalResistance;
+	}
+
+	float GetMagicalResistance() const
+	{
+		return Stats.MagicalResistance;
+	}
+
+	void SetMagicalResistance(float NewMagicalResistance)
+	{
+		this->Stats.MagicalResistance = NewMagicalResistance;
 	}
 	
 	float GetMovementRange() const;

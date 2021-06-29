@@ -50,7 +50,7 @@ bool UCharacterStatsComponent::ChangeHealth(int Amount)
 	if(GetCurrentHealth() <= 0)
 	{
 		AGGCharacter* Char = Cast<AGGCharacter> (this->GetOwner());
-		if(Char)
+		if(Char && Char->GetStatus() != ECharacterStatus::Dead)
 		{
 			Char->OnDeath();
 			return true;

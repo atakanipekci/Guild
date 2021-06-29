@@ -73,6 +73,7 @@ public:
 
 	UFUNCTION()
 	void OnPressed();
+	UFUNCTION()
 	void RefreshNodeState();
 
 	void RefreshNode(AGGCharacter* SelectedChar, class UBattleHudWidget* Hud);
@@ -80,6 +81,5 @@ public:
 	UFUNCTION()
 	void OnSkillCasted();
 
-	void OnApChange();
 	void OnRoundEnds();
 };

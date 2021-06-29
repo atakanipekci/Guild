@@ -22,6 +22,9 @@ class GUILDGAME_API UBattleHudWidget : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 	class UUniformGridPanel* SkillNodesGrid;
 
+	UPROPERTY(meta = (BindWidget))
+	class UButton* FinishTurnButton;
+
 	UPROPERTY()
 	TArray<class UBattleCharSkillNodeWidget*> SkillNodes;
 
@@ -34,6 +37,10 @@ class GUILDGAME_API UBattleHudWidget : public UUserWidget
 	UPROPERTY( meta = (BindWidget))
 	class UTextBlock* ApText;
 
+	UPROPERTY(meta = (BindWidget))
+	class UTurnInfoWidget* TurnWidget;
+	
+
 public:
 	void RefreshSkillsArray(class AGGCharacter* SelectedChar);
 
@@ -43,12 +50,22 @@ public:
 	void RefreshSkillButtonsState();
 
 	UFUNCTION()
-	void OnApChange();
+	void RefreshHud();
+	
+	UFUNCTION()
+	void FinishTurnClicked();
 
 	UFUNCTION()
 	void SetSkillsPanelHidden();
 
 	UFUNCTION()
 	void SetSkillsPanelVisible();
-	
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveRandomNode();
+
+	UFUNCTION(BlueprintCallable)
+	void RefreshIndices();
+
+	class UTurnInfoWidget* GetTurnInfoWidget();
 };

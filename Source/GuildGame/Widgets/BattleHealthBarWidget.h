@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Blueprint/UserWidgetPool.h"
 #include "GuildGame/Managers/StatusEffectManager.h"
 
 #include "BattleHealthBarWidget.generated.h"
@@ -18,17 +19,19 @@ class GUILDGAME_API UBattleHealthBarWidget : public UUserWidget
 	
 	public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	void SetHpBar(int CurrentHealth, int MaxHealth, int StartHealth);
 	void SetHpText(int CurrentHealth, int MaxHealth, int StartHealth);
 	void SetStatusEffects(TArray<FStatusEffectData>* StatusEffects);
-	class UStatusEffectNodeWidget* GetStatusEffectNodeWithSameType(EStatusEffectType TypeToSearch);
+	bool ContainsStatusEffect(EStatusEffectType TypeToSearch, TArray<FStatusEffectData>* StatusEffects);
+	class UStatusEffectNodeWidget* GetHorzBoxChildWithSameType(EStatusEffectType TypeToSearch);
 
 	void SetDamagePreviewBar(float DamageToPreview, int MaxHealth);
 	void ResetDamagePreviewBar(int MaxHealth);
 
 
 	UPROPERTY()
-	class UStatusEffectStackableTooltipWidg* Tooltip;
+	class UStatusEffectStackableTooltipWidg* StackableTooltip;
 
 	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* HealthBar;
@@ -45,9 +48,8 @@ class GUILDGAME_API UBattleHealthBarWidget : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 	class UHorizontalBox* StatusEffectsHorzBox;
 
-	UPROPERTY()
-	TArray<class UStatusEffectNodeWidget*> HorzBoxChildren;
-	int HorzBoxChildrenIndex = 0;
+	FUserWidgetPool StatusEffectNodePool;
+	FUserWidgetPool StatusEffectTooltipPool;
 
 	UPROPERTY()
 	TArray<class UStatusEffectTooltipWidget*> TooltipChildInstances;

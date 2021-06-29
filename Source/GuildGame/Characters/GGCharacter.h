@@ -91,7 +91,15 @@ public:
 	
 	bool TryToSpendAP(int ApCost);
 	FCharacterRawDelegate OnSkillChangeDelegate;
-	FCharacterDelegate RefreshHudOnApChangeDelegate;
+	FCharacterDelegate RefreshHudDelegate;
+
+	void CallRefreshHudDelegate() const
+	{
+		if(RefreshHudDelegate.IsBound())
+		{
+			RefreshHudDelegate.Execute();
+		}	
+	}
 
 
 protected:
@@ -130,10 +138,13 @@ public:
 	void SetCurrentAP(int NewAP) const;
 	int GetApCostByDistance(float Distance);
 	ECharacterStatus GetStatus()const;
+	ECharacterClassType GetCharacterClass() const;
+	FString GetCharacterClassName() const;
 	void SetStatus(ECharacterStatus);
 	float TakeDamage(float DamageAmount,struct FDamageEvent const & DamageEvent,class AController * EventInstigator, AActor * DamageCause) override;
 	float TakeDefaultDamage(float DamageAmount, AActor* Dealer);
 	float Heal(float HealAmount, AGGCharacter* Healer);
+	void ShowMovableGrids(bool Show);
 	void ShowTargetableGrids();
 	void ShowDamageableGrids(int CenterIndex, bool CreateNew = true);
 	void UpdateCurrentGridIndex();
@@ -189,6 +200,10 @@ public:
 	TArray<struct FStatusEffectData>* GetAppliedStatusEffects();
 
 	bool IsStunned();
+	void SetStunned(bool IsStunned);
+	bool IsTurnStarted();
+	float GetAppliedSpeed();
+	void AddAppliedSpeed(int SpeedToAdd);
 	
 	bool bIsInDamagePreviewMode = false;
 	void BeginDamagePreview(float DamageToPreview);
@@ -224,8 +239,13 @@ private:
 	TArray<AGGCharacter*> SelectedTargetCharacters;
 
 	TArray<FStatusEffectData> AppliedStatusEffects;
+	int AppliedSpeedAmount = 0;
 
 	bool bIsSkillMontagePlaying;
+	bool bIsStunned;
+	bool bIsTurnStarted;
+
 
 	struct FCharFileDataTable CharFile;
+	
 };

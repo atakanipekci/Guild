@@ -28,6 +28,16 @@ public:
 
 	void SetStats(const FCharacterStats&);
 
+	ECharacterClassType GetCharacterClass() const
+	{
+		return Stats.ClassType;
+	}
+
+	FString GetCharacterClassName() const
+	{
+		return  Stats.ClassName;
+	}
+
 	bool ChangeHealth(int Amount);
 
 	int GetMaxHealth() const
@@ -84,6 +94,10 @@ public:
 	int GetSpeed() const
 	{
 		return Stats.Speed;
+	}
+	void SetSpeed(int NewSpeed) 
+	{
+		Stats.Speed = NewSpeed;
 	}
 
 	void SetCurrentAP(int NewAP)

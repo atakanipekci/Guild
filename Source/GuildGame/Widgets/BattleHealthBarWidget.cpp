@@ -18,7 +18,24 @@
 void UBattleHealthBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	Tooltip = Cast<UStatusEffectStackableTooltipWidg>(WidgetManager::CreateWidgetInstance(EWidgetKeys::StatusEffectStackableTooltip, GetWorld()));
+	StackableTooltip = Cast<UStatusEffectStackableTooltipWidg>(WidgetManager::CreateWidgetInstance(EWidgetKeys::StatusEffectStackableTooltip, GetWorld()));
+
+	StatusEffectNodePool.SetWorld(GetWorld());
+	StatusEffectTooltipPool.SetWorld(GetWorld());
+}
+
+void UBattleHealthBarWidget::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	if(StatusEffectNodePool.IsInitialized())
+	{
+		StatusEffectNodePool.ReleaseAllSlateResources();
+	}
+	if(StatusEffectTooltipPool.IsInitialized())
+	{
+		StatusEffectTooltipPool.ReleaseAllSlateResources();
+	}
 }
 
 void UBattleHealthBarWidget::SetHpBar(int CurrentHealth, int MaxHealth, int StartHealth)
@@ -56,91 +73,84 @@ void UBattleHealthBarWidget::SetHpText(int CurrentHealth, int MaxHealth, int Sta
 
 void UBattleHealthBarWidget::SetStatusEffects(TArray<FStatusEffectData>* StatusEffects)
 {
-	if(StatusEffects == nullptr) return;
+	if(StatusEffects == nullptr || StatusEffectsHorzBox == nullptr) return;
 
-	HorzBoxChildrenIndex = 0;
-
+	for (int i = StatusEffectsHorzBox->GetChildrenCount() -1 ; i >= 0; --i)
+	{
+		UStatusEffectNodeWidget* ExistingNode = Cast<UStatusEffectNodeWidget>(StatusEffectsHorzBox->GetChildAt(i));
+		if(ExistingNode)
+		{
+			if(ContainsStatusEffect(ExistingNode->StatusType, StatusEffects))
+			{
+				continue;
+			}
+			if(StatusEffectNodePool.IsInitialized())
+			{
+				StatusEffectNodePool.Release(ExistingNode);
+			}
+		}
+	
+		StatusEffectsHorzBox->RemoveChildAt(i);
+	}
 
 	for (int i = 0; i < StatusEffects->Num(); ++i)
 	{
-		if(StatusEffectsHorzBox)
+		UStatusEffectNodeWidget* ExistingNode = GetHorzBoxChildWithSameType((*StatusEffects)[i].Type);
+		if(ExistingNode == nullptr && StatusEffectNodePool.IsInitialized())
 		{
-			UStatusEffectNodeWidget* NodeInstance = nullptr;
+			ExistingNode = Cast<UStatusEffectNodeWidget>(StatusEffectNodePool.GetOrCreateInstance(WidgetManager::GetWidget(EWidgetKeys::StatusEffectNodeWidget)));
+			StatusEffectsHorzBox->AddChildToHorizontalBox(ExistingNode);
+		}
 
-			UStatusEffectNodeWidget* StackableNode = GetStatusEffectNodeWithSameType((*StatusEffects)[i].Type);
-
-			bool bIstack = false;
-
-			if(StackableNode == nullptr)
+		if(ExistingNode)
+		{
+			FStatusEffectFileDataTable* StatusFile = StatusEffectManager::GetStatusEffectFile((*StatusEffects)[i].Type, GetWorld());
+			if(StatusFile)
 			{
-				if(HorzBoxChildrenIndex < HorzBoxChildren.Num())
+				ExistingNode->SetToolTip(StackableTooltip);
+				ExistingNode->StatusTooltip = StackableTooltip;
+				ExistingNode->TooltipPool = &StatusEffectTooltipPool;
+				
+				ExistingNode->SetStatusEffectNode(&((*StatusEffects)[i]), StatusFile);
+				if (ExistingNode->StatusImage && ExistingNode->TurnText)
 				{
-					NodeInstance = HorzBoxChildren[HorzBoxChildrenIndex];
-					HorzBoxChildrenIndex++;
-					StatusEffectsHorzBox->AddChildToHorizontalBox(NodeInstance);
-				}
-				else
-				{
-					NodeInstance = Cast<UStatusEffectNodeWidget>(WidgetManager::CreateWidgetInstance(EWidgetKeys::StatusEffectNodeWidget, this));
-					StatusEffectsHorzBox->AddChildToHorizontalBox(NodeInstance);
-					HorzBoxChildren.Add(NodeInstance);
-					HorzBoxChildrenIndex++;
-				}
-			}
-			else
-			{
-				NodeInstance = StackableNode;
-				bIstack = true;
-			}
-
-
-			if(NodeInstance)
-			{
-				if(bIstack == false)
-				{
-					FStatusEffectFileDataTable* StatusFile = StatusEffectManager::GetStatusEffectFile((*StatusEffects)[i].Type, GetWorld());
-					NodeInstance->SetToolTip(Tooltip);
-					NodeInstance->SetStatusEffectNode(&((*StatusEffects)[i]), StatusFile, Tooltip, &TooltipChildInstances);
-
-					if(StatusFile)
-					{
-						if (NodeInstance->StatusImage && NodeInstance->TurnText)
-						{
-							NodeInstance->StatusImage->SetBrushResourceObject(StatusFile->Image);
-							NodeInstance->TurnText->SetText(FText::AsNumber((*StatusEffects)[i].RemainingTurns));
-						}
-					}
-				}
-				else
-				{
-					NodeInstance->StackStatusEffect(&((*StatusEffects)[i]));
+					ExistingNode->StatusImage->SetBrushResourceObject(StatusFile->Image);
+					ExistingNode->TurnText->SetText(FText::AsNumber((*StatusEffects)[i].RemainingTurns));
 				}
 			}
 		}
 	}
 	
-	if(StatusEffectsHorzBox)
-	{
-		for (int i = HorzBoxChildren.Num() - 1; i >= HorzBoxChildrenIndex; --i)
-		{
-			if(StatusEffectsHorzBox->HasChild(HorzBoxChildren[i]))
-			{
-				StatusEffectsHorzBox->RemoveChild(HorzBoxChildren[i]);
-			}
-		}
-	}
+	//StackStatusEffect(&((*StatusEffects)[i]));
 }
 
-UStatusEffectNodeWidget* UBattleHealthBarWidget::GetStatusEffectNodeWithSameType(EStatusEffectType TypeToSearch)
+bool UBattleHealthBarWidget::ContainsStatusEffect(EStatusEffectType TypeToSearch, TArray<FStatusEffectData>* StatusEffects)
 {
-	for (int i = HorzBoxChildrenIndex - 1; i >= 0; --i)
+	if(StatusEffects == nullptr)
+		return false;
+
+	
+	for (int i = 0; i < StatusEffects->Num(); ++i)
 	{
-		if(i < HorzBoxChildren.Num())
+		if((*StatusEffects)[i].Type == TypeToSearch)
 		{
-			if(HorzBoxChildren[i] && HorzBoxChildren[i]->StatusType == TypeToSearch)
-			{
-				return  HorzBoxChildren[i];
-			}
+			return  true;
+		}
+	}
+	return  false;
+}
+
+UStatusEffectNodeWidget* UBattleHealthBarWidget::GetHorzBoxChildWithSameType(EStatusEffectType TypeToSearch)
+{
+	if(StatusEffectsHorzBox == nullptr)
+		return nullptr;
+
+	for (int i = 0; i < StatusEffectsHorzBox->GetChildrenCount(); ++i)
+	{
+		UStatusEffectNodeWidget* ExistingNode = Cast<UStatusEffectNodeWidget>(StatusEffectsHorzBox->GetChildAt(i));
+		if(ExistingNode && ExistingNode->StatusType == TypeToSearch)
+		{
+			return  ExistingNode;
 		}
 	}
 	return  nullptr;

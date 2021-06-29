@@ -124,6 +124,10 @@ FString WidgetManager::GetWidgetRowName(const EWidgetKeys Key)
     {
         return FString(TEXT("StatusEffectStackableTooltip"));
     }
+     else if(Key == EWidgetKeys::TurnInfoNode)
+    {
+        return FString(TEXT("TurnInfoNode"));
+    }
     
     return FString(TEXT("EMPTY"));
 }
@@ -149,7 +153,7 @@ UUserWidget* WidgetManager::GetWidgetInstance(const EWidgetKeys Key)
     return  nullptr;
 }
 
-UUserWidget* WidgetManager::GetWidgetInstanceIfNotCreate(const EWidgetKeys Key, UObject* Owner)
+UUserWidget* WidgetManager::GetOrCreateWidgetInstance(const EWidgetKeys Key, UObject* Owner)
 {
      UUserWidget* NewWidget = GetWidgetInstance(Key);
      if(NewWidget == nullptr)
@@ -169,15 +173,15 @@ UUserWidget* WidgetManager::GetSkillsWidgetByType(ECharacterClassType ClassType,
 {
     if(ClassType == ECharacterClassType::Knight)
     {
-        return GetWidgetInstanceIfNotCreate(EWidgetKeys::KnightSkills, Owner);
+        return GetOrCreateWidgetInstance(EWidgetKeys::KnightSkills, Owner);
     }
     else if(ClassType == ECharacterClassType::Mage)
     {
-        return GetWidgetInstanceIfNotCreate(EWidgetKeys::MageSkills, Owner);
+        return GetOrCreateWidgetInstance(EWidgetKeys::MageSkills, Owner);
     }
     else if(ClassType == ECharacterClassType::Archer)
     {
-        return GetWidgetInstanceIfNotCreate(EWidgetKeys::ArcherSkills, Owner);
+        return GetOrCreateWidgetInstance(EWidgetKeys::ArcherSkills, Owner);
     }
     else
     {

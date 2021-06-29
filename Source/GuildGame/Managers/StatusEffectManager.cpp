@@ -63,11 +63,33 @@ void StatusEffectManager::InitStatus(AGGCharacter* Target, FStatusEffectData* St
 	}
 	else if(StatusEffect->Type == EStatusEffectType::Stun)
 	{
-		
+		Target->SetStunned(true);
 	}
 	else if(StatusEffect->Type == EStatusEffectType::Heal)
 	{
 		
+	}
+	else if(StatusEffect->Type == EStatusEffectType::Buff)
+	{
+		for (auto It = StatusEffect->StatsMap.CreateIterator(); It; ++It)
+		{
+			if(It.Key() == EStatusEffectStatsType::Speed)
+			{
+				float Value = FMath::Abs(It.Value().Value);
+				Target->AddAppliedSpeed(Value);
+			}
+		}
+	}
+	else if(StatusEffect->Type == EStatusEffectType::DeBuff)
+	{
+		for (auto It = StatusEffect->StatsMap.CreateIterator(); It; ++It)
+		{
+			if(It.Key() == EStatusEffectStatsType::Speed)
+			{
+				float Value = FMath::Abs(It.Value().Value);
+				Target->AddAppliedSpeed(-Value);
+			}
+		}
 	}
 }
 
@@ -79,6 +101,51 @@ void StatusEffectManager::StackStatus(AGGCharacter* Target, FStatusEffectData* E
 	ExistingStatusEffect->Caster = NewStatusEffect->Caster;
 	ExistingStatusEffect->Value += NewStatusEffect->Value;
 	ExistingStatusEffect->RemainingTurns += NewStatusEffect->RemainingTurns;
+
+	if(NewStatusEffect->Type == EStatusEffectType::Buff)
+	{
+		for (auto It = NewStatusEffect->StatsMap.CreateIterator(); It; ++It)
+		{
+			if(It.Key() == EStatusEffectStatsType::Speed)
+			{
+				FStatusEffectStatsData* ExistingSpeedStatData = ExistingStatusEffect->StatsMap.Find(EStatusEffectStatsType::Speed);
+				if(ExistingSpeedStatData)
+				{
+					float Value = FMath::Abs(It.Value().Value);
+					Target->AddAppliedSpeed(Value);
+					ExistingSpeedStatData->Value += Value;
+				}
+				else if(ExistingSpeedStatData == nullptr)
+				{
+					float Value = FMath::Abs(It.Value().Value);
+					Target->AddAppliedSpeed(Value);
+					ExistingStatusEffect->StatsMap.Add(EStatusEffectStatsType::Speed, It.Value());
+				}
+			}
+		}
+	}
+	else if(NewStatusEffect->Type == EStatusEffectType::DeBuff)
+	{
+		for (auto It = NewStatusEffect->StatsMap.CreateIterator(); It; ++It)
+		{
+			if(It.Key() == EStatusEffectStatsType::Speed)
+			{
+				FStatusEffectStatsData* ExistingSpeedStatData = ExistingStatusEffect->StatsMap.Find(EStatusEffectStatsType::Speed);
+				if(ExistingSpeedStatData)
+				{
+					float Value = -FMath::Abs(It.Value().Value);
+					Target->AddAppliedSpeed(Value);
+					ExistingSpeedStatData->Value += Value;
+				}
+				else if(ExistingSpeedStatData == nullptr)
+				{
+					float Value = -FMath::Abs(It.Value().Value);
+					Target->AddAppliedSpeed(Value);
+					ExistingStatusEffect->StatsMap.Add(EStatusEffectStatsType::Speed, It.Value());
+				}
+			}
+		}
+	}
 }
 
 void StatusEffectManager::ApplyOnTurnBegins(AGGCharacter* Target, TArray<struct FStatusEffectData>* StatusEffects)
@@ -97,19 +164,20 @@ void StatusEffectManager::ApplyOnTurnBegins(AGGCharacter* Target, TArray<struct 
 		}
 		else if((*StatusEffects)[i].Type == EStatusEffectType::Stun)
 		{
-			
 		}
 		else if((*StatusEffects)[i].Type == EStatusEffectType::Heal)
 		{
 			Target->Heal((*StatusEffects)[i].Value, (*StatusEffects)[i].Caster);
 		}
 
-		(*StatusEffects)[i].RemainingTurns--;
-		if((*StatusEffects)[i].RemainingTurns <= 0)
-		{
-			OnStatusEnd(Target, &(*StatusEffects)[i]);
-			StatusEffects->RemoveAt(i);
-		}
+		
+
+		// (*StatusEffects)[i].RemainingTurns--;
+		// if((*StatusEffects)[i].RemainingTurns <= 0)
+		// {
+		// 	OnStatusEnd(Target, &(*StatusEffects)[i]);
+		// 	StatusEffects->RemoveAt(i);
+		// }
 	}
 
 	// if(bSkipTurn)
@@ -122,30 +190,35 @@ void StatusEffectManager::ApplyOnTurnBegins(AGGCharacter* Target, TArray<struct 
 	// }
 }
 
-// void StatusEffectManager::ApplyOnTurnEnds(AGGCharacter* Target, TMap<EStatusEffectType, struct FStatusEffectData>* StatusEffects)
-// {
-// 	if(Target == nullptr || StatusEffects == nullptr) return;
-//
-// 	for (auto It = StatusEffects->CreateIterator(); It; ++It)
-// 	{
-// 		if(It.Key() == EStatusEffectType::Bleed)
-// 		{
-// 			
-// 		}
-// 		else if(It.Key() == EStatusEffectType::Poison)
-// 		{
-// 			
-// 		}
-// 		else if(It.Key() == EStatusEffectType::Stun)
-// 		{
-// 			
-// 		}
-// 		else if(It.Key() == EStatusEffectType::Heal)
-// 		{
-// 			
-// 		}
-// 	}
-// }
+void StatusEffectManager::ApplyOnTurnEnds(AGGCharacter* Target, TArray<struct FStatusEffectData>* StatusEffects)
+{
+	if(Target == nullptr || StatusEffects == nullptr) return;
+
+	for (int i = StatusEffects->Num() - 1; i >= 0; --i)
+	{
+		if((*StatusEffects)[i].Type == EStatusEffectType::Bleed)
+		{
+		}
+		else if((*StatusEffects)[i].Type == EStatusEffectType::Poison)
+		{
+		}
+		else if((*StatusEffects)[i].Type == EStatusEffectType::Stun)
+		{
+			
+		}
+		else if((*StatusEffects)[i].Type == EStatusEffectType::Heal)
+		{
+		}
+		
+
+		(*StatusEffects)[i].RemainingTurns--;
+		if((*StatusEffects)[i].RemainingTurns <= 0)
+		{
+			OnStatusEnd(Target, &(*StatusEffects)[i]);
+			StatusEffects->RemoveAt(i);
+		}
+	}
+}
 
 void StatusEffectManager::OnStatusEnd(AGGCharacter* Target, FStatusEffectData* StatusEffect)
 {
@@ -161,11 +234,33 @@ void StatusEffectManager::OnStatusEnd(AGGCharacter* Target, FStatusEffectData* S
 	}
 	else if(StatusEffect->Type == EStatusEffectType::Stun)
 	{
-		
+		Target->SetStunned(false);
 	}
 	else if(StatusEffect->Type == EStatusEffectType::Heal)
 	{
 		
+	}
+	else if(StatusEffect->Type == EStatusEffectType::Buff)
+	{
+		for (auto It = StatusEffect->StatsMap.CreateIterator(); It; ++It)
+		{
+			if(It.Key() == EStatusEffectStatsType::Speed)
+			{
+				float Value = FMath::Abs(It.Value().Value);
+				Target->AddAppliedSpeed(-Value);
+			}
+		}
+	}
+	else if(StatusEffect->Type == EStatusEffectType::DeBuff)
+	{
+		for (auto It = StatusEffect->StatsMap.CreateIterator(); It; ++It)
+		{
+			if(It.Key() == EStatusEffectStatsType::Speed)
+			{
+				float Value = FMath::Abs(It.Value().Value);
+				Target->AddAppliedSpeed(Value);
+			}
+		}
 	}
 }
 
@@ -186,6 +281,14 @@ FString StatusEffectManager::GetStatusFileRowName(EStatusEffectType StatusType)
     else if(StatusType == EStatusEffectType::Heal)
     {
     	return  FString(TEXT("Heal"));
+    }
+	else if(StatusType == EStatusEffectType::Buff)
+    {
+    	return  FString(TEXT("Buff"));
+    }
+	else if(StatusType == EStatusEffectType::DeBuff)
+    {
+    	return  FString(TEXT("DeBuff"));
     }
    
     return FString(TEXT("EMPTY"));

@@ -107,6 +107,37 @@ struct FWidgetRenderOpacityData
 	bool IsLooped = false;
 };
 
+USTRUCT()
+struct FWidgetTransformData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	class UWidget* Widget;
+	FVector2D StartValue;
+	FVector2D OffsetValue;
+	float Duration;
+	float Timer;
+	FVector2D FreeVariable1;
+
+	FString Key;
+	TArray<FWidgetTransformData> Queue;
+	FTimedEvent OnCompleteDelegate;
+};
+
+USTRUCT()
+struct FCanvasPanelSlotSizeData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	class UCanvasPanelSlot* Slot;
+	FVector2D StartValue;
+	FVector2D EndValue;
+	float Duration;
+	float Timer;
+};
+
 UCLASS()
 class GUILDGAME_API ATimedEventManager : public AActor
 {
@@ -130,6 +161,10 @@ public:
 	TArray<FProgressBarData> ProgressBarData;
 	TArray<FTextData> TextData;
 	TArray<FWidgetRenderOpacityData> WidgetOpacityData;
+	TArray<FWidgetTransformData> WidgetTransformData;
+	TArray<FWidgetTransformData> WidgetAsyncTransformData;
+	TArray<FCanvasPanelSlotSizeData> CanvasPanelSlotSizeData;
+	
 	TMap<FString, FTimerEventData> TimedEventMap;
 
 	
@@ -138,7 +173,7 @@ public:
 
 	
 	static void Rotate(AActor* ActorToRotate, FRotator TargetRotation, float Duration, UWorld* World);
-	static void Move(AActor* ActorToMove, FVector TargetLocation, float Duration, float Delay, FConditionEvent& ConditionDelegate, TArray<FTimedEvent> OnComplete, FTimedEvent& OnDelayedCompleteDelegate, UWorld* World);
+	static void Move(AActor* ActorToMove, FVector TargetLocation, float Duration, float Delay, FConditionEvent& ConditionDelegate, TArray<FTimedEvent>& OnComplete, FTimedEvent& OnDelayedCompleteDelegate, UWorld* World);
 	static void MoveToActorAndFollow(AActor* ActorToMove, AActor* ActorToFollow, float Duration, float OverridenLocationZ, FConditionEvent& ConditionDelegate, UWorld* World);
 	static void RemoveLocationTimer(AActor* ActorToMove);
 	
@@ -150,10 +185,26 @@ public:
 
 	static void LerpWidgetOpacity(class UWidget* Widget, float Duration, float StartValue, float EndValue, bool IsLooped,  UWorld* World);
 	static void RemoveWidgetOpacityTimer(class UWidget* Widget);
+
+	static void MoveWidget(class UWidget* Widget, float Duration, FVector2D OffsetValue, FTimedEvent& OnComplete, UWorld* World, bool AddToQueue = false);
+	static void MoveWidgetAsync(class UWidget* Widget, float Duration, FVector2D OffsetValue, UWorld* World, TArray<FWidgetTransformData>* Queue = nullptr, FString* Key = nullptr);
+	//static void MergeLerpWidgetTransform(class UWidget* Widget, float Duration, FVector2D OffsetValue, UWorld* World);
+	static void CloneWidgetMovement(class UWidget* From, class UWidget* To);
+	static void CloneWidgetMovementAsync(class UWidget* From, class UWidget* To, FString Key);
+	static void RemoveWidgetTransformTimer(class UWidget* Widget);
+	static FWidgetTransformData* FindWidgetTransformData(class UWidget* Widget);
+	static void FindWidgetTransformAsyncData(UWidget* Widget, FString Key, TArray<FWidgetTransformData*>& OutFoundWidgets);
+	static void FindWidgetTransformAsyncData(UWidget* Widget, TArray<FWidgetTransformData*>& OutFoundWidgets);
+
+	static void LerpCanvasPanelSlotSize(class UCanvasPanelSlot* Slot, float Duration, FVector2D StartValue, FVector2D EndValue, UWorld* World);
+	static void RemoveCanvasPanelSlotSizeTimer(class UCanvasPanelSlot* Slot);
 	
 	bool UpdateTextNumber(FTextData& Data, float DeltaTime);
 	bool UpdateProgressBar(FProgressBarData& Data, float DeltaTime);
-	bool UpdateRotate(FTargetRotationData& Data, float DeltaTime);
-	bool UpdateMove(FTargetLocationData& Data, float DeltaTime);
+	bool UpdateActorRotation(FTargetRotationData& Data, float DeltaTime);
+	bool UpdateActorLocation(FTargetLocationData& Data, float DeltaTime);
 	bool UpdateWidgetOpacity(FWidgetRenderOpacityData& Data, float DeltaTime);
+	bool UpdateWidgetTranslation(FWidgetTransformData& Data, float DeltaTime);
+	bool UpdateWidgetTranslationAsync(FWidgetTransformData& Data, float DeltaTime);
+	bool UpdateCanvasPanelSlotSize(FCanvasPanelSlotSizeData& Data, float DeltaTime);
 };

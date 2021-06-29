@@ -12,42 +12,40 @@ void UStatusEffectNodeWidget::NativeOnMouseEnter(const FGeometry& InGeometry, co
 {
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 
-	if(StatusTooltip && StatusTooltip->StatusNodeVerticalBox && StatusFile && StatusEffectData.Num() > 0 && TooltipChildInstances)
+	if(StatusTooltip && StatusTooltip->StatusNodeVerticalBox && StatusFile && StatusEffectData.Num() > 0 )
 	{
-		StatusTooltip->StatusNodeVerticalBox->ClearChildren();
+		for (int i = StatusTooltip->StatusNodeVerticalBox->GetChildrenCount() - 1; i >= 0; --i)
+		{
+			UStatusEffectTooltipWidget* TooltipWidget = Cast<UStatusEffectTooltipWidget>(StatusTooltip->StatusNodeVerticalBox->GetChildAt(i));
+			if(TooltipPool && TooltipPool->IsInitialized() && TooltipWidget)
+			{
+				TooltipPool->Release(TooltipWidget);
+				StatusTooltip->StatusNodeVerticalBox->RemoveChildAt(i);
+			}
+		}
+		
 		for (int i = 0; i < StatusEffectData.Num(); ++i)
 		{
-			if(StatusEffectData[i] != nullptr && StatusFile != nullptr)
+			if(StatusEffectData[i] != nullptr && TooltipPool && TooltipPool->IsInitialized())
 			{
-				if(i < (*TooltipChildInstances).Num() && (*TooltipChildInstances)[i] != nullptr)
+				UStatusEffectTooltipWidget* CreatedTooltipChild = Cast<UStatusEffectTooltipWidget>(TooltipPool->GetOrCreateInstance(WidgetManager::GetWidget(EWidgetKeys::StatusEffectTooltip)));
+				if(CreatedTooltipChild)
 				{
-					StatusTooltip->StatusNodeVerticalBox->AddChild((*TooltipChildInstances)[i]);
-					(*TooltipChildInstances)[i]->Refresh(*StatusFile, *StatusEffectData[i]);
-				}
-				else
-				{
-					UStatusEffectTooltipWidget* CreatedTooltipChild = Cast<UStatusEffectTooltipWidget>(WidgetManager::CreateWidgetInstance(EWidgetKeys::StatusEffectTooltip, GetWorld()));
-					if(CreatedTooltipChild)
-					{
-						(*TooltipChildInstances).Add(CreatedTooltipChild);
-						CreatedTooltipChild->Refresh(*StatusFile, *StatusEffectData[i]);
-						StatusTooltip->StatusNodeVerticalBox->AddChild(CreatedTooltipChild);
-					}
+					CreatedTooltipChild->Refresh(*StatusFile, *StatusEffectData[i]);
+					StatusTooltip->StatusNodeVerticalBox->AddChild(CreatedTooltipChild);
 				}
 			}
 		}
 	}
 }
 
-void UStatusEffectNodeWidget::SetStatusEffectNode(struct FStatusEffectData* Data, struct FStatusEffectFileDataTable* File, class UStatusEffectStackableTooltipWidg* Tooltip, TArray<class UStatusEffectTooltipWidget*>* ChildInstances)
+void UStatusEffectNodeWidget::SetStatusEffectNode(const struct FStatusEffectData* Data, const struct FStatusEffectFileDataTable* File)
 {
 	if(File == nullptr || Data == nullptr) return;
 	this->StatusFile = File;
 	this->StatusEffectData.Empty();
 	this->StatusEffectData.Add(Data);
-	this->StatusTooltip = Tooltip;
 	this->StatusType = Data->Type;
-	TooltipChildInstances = ChildInstances;
 }
 
 void UStatusEffectNodeWidget::StackStatusEffect(struct FStatusEffectData* Data)

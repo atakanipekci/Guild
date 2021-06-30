@@ -11,6 +11,7 @@
 #include "Components/ProgressBar.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
+#include "GuildGame/Managers/StatusEffectManager.h"
 #include "GuildGame/Managers/TimedEventManager.h"
 #include "GuildGame/Managers/WidgetManager.h"
 
@@ -94,7 +95,7 @@ void UBattleHealthBarWidget::SetStatusEffects(TArray<FStatusEffectData>* StatusE
 
 	for (int i = 0; i < StatusEffects->Num(); ++i)
 	{
-		UStatusEffectNodeWidget* ExistingNode = GetHorzBoxChildWithSameType((*StatusEffects)[i].Type);
+		UStatusEffectNodeWidget* ExistingNode = GetHorzBoxChildWithSameType((*StatusEffects)[i].Data.Type);
 		if(ExistingNode == nullptr && StatusEffectNodePool.IsInitialized())
 		{
 			ExistingNode = Cast<UStatusEffectNodeWidget>(StatusEffectNodePool.GetOrCreateInstance(AWidgetManager::GetWidget(EWidgetKeys::StatusEffectNodeWidget, GetWorld())));
@@ -103,7 +104,7 @@ void UBattleHealthBarWidget::SetStatusEffects(TArray<FStatusEffectData>* StatusE
 
 		if(ExistingNode)
 		{
-			FStatusEffectFileDataTable* StatusFile = StatusEffectManager::GetStatusEffectFile((*StatusEffects)[i].Type, GetWorld());
+			FStatusEffectFileDataTable* StatusFile = StatusEffectManager::GetStatusEffectFile((*StatusEffects)[i].Data.Type, GetWorld());
 			if(StatusFile)
 			{
 				ExistingNode->SetToolTip(StackableTooltip);
@@ -114,7 +115,7 @@ void UBattleHealthBarWidget::SetStatusEffects(TArray<FStatusEffectData>* StatusE
 				if (ExistingNode->StatusImage && ExistingNode->TurnText)
 				{
 					ExistingNode->StatusImage->SetBrushResourceObject(StatusFile->Image);
-					ExistingNode->TurnText->SetText(FText::AsNumber((*StatusEffects)[i].RemainingTurns));
+					ExistingNode->TurnText->SetText(FText::AsNumber((*StatusEffects)[i].Data.RemainingTurns));
 				}
 			}
 		}
@@ -123,7 +124,7 @@ void UBattleHealthBarWidget::SetStatusEffects(TArray<FStatusEffectData>* StatusE
 	//StackStatusEffect(&((*StatusEffects)[i]));
 }
 
-bool UBattleHealthBarWidget::ContainsStatusEffect(EStatusEffectType TypeToSearch, TArray<FStatusEffectData>* StatusEffects)
+bool UBattleHealthBarWidget::ContainsStatusEffect(EEffectType TypeToSearch, TArray<FStatusEffectData>* StatusEffects)
 {
 	if(StatusEffects == nullptr)
 		return false;
@@ -131,7 +132,7 @@ bool UBattleHealthBarWidget::ContainsStatusEffect(EStatusEffectType TypeToSearch
 	
 	for (int i = 0; i < StatusEffects->Num(); ++i)
 	{
-		if((*StatusEffects)[i].Type == TypeToSearch)
+		if((*StatusEffects)[i].Data.Type == TypeToSearch)
 		{
 			return  true;
 		}
@@ -139,7 +140,7 @@ bool UBattleHealthBarWidget::ContainsStatusEffect(EStatusEffectType TypeToSearch
 	return  false;
 }
 
-UStatusEffectNodeWidget* UBattleHealthBarWidget::GetHorzBoxChildWithSameType(EStatusEffectType TypeToSearch)
+UStatusEffectNodeWidget* UBattleHealthBarWidget::GetHorzBoxChildWithSameType(EEffectType TypeToSearch)
 {
 	if(StatusEffectsHorzBox == nullptr)
 		return nullptr;

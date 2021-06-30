@@ -5,10 +5,10 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/UserWidgetPool.h"
-#include "GuildGame/Managers/StatusEffectManager.h"
 
 #include "StatusEffectNodeWidget.generated.h"
 
+enum class EEffectType : uint8;
 /**
  * 
  */
@@ -34,7 +34,7 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* TurnText;
 
-	EStatusEffectType StatusType;
+	EEffectType StatusType;
 
 	UPROPERTY()
 	class UStatusEffectStackableTooltipWidg* StatusTooltip;

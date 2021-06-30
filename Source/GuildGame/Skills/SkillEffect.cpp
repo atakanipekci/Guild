@@ -2,6 +2,10 @@
 
 
 #include "SkillEffect.h"
+
+#include "GuildGame/GuildGameGameModeBase.h"
+#include "GuildGame/Managers/StatusEffectManager.h"
+#include "Kismet/GameplayStatics.h"
 #include "Math/UnrealMathUtility.h"
 
 
@@ -81,6 +85,32 @@ bool EffectHeal::ApplyEffectToCharacter(AGGCharacter* Character)
 
 	int Result = FMath::RandRange(Data.MinValue, Data.MaxValue);
 	Character->Heal(Result,Owner);
+	return true;
+	
+}
+
+EffectStatus::EffectStatus(const FEffectData& EffectData, AGGCharacter* OwnerChar)
+{
+	Data = EffectData;
+	Owner = OwnerChar;
+}
+
+bool EffectStatus::ApplyEffectToCharacter(AGGCharacter* Character)
+{
+	if(Character == nullptr || Owner == nullptr)
+	{
+		return false;
+	}
+
+	StatusEffectManager::AddStatusEffect(Character, Owner, &Data);
+	AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(Owner));
+	if(BattleGameMode)
+	{
+		BattleGameMode->BattleTurnManager.UpdateWidgetOrder(true);
+	}
+	
+	Character->UpdateHealthBarStatusEffects();
+	
 	return true;
 	
 }

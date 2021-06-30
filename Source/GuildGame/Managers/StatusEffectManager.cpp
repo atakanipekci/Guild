@@ -1,17 +1,17 @@
 ﻿#include "StatusEffectManager.h"
 
 #include "GuildGameInstance.h"
-#include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Characters/GGCharacter.h"
+#include "GuildGame/Skills/SkillEffect.h"
 #include "Kismet/GameplayStatics.h"
 
-FStatusEffectData* StatusEffectManager::FindTypeInArray(TArray<FStatusEffectData>* Array, EStatusEffectType Type)
+FStatusEffectData* StatusEffectManager::FindTypeInArray(TArray<FStatusEffectData>* Array, EEffectType Type)
 {
 	if(Array)
 	{
 		for (int i = 0; i < Array->Num(); ++i)
 		{
-			if((*Array)[i].Type == Type)
+			if((*Array)[i].Data.Type == Type)
 			{
 				return &(*Array)[i];  
 			}
@@ -21,57 +21,57 @@ FStatusEffectData* StatusEffectManager::FindTypeInArray(TArray<FStatusEffectData
 	return nullptr;
 }
 
-void StatusEffectManager::AddStatusEffect(class AGGCharacter* Target, class AGGCharacter* Caster, TArray<FStatusEffectData>* StatusEffects)
+void StatusEffectManager::AddStatusEffect(class AGGCharacter* Target, class AGGCharacter* Caster, const FEffectData* EffectData)
 {
-	if(Target == nullptr || Caster == nullptr || StatusEffects == nullptr || StatusEffects->Num() <= 0) return;
+	if(Target == nullptr || Caster == nullptr || EffectData == nullptr) return;
 
 	TArray<struct FStatusEffectData>* AppliedEffects = Target->GetAppliedStatusEffects();
 
 	if(AppliedEffects)
 	{
-		for (int i = 0; i < StatusEffects->Num(); ++i)
+		FStatusEffectData* ExistingStatus = FindTypeInArray(AppliedEffects, EffectData->Type);
+		if(ExistingStatus != nullptr)
 		{
-			FStatusEffectData* ExistingStatus = FindTypeInArray(AppliedEffects, (*StatusEffects)[i].Type);
-			if(ExistingStatus != nullptr)
-			{
-				(*StatusEffects)[i].Caster = Caster;
-				
-				StackStatus(Target, ExistingStatus,&(*StatusEffects)[i]);
-				InitStatus(Target, &(*StatusEffects)[i]);
-			}
-			else
-			{
-				(*StatusEffects)[i].Caster = Caster;
-				InitStatus(Target, &(*StatusEffects)[i]);
-				AppliedEffects->Add((*StatusEffects)[i]);
-			}
+			ExistingStatus->Caster = Caster;
+			
+			StackStatus(Target, ExistingStatus,EffectData);
+			InitStatus(Target, EffectData);
+		}
+		else
+		{
+			FStatusEffectData NewEffect;
+			NewEffect.Data = *EffectData;
+			NewEffect.Caster = Caster;
+			
+			InitStatus(Target, &NewEffect.Data);
+			AppliedEffects->Add(NewEffect);
 		}
 	}
 }
 
-void StatusEffectManager::InitStatus(AGGCharacter* Target, FStatusEffectData* StatusEffect)
+void StatusEffectManager::InitStatus(AGGCharacter* Target, const FEffectData* StatusEffect)
 {
 	if(Target == nullptr || StatusEffect == nullptr) return;
 
-	if(StatusEffect->Type == EStatusEffectType::Bleed)
+	if(StatusEffect->Type == EEffectType::StatusBleed)
 	{
 		
 	}
-	else if(StatusEffect->Type == EStatusEffectType::Poison)
+	else if(StatusEffect->Type == EEffectType::StatusPoison)
 	{
 		
 	}
-	else if(StatusEffect->Type == EStatusEffectType::Stun)
+	else if(StatusEffect->Type == EEffectType::StatusStun)
 	{
 		Target->SetStunned(true);
 	}
-	else if(StatusEffect->Type == EStatusEffectType::Heal)
+	else if(StatusEffect->Type == EEffectType::StatusHeal)
 	{
 		
 	}
-	else if(StatusEffect->Type == EStatusEffectType::Buff)
+	else if(StatusEffect->Type == EEffectType::StatusBuff)
 	{
-		for (auto It = StatusEffect->StatsMap.CreateIterator(); It; ++It)
+		for (auto It = StatusEffect->StatusEffectStatsMap.CreateConstIterator(); It; ++It)
 		{
 			if(It.Key() == EStatusEffectStatsType::Speed)
 			{
@@ -80,9 +80,9 @@ void StatusEffectManager::InitStatus(AGGCharacter* Target, FStatusEffectData* St
 			}
 		}
 	}
-	else if(StatusEffect->Type == EStatusEffectType::DeBuff)
+	else if(StatusEffect->Type == EEffectType::StatusDeBuff)
 	{
-		for (auto It = StatusEffect->StatsMap.CreateIterator(); It; ++It)
+		for (auto It = StatusEffect->StatusEffectStatsMap.CreateConstIterator(); It; ++It)
 		{
 			if(It.Key() == EStatusEffectStatsType::Speed)
 			{
@@ -94,21 +94,21 @@ void StatusEffectManager::InitStatus(AGGCharacter* Target, FStatusEffectData* St
 }
 
 void StatusEffectManager::StackStatus(AGGCharacter* Target, FStatusEffectData* ExistingStatusEffect,
-	FStatusEffectData* NewStatusEffect)
+	const FEffectData* NewStatusEffect)
 {
 	if(Target == nullptr || ExistingStatusEffect == nullptr || NewStatusEffect == nullptr) return;
 
-	ExistingStatusEffect->Caster = NewStatusEffect->Caster;
-	ExistingStatusEffect->Value += NewStatusEffect->Value;
-	ExistingStatusEffect->RemainingTurns += NewStatusEffect->RemainingTurns;
+	// ExistingStatusEffect->Caster = NewStatusEffect->Caster;
+	ExistingStatusEffect->Data.MaxValue += NewStatusEffect->MaxValue;
+	ExistingStatusEffect->Data.RemainingTurns += NewStatusEffect->RemainingTurns;
 
-	if(NewStatusEffect->Type == EStatusEffectType::Buff)
+	if(NewStatusEffect->Type == EEffectType::StatusBuff)
 	{
-		for (auto It = NewStatusEffect->StatsMap.CreateIterator(); It; ++It)
+		for (auto It = NewStatusEffect->StatusEffectStatsMap.CreateConstIterator(); It; ++It)
 		{
 			if(It.Key() == EStatusEffectStatsType::Speed)
 			{
-				FStatusEffectStatsData* ExistingSpeedStatData = ExistingStatusEffect->StatsMap.Find(EStatusEffectStatsType::Speed);
+				FStatusEffectStatsData* ExistingSpeedStatData = ExistingStatusEffect->Data.StatusEffectStatsMap.Find(EStatusEffectStatsType::Speed);
 				if(ExistingSpeedStatData)
 				{
 					float Value = FMath::Abs(It.Value().Value);
@@ -119,18 +119,18 @@ void StatusEffectManager::StackStatus(AGGCharacter* Target, FStatusEffectData* E
 				{
 					float Value = FMath::Abs(It.Value().Value);
 					Target->AddAppliedSpeed(Value);
-					ExistingStatusEffect->StatsMap.Add(EStatusEffectStatsType::Speed, It.Value());
+					ExistingStatusEffect->Data.StatusEffectStatsMap.Add(EStatusEffectStatsType::Speed, It.Value());
 				}
 			}
 		}
 	}
-	else if(NewStatusEffect->Type == EStatusEffectType::DeBuff)
+	else if(NewStatusEffect->Type == EEffectType::StatusDeBuff)
 	{
-		for (auto It = NewStatusEffect->StatsMap.CreateIterator(); It; ++It)
+		for (auto It = NewStatusEffect->StatusEffectStatsMap.CreateConstIterator(); It; ++It)
 		{
 			if(It.Key() == EStatusEffectStatsType::Speed)
 			{
-				FStatusEffectStatsData* ExistingSpeedStatData = ExistingStatusEffect->StatsMap.Find(EStatusEffectStatsType::Speed);
+				FStatusEffectStatsData* ExistingSpeedStatData = ExistingStatusEffect->Data.StatusEffectStatsMap.Find(EStatusEffectStatsType::Speed);
 				if(ExistingSpeedStatData)
 				{
 					float Value = -FMath::Abs(It.Value().Value);
@@ -141,7 +141,7 @@ void StatusEffectManager::StackStatus(AGGCharacter* Target, FStatusEffectData* E
 				{
 					float Value = -FMath::Abs(It.Value().Value);
 					Target->AddAppliedSpeed(Value);
-					ExistingStatusEffect->StatsMap.Add(EStatusEffectStatsType::Speed, It.Value());
+					ExistingStatusEffect->Data.StatusEffectStatsMap.Add(EStatusEffectStatsType::Speed, It.Value());
 				}
 			}
 		}
@@ -154,20 +154,20 @@ void StatusEffectManager::ApplyOnTurnBegins(AGGCharacter* Target, TArray<struct 
 
 	for (int i = StatusEffects->Num() - 1; i >= 0; --i)
 	{
-		if((*StatusEffects)[i].Type == EStatusEffectType::Bleed)
+		if((*StatusEffects)[i].Data.Type == EEffectType::StatusBleed)
 		{
-			Target->TakeDefaultDamage((*StatusEffects)[i].Value, (*StatusEffects)[i].Caster);
+			Target->TakeDefaultDamage((*StatusEffects)[i].Data.MaxValue, (*StatusEffects)[i].Caster);
 		}
-		else if((*StatusEffects)[i].Type == EStatusEffectType::Poison)
+		else if((*StatusEffects)[i].Data.Type == EEffectType::StatusPoison)
 		{
-			Target->TakeDefaultDamage((*StatusEffects)[i].Value, (*StatusEffects)[i].Caster);
+			Target->TakeDefaultDamage((*StatusEffects)[i].Data.MaxValue, (*StatusEffects)[i].Caster);
 		}
-		else if((*StatusEffects)[i].Type == EStatusEffectType::Stun)
+		else if((*StatusEffects)[i].Data.Type == EEffectType::StatusStun)
 		{
 		}
-		else if((*StatusEffects)[i].Type == EStatusEffectType::Heal)
+		else if((*StatusEffects)[i].Data.Type == EEffectType::StatusHeal)
 		{
-			Target->Heal((*StatusEffects)[i].Value, (*StatusEffects)[i].Caster);
+			Target->Heal((*StatusEffects)[i].Data.MaxValue, (*StatusEffects)[i].Caster);
 		}
 
 		
@@ -196,23 +196,23 @@ void StatusEffectManager::ApplyOnTurnEnds(AGGCharacter* Target, TArray<struct FS
 
 	for (int i = StatusEffects->Num() - 1; i >= 0; --i)
 	{
-		if((*StatusEffects)[i].Type == EStatusEffectType::Bleed)
+		if((*StatusEffects)[i].Data.Type == EEffectType::StatusBleed)
 		{
 		}
-		else if((*StatusEffects)[i].Type == EStatusEffectType::Poison)
+		else if((*StatusEffects)[i].Data.Type == EEffectType::StatusPoison)
 		{
 		}
-		else if((*StatusEffects)[i].Type == EStatusEffectType::Stun)
+		else if((*StatusEffects)[i].Data.Type == EEffectType::StatusStun)
 		{
 			
 		}
-		else if((*StatusEffects)[i].Type == EStatusEffectType::Heal)
+		else if((*StatusEffects)[i].Data.Type == EEffectType::StatusHeal)
 		{
 		}
 		
 
-		(*StatusEffects)[i].RemainingTurns--;
-		if((*StatusEffects)[i].RemainingTurns <= 0)
+		(*StatusEffects)[i].Data.RemainingTurns--;
+		if((*StatusEffects)[i].Data.RemainingTurns <= 0)
 		{
 			OnStatusEnd(Target, &(*StatusEffects)[i]);
 			StatusEffects->RemoveAt(i);
@@ -224,25 +224,25 @@ void StatusEffectManager::OnStatusEnd(AGGCharacter* Target, FStatusEffectData* S
 {
 	if(Target == nullptr || StatusEffect == nullptr) return;
 
-	if(StatusEffect->Type == EStatusEffectType::Bleed)
+	if(StatusEffect->Data.Type == EEffectType::StatusBleed)
 	{
 		
 	}
-	else if(StatusEffect->Type == EStatusEffectType::Poison)
+	else if(StatusEffect->Data.Type == EEffectType::StatusPoison)
 	{
 		
 	}
-	else if(StatusEffect->Type == EStatusEffectType::Stun)
+	else if(StatusEffect->Data.Type == EEffectType::StatusStun)
 	{
 		Target->SetStunned(false);
 	}
-	else if(StatusEffect->Type == EStatusEffectType::Heal)
+	else if(StatusEffect->Data.Type == EEffectType::StatusHeal)
 	{
 		
 	}
-	else if(StatusEffect->Type == EStatusEffectType::Buff)
+	else if(StatusEffect->Data.Type == EEffectType::StatusBuff)
 	{
-		for (auto It = StatusEffect->StatsMap.CreateIterator(); It; ++It)
+		for (auto It = StatusEffect->Data.StatusEffectStatsMap.CreateIterator(); It; ++It)
 		{
 			if(It.Key() == EStatusEffectStatsType::Speed)
 			{
@@ -251,9 +251,9 @@ void StatusEffectManager::OnStatusEnd(AGGCharacter* Target, FStatusEffectData* S
 			}
 		}
 	}
-	else if(StatusEffect->Type == EStatusEffectType::DeBuff)
+	else if(StatusEffect->Data.Type == EEffectType::StatusDeBuff)
 	{
-		for (auto It = StatusEffect->StatsMap.CreateIterator(); It; ++It)
+		for (auto It = StatusEffect->Data.StatusEffectStatsMap.CreateIterator(); It; ++It)
 		{
 			if(It.Key() == EStatusEffectStatsType::Speed)
 			{
@@ -264,29 +264,29 @@ void StatusEffectManager::OnStatusEnd(AGGCharacter* Target, FStatusEffectData* S
 	}
 }
 
-FString StatusEffectManager::GetStatusFileRowName(EStatusEffectType StatusType)
+FString StatusEffectManager::GetStatusFileRowName(EEffectType StatusType)
 {
-	if(StatusType == EStatusEffectType::Bleed)
+	if(StatusType == EEffectType::StatusBleed)
     {
         return  FString(TEXT("Bleed"));
     }
-    else if(StatusType == EStatusEffectType::Poison)
+    else if(StatusType == EEffectType::StatusPoison)
     {
         return  FString(TEXT("Poison"));
     }
-    else if(StatusType == EStatusEffectType::Stun)
+    else if(StatusType == EEffectType::StatusStun)
     {
         return  FString(TEXT("Stun"));
     }
-    else if(StatusType == EStatusEffectType::Heal)
+    else if(StatusType == EEffectType::StatusHeal)
     {
     	return  FString(TEXT("Heal"));
     }
-	else if(StatusType == EStatusEffectType::Buff)
+	else if(StatusType == EEffectType::StatusBuff)
     {
     	return  FString(TEXT("Buff"));
     }
-	else if(StatusType == EStatusEffectType::DeBuff)
+	else if(StatusType == EEffectType::StatusDeBuff)
     {
     	return  FString(TEXT("DeBuff"));
     }
@@ -294,7 +294,7 @@ FString StatusEffectManager::GetStatusFileRowName(EStatusEffectType StatusType)
     return FString(TEXT("EMPTY"));
 }
 
-FStatusEffectFileDataTable* StatusEffectManager::GetStatusEffectFile(EStatusEffectType StatusType, UWorld* World)
+FStatusEffectFileDataTable* StatusEffectManager::GetStatusEffectFile(EEffectType StatusType, UWorld* World)
 {
 	if(World == nullptr)
 	{

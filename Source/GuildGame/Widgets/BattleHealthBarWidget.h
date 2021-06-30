@@ -5,10 +5,12 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/UserWidgetPool.h"
-#include "GuildGame/Managers/StatusEffectManager.h"
 
 #include "BattleHealthBarWidget.generated.h"
 
+enum class EEffectType : uint8;
+
+struct FStatusEffectData;
 /**
  * 
  */
@@ -23,8 +25,8 @@ class GUILDGAME_API UBattleHealthBarWidget : public UUserWidget
 	void SetHpBar(int CurrentHealth, int MaxHealth, int StartHealth);
 	void SetHpText(int CurrentHealth, int MaxHealth, int StartHealth);
 	void SetStatusEffects(TArray<FStatusEffectData>* StatusEffects);
-	bool ContainsStatusEffect(EStatusEffectType TypeToSearch, TArray<FStatusEffectData>* StatusEffects);
-	class UStatusEffectNodeWidget* GetHorzBoxChildWithSameType(EStatusEffectType TypeToSearch);
+	bool ContainsStatusEffect(EEffectType TypeToSearch, TArray<FStatusEffectData>* StatusEffects);
+	class UStatusEffectNodeWidget* GetHorzBoxChildWithSameType(EEffectType TypeToSearch);
 
 	void SetDamagePreviewBar(float DamageToPreview, int MaxHealth);
 	void ResetDamagePreviewBar(int MaxHealth);

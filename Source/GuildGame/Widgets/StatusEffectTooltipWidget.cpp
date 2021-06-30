@@ -17,20 +17,20 @@ void UStatusEffectTooltipWidget::Refresh(const FStatusEffectFileDataTable& File,
 		StatusImage->SetBrushResourceObject(File.Image);
 
 	FFormatNamedArguments Args;
-	Args.Add("Value", Data.Value);
-	Args.Add("RemainingTurns", Data.RemainingTurns);
+	Args.Add("Value", Data.Data.MaxValue);
+	Args.Add("RemainingTurns", Data.Data.RemainingTurns);
 
 	FText FormattedText = FText::Format(
 		File.StatusDesc,
 		Args
 	);
 	
-	if(Data.StatsMap.Num() > 0 && File.StatFiles.Num() > 0)
+	if(Data.Data.StatusEffectStatsMap.Num() > 0 && File.StatFiles.Num() > 0)
 	{
 		FFormatNamedArguments StatsArgs;
 		TArray<FText> TextsToAdd;
 
-		for (auto It = Data.StatsMap.CreateConstIterator(); It; ++It)
+		for (auto It = Data.Data.StatusEffectStatsMap.CreateConstIterator(); It; ++It)
 		{
 			if(File.StatFiles.Contains(It.Key()))
 			{
@@ -69,10 +69,10 @@ void UStatusEffectTooltipWidget::Refresh(const FStatusEffectFileDataTable& File,
 
 	if(RemainingOverlay && RemainingText)
 	{
-		if(Data.RemainingTurns > 0)
+		if(Data.Data.RemainingTurns > 0)
 		{
 			RemainingOverlay->SetVisibility(ESlateVisibility::Visible);
-			Args.Add("Remaining", Data.RemainingTurns);
+			Args.Add("Remaining", Data.Data.RemainingTurns);
 
 			const FText RemainingLocalizableText = NSLOCTEXT("CommonWords", "Remaining:", "Remaining: <Red>{Remaining}</> turn(s)");
 			

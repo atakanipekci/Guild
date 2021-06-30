@@ -7,7 +7,6 @@
 #include "CharacterStats.h"
 #include "GGCharacterBase.h"
 #include "GuildGame/GridSystem/Grid.h"
-#include "GuildGame/Managers/StatusEffectManager.h"
 //#include "GuildGame/Skills/CharacterSkills.h"
 
 #include "GGCharacter.generated.h"

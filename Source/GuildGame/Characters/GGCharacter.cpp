@@ -18,6 +18,7 @@
 #include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Battle/BattlePlayerController.h"
 #include "GuildGame/GridSystem/GridFloor.h"
+#include "GuildGame/Managers/StatusEffectManager.h"
 #include "GuildGame/Managers/TimedEventManager.h"
 #include "GuildGame/Skills/CharacterSkill.h"
 #include "GuildGame/VFX/Projectiles/Projectile.h"
@@ -604,7 +605,6 @@ void AGGCharacter::OnAttackHitsEnemies()
 
 	if(SelectedTargetCharacters.Num() > 0)
 	{
-		CurrentSkill->ApplyStatus(this, SelectedTargetCharacters);
 		CurrentSkill->ApplyEffects(this, SelectedTargetCharacters);
 	}
 }
@@ -626,7 +626,6 @@ void AGGCharacter::OnAttackHitsEnemy(AActor* TargetToHit)
 	if(CharacterToHit && SelectedTargetCharacters.Contains(TargetToHit))
 	{
 		Enemies.Add(CharacterToHit);
-		CurrentSkill->ApplyStatus(this, Enemies);
 		CurrentSkill->ApplyEffects(this, Enemies);
 	}
 	

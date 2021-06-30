@@ -86,8 +86,6 @@ struct FSkillData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FEffectData> EffectData;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<struct FStatusEffectData> StatusEffects;
 };
 
 /**
@@ -99,7 +97,6 @@ public:
 	CharacterSkill(const FSkillData&, const FCharSkillFileDataTable&, AGGCharacter* Owner);
 	~CharacterSkill();
 	void ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& TargetCharacters);
-	void ApplyStatus(AGGCharacter* Caster, TArray<AGGCharacter*>& TargetCharacters);
 	FSkillData& GetSkillData()
 	{
 		return SkillData;

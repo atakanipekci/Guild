@@ -7,26 +7,28 @@
 
 SkillEffect* EffectFactory::CreateEffect(const FEffectData& Data, AGGCharacter* Owner)
 {
-	switch(Data.Type)
+	if(Data.Type == EEffectType::DealDamage)
 	{
-		case EEffectType::DealDamage:
-			return new EffectDealDamage(Data, Owner);
-			break;
-
-		case EEffectType::DealPhysicalDamage:
-			return new EffectDealPhysicalDamage(Data, Owner);
-			break;
-
-		case EEffectType::DealMagicalDamage:
-			return new EffectDealMagicalDamage(Data, Owner);
-			break;
-
-		case EEffectType::Heal:
-			return new EffectHeal(Data, Owner);
-			break;
-
-		default:
-			return nullptr;
-			break;
+		return new EffectDealDamage(Data, Owner);
 	}
+	else if(Data.Type == EEffectType::DealPhysicalDamage)
+	{
+		return new EffectDealPhysicalDamage(Data, Owner);
+	}
+	else if(Data.Type == EEffectType::DealMagicalDamage)
+	{
+		return new EffectDealMagicalDamage(Data, Owner);
+	}
+	else if(Data.Type == EEffectType::Heal)
+	{
+		return new EffectHeal(Data, Owner);
+	}
+	else if(Data.Type == EEffectType::StatusStun || Data.Type == EEffectType::StatusBleed || Data.Type == EEffectType::StatusPoison || Data.Type == EEffectType::StatusBurn
+		|| Data.Type == EEffectType::StatusBuff || Data.Type == EEffectType::StatusDeBuff || Data.Type == EEffectType::StatusHeal)
+	{
+		return new EffectStatus(Data, Owner);
+	}
+
+	return nullptr;
+
 }

@@ -7,8 +7,6 @@
 #include "EffectFactory.h"
 #include "GGLogHelper.h"
 #include "GuildGameInstance.h"
-#include "GuildGame/GuildGameGameModeBase.h"
-#include "GuildGame/Managers/StatusEffectManager.h"
 #include "Kismet/GameplayStatics.h"
 
 CharacterSkill::CharacterSkill(const FSkillData& Data, const FCharSkillFileDataTable& File, AGGCharacter* CharOwner)
@@ -101,27 +99,6 @@ void CharacterSkill::ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& T
 		CasterEffect->ApplyEffectToCharacter(Caster);
 	}
 }
-
-void CharacterSkill::ApplyStatus(AGGCharacter* Caster, TArray<AGGCharacter*>& TargetCharacters)
-{
-	if(Caster == nullptr) return;
-
-	for (int i = 0; i < TargetCharacters.Num(); ++i)
-	{
-		if(TargetCharacters[i])
-		{
-			StatusEffectManager::AddStatusEffect(TargetCharacters[i], Caster, &SkillData.StatusEffects);
-		}
-	}
-
-	AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(Caster));
-	if(BattleGameMode)
-	{
-		BattleGameMode->BattleTurnManager.UpdateWidgetOrder(true);
-	}
-	
-}
-
 
 FCharSkillFileDataTable* CharacterSkill::GetSkillFilesFromTable(int SkillID, UWorld* World)
 {

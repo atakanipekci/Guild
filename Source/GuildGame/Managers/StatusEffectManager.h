@@ -1,33 +1,9 @@
 ﻿#pragma once
 #include "Engine/DataTable.h"
+#include "GuildGame/Skills/SkillEffect.h"
+
 #include "StatusEffectManager.generated.h"
 
-
-UENUM(Blueprintable)
-enum class EStatusEffectType : uint8
-{
-	Bleed,
-	Poison,
-	Stun,
-	Heal,
-	Buff,
-	DeBuff
-};
-
-UENUM(Blueprintable)
-enum class EStatusEffectStatsType : uint8
-{
-	Speed
-};
-
-USTRUCT()
-struct FStatusEffectStatsData : public FTableRowBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Value;
-};
 
 USTRUCT()
 struct FStatusEffectData : public FTableRowBase
@@ -35,23 +11,14 @@ struct FStatusEffectData : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EStatusEffectType Type;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TMap<EStatusEffectStatsType, FStatusEffectStatsData> StatsMap;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int RemainingTurns; 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Value;
+	FEffectData Data;
 	
-
 	UPROPERTY()
 	class AGGCharacter* Caster;
 };
 
-USTRUCT(BlueprintType)
+
+USTRUCT()
 struct FStatusEffectStatsFileData : public FTableRowBase
 {
 	GENERATED_BODY()
@@ -69,7 +36,7 @@ struct FStatusEffectFileDataTable : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EStatusEffectType Type;
+	EEffectType Type;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText StatusName;
@@ -87,19 +54,18 @@ struct FStatusEffectFileDataTable : public FTableRowBase
 class GUILDGAME_API StatusEffectManager
 {
 public:
-	static FStatusEffectData* FindTypeInArray(TArray<FStatusEffectData>* Array, EStatusEffectType Type);
-	static void AddStatusEffect(class AGGCharacter* Target, class AGGCharacter* Caster, TArray<FStatusEffectData>* StatusEffects);
+	static FStatusEffectData* FindTypeInArray(TArray<FStatusEffectData>* Array, EEffectType Type);
+	static void AddStatusEffect(class AGGCharacter* Target, class AGGCharacter* Caster, const FEffectData* EffectData);
 
-	static void InitStatus(class AGGCharacter* Target, FStatusEffectData* StatusEffect);
-	static void StackStatus(class AGGCharacter* Target, FStatusEffectData* ExistingStatusEffect,FStatusEffectData* NewStatusEffect);
-	static void StackStats(class AGGCharacter* Target, FStatusEffectData* ExistingStatusEffect,FStatusEffectData* NewStatusEffect);
+	static void InitStatus(class AGGCharacter* Target, const FEffectData* StatusEffect);
+	static void StackStatus(class AGGCharacter* Target, FStatusEffectData* ExistingStatusEffect, const FEffectData* NewStatusEffect);
 	static void ApplyOnTurnBegins(class AGGCharacter* Target, TArray<struct FStatusEffectData>*);
 	static void ApplyOnTurnEnds(AGGCharacter* Target, TArray<struct FStatusEffectData>* StatusEffects);
 	static void OnStatusEnd(class AGGCharacter* Target, FStatusEffectData* StatusEffect);
 	
-	static FString GetStatusFileRowName(EStatusEffectType StatusType);
+	static FString GetStatusFileRowName(EEffectType StatusType);
 
-	static FStatusEffectFileDataTable* GetStatusEffectFile(EStatusEffectType StatusType, UWorld* World);
+	static FStatusEffectFileDataTable* GetStatusEffectFile(EEffectType StatusType, UWorld* World);
 	
 	
 };

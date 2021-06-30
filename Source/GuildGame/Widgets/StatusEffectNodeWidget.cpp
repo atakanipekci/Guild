@@ -6,6 +6,7 @@
 #include "StatusEffectStackableTooltipWidg.h"
 #include "StatusEffectTooltipWidget.h"
 #include "Components/VerticalBox.h"
+#include "GuildGame/Managers/StatusEffectManager.h"
 #include "GuildGame/Managers/WidgetManager.h"
 
 void UStatusEffectNodeWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -45,7 +46,7 @@ void UStatusEffectNodeWidget::SetStatusEffectNode(const struct FStatusEffectData
 	this->StatusFile = File;
 	this->StatusEffectData.Empty();
 	this->StatusEffectData.Add(Data);
-	this->StatusType = Data->Type;
+	this->StatusType = Data->Data.Type;
 }
 
 void UStatusEffectNodeWidget::StackStatusEffect(struct FStatusEffectData* Data)

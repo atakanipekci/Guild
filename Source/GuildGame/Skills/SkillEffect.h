@@ -5,8 +5,23 @@
 #include "CoreMinimal.h"
 
 #include "GuildGame/Characters/GGCharacter.h"
+
 #include "SkillEffect.generated.h"
 
+UENUM()
+enum class EStatusEffectStatsType : uint8
+{
+	Speed
+};
+
+USTRUCT()
+struct FStatusEffectStatsData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Value;
+};
 
 UENUM()
 enum class EEffectType: uint8
@@ -15,9 +30,14 @@ enum class EEffectType: uint8
 	DealPhysicalDamage,
 	DealMagicalDamage,
 	Heal,
-	Stun,
-	ApplyStatus,
-	Move
+	Move,
+	StatusStun,
+	StatusBleed,
+	StatusBuff,
+	StatusDeBuff,
+	StatusPoison,
+	StatusBurn,
+	StatusHeal
 };
 
 UENUM()
@@ -60,6 +80,12 @@ struct FEffectData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float ExtraValue;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int RemainingTurns;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<EStatusEffectStatsType, FStatusEffectStatsData> StatusEffectStatsMap;
 };
 
 
@@ -105,5 +131,11 @@ class GUILDGAME_API EffectHeal : public SkillEffect
 {
 public:
 	explicit EffectHeal(const FEffectData& , AGGCharacter* OwnerChar);
+	virtual bool ApplyEffectToCharacter(AGGCharacter*) override;
+};
+class GUILDGAME_API EffectStatus : public SkillEffect
+{
+public:
+	explicit EffectStatus(const FEffectData& , AGGCharacter* OwnerChar);
 	virtual bool ApplyEffectToCharacter(AGGCharacter*) override;
 };

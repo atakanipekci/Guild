@@ -128,7 +128,7 @@ void UOwnedCharactersDroppableWidget::Refresh()
 
 UDraggedCharacterWidget* UOwnedCharactersDroppableWidget::CreateChildWidget(UDraggedCharacterWidget* DraggedWidget)
 {
-	UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), WidgetManager::GetWidget(EWidgetKeys::DraggedOwnedWidget));
+	UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), AWidgetManager::GetWidget(EWidgetKeys::DraggedOwnedWidget, GetWorld()));
 	if(NewWidget && ScrollBox)
 	{
 		//NewWidget->SetVisibility(ESlateVisibility::Hidden);
@@ -175,7 +175,7 @@ UDraggedCharacterWidget* UOwnedCharactersDroppableWidget::CreateChildWidget(UDra
 
 UDraggedCharacterWidget* UOwnedCharactersDroppableWidget::CreateChildWidget(FCharacterStats* Stat)
 {
-	UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), WidgetManager::GetWidget(EWidgetKeys::DraggedOwnedWidget));
+	UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), AWidgetManager::GetWidget(EWidgetKeys::DraggedOwnedWidget, GetWorld()));
 	if(NewWidget && ScrollBox && Stat)
 	{
 		ScrollBox->AddChild(NewWidget);

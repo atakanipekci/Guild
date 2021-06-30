@@ -55,6 +55,9 @@ void UBattleCharSkillNodeWidget::OnPressed()
 	{
 		if(PlayerController) PlayerController->ChangeStateTo(EControllerStateIndex::Movement);
 
+		if(SelectedCharacter)
+			SelectedCharacter->ShowMovableGrids(true);
+
 		if(OwnerHud)
 		{
 			OwnerHud->RefreshSkillButtonsState();
@@ -210,11 +213,6 @@ void UBattleCharSkillNodeWidget::RefreshNode(AGGCharacter* SelectedChar, UBattle
 }
 
 void UBattleCharSkillNodeWidget::OnSkillCasted()
-{
-	RefreshNodeState();
-}
-
-void UBattleCharSkillNodeWidget::OnApChange()
 {
 	RefreshNodeState();
 }

@@ -38,22 +38,7 @@ void UGuildGameInstance::IncreaseDay(int Amount)
 void UGuildGameInstance::Init()
 {
     Day = 0;
-    if(WidgetsTable)
-    {
-        WidgetManager::SetWidgetTable(WidgetsTable);
-    }
 
-    if(SequenceTable)
-    {
-        WidgetManager::SetSequenceTable(SequenceTable);
-    }
-
-     if(CharacterStatsTable)
-    {
-        CharacterGenerationManager::SetCharactersTable(CharacterStatsTable);
-    }
-
-    
     //TODO load Stats from save
     GuildStats = new FGuildStats();
 

@@ -6,10 +6,13 @@
 #include "BattleCharSkillNodeWidget.h"
 #include "CharacterSkillTooltipWidget.h"
 #include "GuildGameInstance.h"
+#include "TurnInfoWidget.h"
+#include "Components/Button.h"
 #include "Components/CanvasPanel.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Components/UniformGridPanel.h"
+#include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Characters/GGCharacter.h"
 #include "GuildGame/Managers/WidgetManager.h"
 #include "GuildGame/Skills/CharacterSkill.h"
@@ -18,7 +21,12 @@
 void UBattleHudWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	Tooltip = CreateWidget<UCharacterSkillTooltipWidget>(GetWorld(), WidgetManager::GetWidget(EWidgetKeys::CharacterSkillTooltip));
+	Tooltip = CreateWidget<UCharacterSkillTooltipWidget>(GetWorld(), AWidgetManager::GetWidget(EWidgetKeys::CharacterSkillTooltip, GetWorld()));
+
+	if(FinishTurnButton)
+	{
+		FinishTurnButton->OnReleased.AddUniqueDynamic(this, &UBattleHudWidget::FinishTurnClicked);
+	}
 	
 }
 
@@ -47,8 +55,8 @@ void UBattleHudWidget::RefreshSkillsArray(AGGCharacter* SelectedChar)
     	TArray<class CharacterSkill*>* Skills = SelectedChar->GetSkills();
 
     	FCharacterDelegate Delegate;
-		Delegate.BindDynamic(this, &UBattleHudWidget::OnApChange);
-    	SelectedChar->RefreshHudOnApChangeDelegate = Delegate;
+		Delegate.BindDynamic(this, &UBattleHudWidget::RefreshHud);
+    	SelectedChar->RefreshHudDelegate = Delegate;
 
 
 		for (int i = 0; i < SkillNodesGrid->GetChildrenCount(); ++i)
@@ -124,19 +132,32 @@ void UBattleHudWidget::RefreshSkillButtonsState()
 	}
 }
 
-void UBattleHudWidget::OnApChange()
+void UBattleHudWidget::RefreshHud()
 {
 	for (int i = 0; i < SkillNodes.Num(); ++i)
 	{
 		if(SkillNodes[i])
 		{
-			SkillNodes[i]->OnApChange();
+			SkillNodes[i]->RefreshNodeState();
 		}
 	}
 
 	if(ApText && LatestSelectedChar)
 	{
 		ApText->SetText(FText::AsNumber(LatestSelectedChar->GetCurrentAP()));
+	}
+}
+
+void UBattleHudWidget::FinishTurnClicked()
+{
+	if(FinishTurnButton)
+	{
+		FinishTurnButton->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	if(BattleGameMode)
+	{
+		BattleGameMode->Next();
 	}
 }
 
@@ -152,7 +173,32 @@ void UBattleHudWidget::SetSkillsPanelVisible()
 {
 	if(SkillsPanel)
 	{
+		if(FinishTurnButton)
+		{
+			FinishTurnButton->SetVisibility(ESlateVisibility::Visible);
+		}
 		SkillsPanel->SetVisibility(ESlateVisibility::Visible);
 		SkillsPanel->SetIsEnabled(true);
 	}
+}
+
+void UBattleHudWidget::RemoveRandomNode()
+{
+	// if(TurnWidget)
+	// {
+	// 	TurnWidget->RemoveRandomNode(true);
+	// }
+}
+
+void UBattleHudWidget::RefreshIndices()
+{
+	if(TurnWidget)
+	{
+		TurnWidget->RefreshIndices();
+	}
+}
+
+UTurnInfoWidget* UBattleHudWidget::GetTurnInfoWidget()
+{
+	return TurnWidget;
 }

@@ -93,6 +93,11 @@ void ABattlePlayerController::ChangeStateTo(EControllerStateIndex AStateIndex)
 	StateIndex = Index;
 	ActiveState = States[Index];
 	ActiveState->ChangeTo();
+
+	if(SelectedCharacter)
+	{
+		SelectedCharacter->CallRefreshHudDelegate();
+	}
 }
 
 bool ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)
@@ -348,25 +353,27 @@ void ABattlePlayerController::SetSelectedCharacter(AGGCharacter* NewCharacter)
 				if(BattleGameMode->HudWidgetInstance)
 				{
 					BattleGameMode->HudWidgetInstance->SetSkillsPanelHidden();
+					
 					TArray<FTimedEvent> OnCompleteDelegates;
-					FTimedEvent OnCompleteDelegate1;
-					FTimedEvent OnCompleteDelegate2;
-					OnCompleteDelegate1.BindDynamic(BattleGameMode->HudWidgetInstance, &UBattleHudWidget::SetSkillsPanelVisible);
-					OnCompleteDelegate2.BindDynamic(NewCharacter, &AGGCharacter::OnTurnBegins);
-
-					OnCompleteDelegates.Add(OnCompleteDelegate1);
-					OnCompleteDelegates.Add(OnCompleteDelegate2);
-
 					FTimedEvent OnDelayedComplete;
 					
 					float DelayTime = 0;
 					if(NewCharacter->IsStunned())
 					{
-						DelayTime = 1;
+						DelayTime = 1.4f;
 						OnDelayedComplete.BindDynamic(BattleGameMode, &AGuildGameGameModeBase::Next);
 					}
+					else
+					{
+						FTimedEvent OnCompleteDelegate1;
+						OnCompleteDelegate1.BindDynamic(BattleGameMode->HudWidgetInstance, &UBattleHudWidget::SetSkillsPanelVisible);
+						OnCompleteDelegates.Add(OnCompleteDelegate1);
+					}
+					FTimedEvent OnCompleteDelegate2;
+					OnCompleteDelegate2.BindDynamic(NewCharacter, &AGGCharacter::OnTurnBegins);
+					OnCompleteDelegates.Add(OnCompleteDelegate2);
 
-					Spectator->LerpCameraToCharacter(NewCharacter, 0.5f, DelayTime,false,OnCompleteDelegates,OnDelayedComplete);
+					Spectator->LerpCameraToCharacter(NewCharacter, 0.8f, DelayTime,false, OnCompleteDelegates,OnDelayedComplete);
 				}
 			}
 		}

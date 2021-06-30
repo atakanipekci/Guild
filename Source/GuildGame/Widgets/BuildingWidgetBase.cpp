@@ -87,7 +87,7 @@ void UBuildingWidgetBase::OnConstructClicked()
     FText Title = FText::FromString("Construct Building");
     FText Content = FText::FromString("Are you sure about purchasing this building?");
 
-    UYesOrNoWidget::CreateYesNoWidget(this, WidgetManager::GetWidget(EWidgetKeys::YesOrNo), Title, Content ,YesEvent, NoEvent);
+    UYesOrNoWidget::CreateYesNoWidget(this, AWidgetManager::GetWidget(EWidgetKeys::YesOrNo, GetWorld()), Title, Content ,YesEvent, NoEvent);
 }
 
 bool UBuildingWidgetBase::ConstrNoEvent()

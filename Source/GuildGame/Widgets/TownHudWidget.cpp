@@ -68,7 +68,7 @@ void UTownHudWidget::OnTestClicked()
 
 void UTownHudWidget::OpenGuildDetailsScreen()
 {
-    UUserWidget* NewWidget = WidgetManager::GetWidgetInstanceIfNotCreate(EWidgetKeys::GuildDetail, this);
+    UUserWidget* NewWidget = AWidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::GuildDetail, GetWorld());
     if(NewWidget)
     {
         //NewWidget->RemoveFromViewport();

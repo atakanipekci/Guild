@@ -266,7 +266,7 @@ void ABattleCameraSpectatorPawn::No1Clicked()
 	if(SelectedChar)
 	{
 		int ApCost = 0;
-		if(SelectedChar->IsApEnoughForSkill(SelectedChar->GetCurrentSkill(), ApCost) == false)
+		if(SelectedChar->IsTurnStarted() && SelectedChar->IsApEnoughForSkill(SelectedChar->GetCurrentSkill(), ApCost) == true)
 		{
 			PlayerController->ChangeStateTo(EControllerStateIndex::SkillCast);
 		}
@@ -405,11 +405,10 @@ void ABattleCameraSpectatorPawn::LerpCameraToCharacterAndFollow(AGGCharacter* Ch
 	// }
 }
 
-void ABattleCameraSpectatorPawn::LerpCameraToCharacter(AGGCharacter* Char, float Duration, float Delay, bool  EnableMovement, TArray<FTimedEvent>  OnComplete, FTimedEvent& DelayedOnComplete)
+void ABattleCameraSpectatorPawn::LerpCameraToCharacter(AGGCharacter* Char, float Duration, float Delay, bool  EnableMovement, TArray<FTimedEvent>&  OnComplete, FTimedEvent& DelayedOnComplete)
 {
 	if(Char == nullptr) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("LerpCameraToCharacter"));
 	FConditionEvent ConditionDelegate;
 	if(EnableMovement)
 	{

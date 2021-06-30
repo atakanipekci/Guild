@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Blueprint/UserWidgetPool.h"
 #include "GuildGame/Managers/StatusEffectManager.h"
 
 #include "StatusEffectNodeWidget.generated.h"
@@ -16,8 +17,7 @@ class GUILDGAME_API UStatusEffectNodeWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
-	class UStatusEffectStackableTooltipWidg* StatusTooltip;
+	
 
 	TArray<const struct FStatusEffectData*> StatusEffectData;
 	const struct FStatusEffectFileDataTable* StatusFile;
@@ -25,7 +25,7 @@ class GUILDGAME_API UStatusEffectNodeWidget : public UUserWidget
 
 	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 public:
-	void SetStatusEffectNode(struct FStatusEffectData* Data, struct FStatusEffectFileDataTable* File, class UStatusEffectStackableTooltipWidg* Tooltip, TArray<class UStatusEffectTooltipWidget*>* ChildInstances);
+	void SetStatusEffectNode(const struct FStatusEffectData* Data, const struct FStatusEffectFileDataTable* File);
 	void StackStatusEffect(struct FStatusEffectData* Data);
 	
 	UPROPERTY(meta = (BindWidget))
@@ -36,6 +36,8 @@ public:
 
 	EStatusEffectType StatusType;
 
-	TArray<class UStatusEffectTooltipWidget*>* TooltipChildInstances;
+	UPROPERTY()
+	class UStatusEffectStackableTooltipWidg* StatusTooltip;
+	FUserWidgetPool* TooltipPool;
 
 };

@@ -166,11 +166,11 @@ void UTownBuildingInteractionManager::ZoomInToBuilding()
 
 	SelectedBuilding = HoveredBuilding;
 
-	if(SelectedBuilding)
+	if(SelectedBuilding && PlayerController)
 	{
 		bEnableInput = false;
 
-		SequenceAsset = WidgetManager::GetSequence(SelectedBuilding->SequenceKey);
+		SequenceAsset = AWidgetManager::GetSequence(SelectedBuilding->SequenceKey, PlayerController->GetWorld());
 
 		ChangeState(State, EInteractionStatee::BuildingWidget);
 
@@ -206,9 +206,9 @@ void UTownBuildingInteractionManager::ZoomOutFromBuilding()
 
 void UTownBuildingInteractionManager::ToggleWidget()
 {
-	if(SelectedBuilding)
+	if(SelectedBuilding && PlayerController)
 	{
-		UUserWidget* WidgetInstance = WidgetManager::GetWidgetInstance(SelectedBuilding->WidgetKey);
+		UUserWidget* WidgetInstance = AWidgetManager::GetWidgetInstance(SelectedBuilding->WidgetKey, PlayerController->GetWorld());
 
 		if(WidgetInstance != nullptr)
 		{
@@ -242,8 +242,8 @@ void UTownBuildingInteractionManager::ToggleWidget()
 		}
 		else
 		{
-			UBuildingWidgetBase* NewWidget = CreateWidget<UBuildingWidgetBase>(PlayerController->GetWorld(), WidgetManager::GetWidget(SelectedBuilding->WidgetKey));
-			WidgetManager::SetWidgetInstance(SelectedBuilding->WidgetKey, NewWidget);
+			UBuildingWidgetBase* NewWidget = Cast<UBuildingWidgetBase>(AWidgetManager::CreateWidgetInstance(SelectedBuilding->WidgetKey, PlayerController->GetWorld()));
+			AWidgetManager::SetWidgetInstance(SelectedBuilding->WidgetKey, NewWidget, PlayerController->GetWorld());
 			
 			ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(PlayerController));
 			if(GameMode->HudBuildingWidgetsContainerOverlay)
@@ -272,7 +272,7 @@ void UTownBuildingInteractionManager::OnWidgetAnimationFinish()
 
 	if(SelectedBuilding && State == EInteractionStatee::BuildingSelection)
 	{
-		UUserWidget* BuildingWidgetInstance = WidgetManager::GetWidgetInstance(SelectedBuilding->WidgetKey);
+		UUserWidget* BuildingWidgetInstance = AWidgetManager::GetWidgetInstance(SelectedBuilding->WidgetKey, PlayerController->GetWorld());
 		if(BuildingWidgetInstance)
 		{
 			BuildingWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);

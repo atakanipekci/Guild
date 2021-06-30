@@ -65,7 +65,7 @@ void URecruitWidget::RefreshRecruitables()
 
 void URecruitWidget::OpenUpgradePage()
 {
-    UUserWidget* UpgradePage = WidgetManager::GetWidgetInstanceIfNotCreate(EWidgetKeys::RecruitUpgradeWidget, this);
+    UUserWidget* UpgradePage = AWidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::RecruitUpgradeWidget, GetWorld());
     if(UpgradePage)
     {
         //UpgradePage->RemoveFromViewport();

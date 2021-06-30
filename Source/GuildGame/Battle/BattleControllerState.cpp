@@ -189,6 +189,10 @@ void ControllerStateCastingSkill::RightClickReleaseHandler()
 
 	PlayerController->ChangeStateTo(EControllerStateIndex::Movement);
 
+	if(PlayerController->GetSelectedCharacter())
+	{
+		PlayerController->GetSelectedCharacter()->ShowMovableGrids(true);
+	}
 	AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(PlayerController));
 	if(BattleGameMode)
 	{
@@ -210,7 +214,6 @@ void ControllerStateCastingSkill::ChangeTo()
 	{
 		return;
 	}
-
 	
 	AGGCharacter* SelectedCharacter = PlayerController->GetSelectedCharacter();
 	if(SelectedCharacter)

@@ -22,7 +22,7 @@ void URecruitBuildingUpgradeWidget::NativeConstruct()
 
 	if(Upgrades.Num() > 0)
 	{
-		Tooltip = CreateWidget<URecruitBuildingUpgTooltipWidget>(GetWorld(), WidgetManager::GetWidget(EWidgetKeys::RecruitBuildingUpgTooltip));
+		Tooltip = CreateWidget<URecruitBuildingUpgTooltipWidget>(GetWorld(), AWidgetManager::GetWidget(EWidgetKeys::RecruitBuildingUpgTooltip, GetWorld()));
 		
 		for (int i = 0; i < Upgrades.Num() && i + 1 < TableRows.Num(); ++i)
 		{

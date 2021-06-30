@@ -21,10 +21,12 @@ public:
 		GameMode = Mode;
 	}
 
-	void SetCharactersList(TArray<class AGGCharacter*> List)
+	void SetCharactersList(TArray<class AGGCharacter*> List);
+	
+
+	void SetTurnWidget(class UTurnInfoWidget* Widget)
 	{
-		CharactersList = List;
-		SortCharactersBySpeed();
+		TurnInfoWidget = Widget;
 	}
 
 	AGGCharacter* GetCurrentCharacter() const
@@ -35,13 +37,19 @@ public:
 		}
 		return CharactersList[CurrentCharacterIndex];
 	}
- 
+
+	void UpdateOnDeath(class AGGCharacter* DeadChar);
+	void UpdateWidgetOrder(bool SortCharList = false);
+	
 private:
 
-	void SortCharactersBySpeed();
+	void SortCharactersBySpeed(TArray<class AGGCharacter*>& ArrayToShuffle, int StartIndex = INDEX_NONE);
+	void StartTurnWidget();
 	
     class AGuildGameGameModeBase* GameMode = nullptr;
 	int CurrentCharacterIndex = 0;
 	int RoundCount = 0;
 	TArray<class AGGCharacter*> CharactersList;
+
+	class UTurnInfoWidget* TurnInfoWidget = nullptr;
 };

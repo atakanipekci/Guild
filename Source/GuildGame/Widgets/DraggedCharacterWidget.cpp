@@ -48,6 +48,7 @@ void UDraggedCharacterWidget::NativeOnDragCancelled(const FDragDropEvent& InDrag
     UDragDropOperation* InOperation)
 {
     Super::NativeOnDragCancelled(InDragDropEvent, InOperation);
+
     if(OwnerDroppableArea)
     {
         if(OwnerDroppableArea->ContentPanel)
@@ -90,6 +91,7 @@ void UDraggedCharacterWidget::NativeOnDragEnter(const FGeometry& InGeometry, con
     UDragDropOperation* InOperation)
 {
     Super::NativeOnDragEnter(InGeometry, InDragDropEvent, InOperation);
+
      if(InOperation->Payload && this->OwnerDroppableArea != nullptr)
     {
          if(this->OwnerDroppableArea->AreaType == EDroppableAreaType::OwnedCharacters)
@@ -168,6 +170,7 @@ void UDraggedCharacterWidget::NativeOnDragDetected(const FGeometry& InGeometry, 
     UDragDropOperation*& OutOperation)
 {
     Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
+
     SetVisibility(ESlateVisibility::Hidden);
     if(DraggedVisualInstance == nullptr)
     {
@@ -199,7 +202,7 @@ FReply UDraggedCharacterWidget::NativeOnMouseButtonDown(const FGeometry& InGeome
     Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
     if(InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
 	{
-        UUserWidget* NewWidget = WidgetManager::GetWidgetInstanceIfNotCreate(EWidgetKeys::CharacterDetail, this);
+        UUserWidget* NewWidget = AWidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::CharacterDetail, GetWorld());
         if(NewWidget)
         {
             //NewWidget->RemoveFromViewport();

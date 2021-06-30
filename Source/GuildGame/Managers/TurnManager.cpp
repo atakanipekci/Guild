@@ -4,8 +4,10 @@
 #include "GuildGame/Managers/TurnManager.h"
 
 #include "GGLogHelper.h"
+#include "Algo/StableSort.h"
 #include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Characters/GGCharacter.h"
+#include "GuildGame/Widgets/TurnInfoWidget.h"
 
 
 void TurnManager::Start()
@@ -20,6 +22,8 @@ void TurnManager::Start()
 		CharactersList[0]->SetSelected();
 	}
 	CurrentCharacterIndex = 0;
+
+	StartTurnWidget();
 }
 
 void TurnManager::NextCharacter()
@@ -34,14 +38,24 @@ void TurnManager::NextCharacter()
 		CharactersList[CurrentCharacterIndex]->OnTurnEnds();
 		CharactersList[CurrentCharacterIndex]->Deselect();
 
+		UpdateWidgetOrder(true);//after status effects end update widget
 	}
 
 	for(int i = 0; i < CharactersList.Num(); i++)
 	{
-		CurrentCharacterIndex+=1;
+		CurrentCharacterIndex += 1;
 		if(CurrentCharacterIndex >= CharactersList.Num())
 		{
+			if(TurnInfoWidget)
+			{
+				TurnInfoWidget->RefreshIndices();
+				SortCharactersBySpeed(CharactersList);
+				UpdateWidgetOrder();
+			}
+			
 			CurrentCharacterIndex = 0;
+			
+			
 			RoundCount++;
 			if(GameMode)
 			{
@@ -60,17 +74,90 @@ void TurnManager::NextCharacter()
 
 	if(CharactersList[CurrentCharacterIndex] != nullptr)
 	{
+		if(TurnInfoWidget)
+		{
+			TurnInfoWidget->RemoveAtTop(true);
+		}
+
 		CharactersList[CurrentCharacterIndex]->SetSelected();
 		// CharactersList[CurrentCharacterIndex]->OnTurnBegins();
 	}
-	
+}
+
+void TurnManager::SetCharactersList(TArray<AGGCharacter*> List)
+{
+	CharactersList = List;
+	SortCharactersBySpeed(CharactersList);
+}
+
+void TurnManager::SortCharactersBySpeed(TArray<class AGGCharacter*>& ArrayToShuffle, int StartIndex)
+{
+	if(StartIndex < 0)
+	{
+		Algo::StableSort(ArrayToShuffle, [](const AGGCharacter* LHS, const AGGCharacter* RHS)
+		{
+			if(LHS && RHS)
+			{
+				return LHS->GetSpeed() > RHS-> GetSpeed();
+			}
+			return false;
+		});
+	}
+	else if(StartIndex < ArrayToShuffle.Num())
+	{
+		TArray<class AGGCharacter*> CopyShuffleArray(ArrayToShuffle);
+
+		for (int i = StartIndex - 1; i >= 0; --i)
+		{
+			CopyShuffleArray.RemoveAt(i);
+		}
+
+		Algo::StableSort(CopyShuffleArray, [](const AGGCharacter* LHS, const AGGCharacter* RHS)
+		{
+			if(LHS && RHS)
+			{
+				return LHS->GetSpeed() > RHS-> GetSpeed();
+			}
+			return false;
+		});
+
+		int j = 0;
+		for (int i = StartIndex; i < ArrayToShuffle.Num(); ++i)
+		{
+			ArrayToShuffle[i] = CopyShuffleArray[j];
+			j++;
+		}
+	}
 	
 }
 
-void TurnManager::SortCharactersBySpeed()
+void TurnManager::UpdateOnDeath(AGGCharacter* DeadChar)
 {
-	Algo::Sort(CharactersList, [](const AGGCharacter* LHS, const AGGCharacter* RHS)
+	if(TurnInfoWidget)
 	{
-		return LHS->GetSpeed() > RHS-> GetSpeed();
-	});
+		TurnInfoWidget->RemoveDeadCharacter(DeadChar);
+	}
 }
+
+void TurnManager::UpdateWidgetOrder(bool SortCharList)
+{
+	if(TurnInfoWidget)
+	{
+		if(SortCharList)
+		{
+			SortCharactersBySpeed(CharactersList, CurrentCharacterIndex + 1);
+		}
+		TurnInfoWidget->SetCharactersList(CharactersList);
+		TurnInfoWidget->UpdateOrder();
+	}
+}
+
+void TurnManager::StartTurnWidget()
+{
+	if(TurnInfoWidget && CharactersList.Num() > 0)
+	{
+		TurnInfoWidget->Start(CharactersList);
+	}
+}
+
+

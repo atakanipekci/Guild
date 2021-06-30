@@ -124,6 +124,7 @@ void AGGCharacter::SetStats(const FCharacterStats& Stats)
 		StatsComponent->SetStats(Stats);
 		StatsComponent->SetCurrentAP(Stats.BaseAP);
 
+
 		UpdateHealthBar(StatsComponent->GetCurrentHealth());
 		UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 		for (auto Element : StatsComponent->GetSkillIDs())
@@ -174,16 +175,19 @@ void AGGCharacter::MoveTo(FVector TargetPos)
 
 void AGGCharacter::UpdateMovableGrids()
 {
+	if(IsStunned()) return;
 	CharacterManager::SetMovableGrids(this);
 }
 
 void AGGCharacter::UpdateTargetableGrids(const FSkillData* SkillData)
 {
+	if(IsStunned()) return;
 	CharacterManager::SetTargetableGrids(this, SkillData);
 }
 
 void AGGCharacter::UpdateDamageableGrids(const CharacterSkill* Skill, int CenterIndex)
 {
+	if(IsStunned()) return;
 	CharacterManager::SetDamageableGrids(this, Skill, CenterIndex);
 }
 
@@ -204,6 +208,8 @@ void AGGCharacter::AttackTo(AGGCharacter* Target)
 
 void AGGCharacter::SetSelected()
 {
+	if(IsStunned()) return;
+	
 	GridManager* GridMan = CharacterManager::CharGridManager;
 	if(GridMan && GridMan->GetAttachedFloor())
 	{
@@ -217,8 +223,7 @@ void AGGCharacter::SetSelected()
 		}
 		CharacterManager::SetCharacterGrids(this, EGridState::Empty);
 		UpdateMovableGrids();
-		GridMan->GetAttachedFloor()->UpdateGridMeshes(MovableGrids);
-
+		//GridMan->GetAttachedFloor()->UpdateGridMeshes(MovableGrids);
 	}
 }
 
@@ -329,10 +334,7 @@ void AGGCharacter::SetCurrentAP(int NewAP) const
 	if(StatsComponent)
 	{
 		StatsComponent->SetCurrentAP(NewAP);
-		if(RefreshHudOnApChangeDelegate.IsBound())
-		{
-			RefreshHudOnApChangeDelegate.Execute();
-		}
+		CallRefreshHudDelegate();
 	}
 }
 
@@ -354,6 +356,20 @@ int AGGCharacter::GetApCostByDistance(float Distance)
 ECharacterStatus AGGCharacter::GetStatus() const
 {
 	return Status;
+}
+
+ECharacterClassType AGGCharacter::GetCharacterClass() const
+{
+	if(StatsComponent == nullptr) return ECharacterClassType::Knight;
+	
+	return StatsComponent->GetCharacterClass();
+}
+
+FString AGGCharacter::GetCharacterClassName() const
+{
+	if(StatsComponent == nullptr) return "";
+	
+	return StatsComponent->GetCharacterClassName();
 }
 
 void AGGCharacter::SetStatus(ECharacterStatus NewStatus)
@@ -430,8 +446,26 @@ float AGGCharacter::Heal(float HealAmount, AGGCharacter* Healer)
 	return HealAmount;
 }
 
+void AGGCharacter::ShowMovableGrids(bool Show)
+{
+	if(IsStunned()) return;
+	
+	UpdateMovableGrids();
+
+	GridManager* GridMan = CharacterManager::CharGridManager;
+	if(GridMan && GridMan->GetAttachedFloor())
+	{
+		GridMan->GetAttachedFloor()->ClearGridMesh(EISMType::Movement);
+
+		if(Show)
+			GridMan->GetAttachedFloor()->UpdateGridMeshes(MovableGrids);
+	}
+}
+
 void AGGCharacter::ShowTargetableGrids()
 {
+	if(IsStunned()) return;
+	
 	UpdateTargetableGrids(&Skills[CurrentSkillIndex]->GetSkillData());
 	GridManager* GridMan = CharacterManager::CharGridManager;
 	if(GridMan && GridMan->GetAttachedFloor())
@@ -443,6 +477,8 @@ void AGGCharacter::ShowTargetableGrids()
 
 void AGGCharacter::ShowDamageableGrids(int CenterIndex, bool CreateNew)
 {
+	if(IsStunned()) return;
+	
 	int Count = DamageableGrids.Num();
 	UpdateDamageableGrids(Skills[CurrentSkillIndex], CenterIndex);
 	int NewCount = DamageableGrids.Num();
@@ -490,6 +526,7 @@ void AGGCharacter::SetCustomDepth(bool Active, int StencilValue)
 void AGGCharacter::CastSkill(TArray<AGGCharacter*>& TargetCharacters)
 {
 	if(StatsComponent == nullptr) return;
+	if(IsStunned()) return;
 
 	CharacterSkill* CurrentSkill = GetCurrentSkill();
 
@@ -601,6 +638,12 @@ void AGGCharacter::OnDeath()
 
 	SetStatus(ECharacterStatus::Dead);
 	PlayCharacterMontage(CharFile.GetRandomDeathMontage());
+
+	AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	if(BattleGameMode)
+	{
+		BattleGameMode->BattleTurnManager.UpdateOnDeath(this);
+	}
 }
 
 void AGGCharacter::OnCastingSkillEnds()
@@ -622,6 +665,7 @@ void AGGCharacter::OnCastingSkillEnds()
 	{
 		SetStatus(ECharacterStatus::Idle);
 		PlayerController->ChangeStateTo(EControllerStateIndex::Movement);
+		ShowMovableGrids(true);
 	}
 
 	AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -745,7 +789,7 @@ void AGGCharacter::PrepareAnimInstance()
 			if(AnimInstance)
 			{
 				AnimInstance->SetOwnerCharacter(this);
-				AnimInstance->ClassType = CharFile.CharacterType;
+				AnimInstance->ClassType = GetCharacterClass();
 			}
 			
 			// for (int i = 0; i < Weapons.Num(); ++i)
@@ -794,14 +838,13 @@ bool AGGCharacter::IsApEnoughForSkill(CharacterSkill* Skill, int& OutCost)
 {
 	if(Skill == nullptr || StatsComponent == nullptr) return  false;
 
-	CharacterSkill* CurrentSkill = GetCurrentSkill();
-
 	FSkillData* SkillData =  &(Skill->GetSkillData());
 
 	if(SkillData == nullptr) return false;
 
 	if(StatsComponent->GetCurrentAP() < SkillData->ApCost)
 	{
+		OutCost = SkillData->ApCost;
 		return  false;
 	}
 	else
@@ -876,6 +919,7 @@ bool AGGCharacter::SetCurrentSkillIfContains(int SkillId)
 				{
 					OnSkillChangeDelegate.Execute();
 				}
+				CallRefreshHudDelegate();
 				return true;
 			}
 		}
@@ -947,41 +991,72 @@ void AGGCharacter::OnRoundEnds()
 
 void AGGCharacter::OnTurnBegins()
 {
+	bIsTurnStarted = true;
 	StatusEffectManager::ApplyOnTurnBegins(this, &AppliedStatusEffects);
 	UE_LOG(LogTemp, Warning, TEXT("STATUS EFFECTS %d"), AppliedStatusEffects.Num());
-	
 	UpdateHealthBarStatusEffects();
 
-	if(StatsComponent)
+	if(IsStunned() == false)
 	{
-		SetCurrentAP(StatsComponent->GetBaseAP());
+		if(StatsComponent)
+		{
+			SetCurrentAP(StatsComponent->GetBaseAP());
+		}
+		ShowMovableGrids(true);
 	}
-
-	UpdateMovableGrids();
-	GridManager* GridMan = CharacterManager::CharGridManager;
-	if(GridMan && GridMan->GetAttachedFloor())
+	else
 	{
-		GridMan->GetAttachedFloor()->UpdateGridMeshes(MovableGrids);
+		if(StatsComponent)
+		{
+			SetCurrentAP(0);
+		}
+		
+		ShowMovableGrids(false);
 	}
 	
 }
 
 void AGGCharacter::OnTurnEnds()
 {
-	//StatusEffectManager::ApplyOnTurnEnds(this, &AppliedStatusEffects);
+	// UE_LOG(LogTemp, Warning, TEXT("OnTurnEnds Type = %d"), GetCharacterClass());
+	bIsTurnStarted = false;
+	StatusEffectManager::ApplyOnTurnEnds(this, &AppliedStatusEffects);
+	GridManager* GridMan = CharacterManager::CharGridManager;
+	if(GridMan && GridMan->GetAttachedFloor())
+	{
+		GridMan->GetAttachedFloor()->ClearGridMeshes();
+	}
+	UpdateHealthBarStatusEffects();
 }
 
 bool AGGCharacter::IsStunned()
 {
-	for (int i = 0; i < AppliedStatusEffects.Num(); ++i)
-	{
-		if(AppliedStatusEffects[i].Type == EStatusEffectType::Stun)
-		{
-			return  true;
-		}
-	}
+	return  bIsStunned;
+}
 
-	return  false;
+void AGGCharacter::SetStunned(bool IsStunned)
+{
+	bIsStunned = IsStunned;
+}
+
+bool AGGCharacter::IsTurnStarted()
+{
+	return bIsTurnStarted;
+}
+
+float AGGCharacter::GetAppliedSpeed()
+{
+	return AppliedSpeedAmount;
+}
+
+void AGGCharacter::AddAppliedSpeed(int SpeedToAdd)
+{
+	if(StatsComponent == nullptr)return;
+	
+	AppliedSpeedAmount += SpeedToAdd;
+	StatsComponent->SetSpeed(StatsComponent->GetSpeed() + SpeedToAdd);
+	UE_LOG(LogTemp, Warning, TEXT("NEW APPLIED SPEED %d"), AppliedSpeedAmount);
+	UE_LOG(LogTemp, Warning, TEXT("NEW Speed  %d"), StatsComponent->GetSpeed());
 }
 
 void AGGCharacter::BeginDamagePreview(float DamageToPreview)
@@ -990,8 +1065,6 @@ void AGGCharacter::BeginDamagePreview(float DamageToPreview)
 	bIsInDamagePreviewMode = true;
 
 	HealthBarWidget->SetDamagePreviewBar(DamageToPreview, StatsComponent->GetMaxHealth());
-
-	
 }
 
 void AGGCharacter::StopDamagePreview()

@@ -7,6 +7,7 @@
 #include "EffectFactory.h"
 #include "GGLogHelper.h"
 #include "GuildGameInstance.h"
+#include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Managers/StatusEffectManager.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -111,6 +112,12 @@ void CharacterSkill::ApplyStatus(AGGCharacter* Caster, TArray<AGGCharacter*>& Ta
 		{
 			StatusEffectManager::AddStatusEffect(TargetCharacters[i], Caster, &SkillData.StatusEffects);
 		}
+	}
+
+	AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(Caster));
+	if(BattleGameMode)
+	{
+		BattleGameMode->BattleTurnManager.UpdateWidgetOrder(true);
 	}
 	
 }

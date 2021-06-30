@@ -143,7 +143,7 @@ class GUILDGAME_API ATimedEventManager : public AActor
 {
 	GENERATED_BODY()
 	
-	static void CreateTimedEvent(UWorld* World);
+	static void CreateManagerInstance(UWorld* World);
 public:	
 	// Sets default values for this actor's properties
 	ATimedEventManager();
@@ -155,7 +155,7 @@ protected:
 
 public:
 	
-	static ATimedEventManager* ManagerInstance;
+	static ATimedEventManager* Instance;
 	TArray<FTargetRotationData> RotationData;
 	TArray<FTargetLocationData> LocationData;
 	TArray<FProgressBarData> ProgressBarData;

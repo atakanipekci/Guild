@@ -1,22 +1,56 @@
 ﻿#include "CharacterGenerationManager.h"
 
+#include "GuildGameInstance.h"
 #include "WidgetManager.h"
+#include "GuildGame/Characters/CharacterStats.h"
 #include "GuildGame/Town/Navigation/TownNpcCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
-UDataTable* CharacterGenerationManager::CharactersDataTable = nullptr;
-TArray<FName> CharacterGenerationManager::OrderedRowNames;
+ACharacterGenerationManager* ACharacterGenerationManager::Instance = nullptr;
 
-FCharacterStats* CharacterGenerationManager::CreateRandomCharacter()
+void ACharacterGenerationManager::BeginDestroy()
 {
-	const FString Context(TEXT("CONTEXT DATATABLE TEXT"));
-	const FString CharacterType = OrderedRowNames[ FMath::RandRange(0, OrderedRowNames.Num() - 1)].ToString();
+	Super::BeginDestroy();
 
-	const FName Row = *(CharacterType);
+	Instance = nullptr;
+}
 
-	if(CharactersDataTable)
+void ACharacterGenerationManager::CreateManagerInstance(UWorld* World)
+{
+	if(World == nullptr) return;
+    
+	if(Instance == nullptr)
 	{
-		FCharacterStats* CharacterData = CharactersDataTable->FindRow<FCharacterStats>(Row, Context, true);
-		int UniqueID = WidgetManager::IncrementSpawnedDraggableCount();
+		Instance = World->SpawnActor<ACharacterGenerationManager>();
+
+	    UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(World));
+	    if(GameInstance && Instance && GameInstance->CharacterStatsTable)
+	    {
+	        Instance->CharactersDataTable = GameInstance->CharacterStatsTable;
+	    	Instance->CharactersDataTable->GetRowMap().GenerateKeyArray(Instance->OrderedRowNames);
+	    }
+	}
+}
+
+FCharacterStats* ACharacterGenerationManager::CreateRandomCharacter(UWorld* World)
+{
+	if(World == nullptr) return nullptr;
+    
+    if(Instance == nullptr)
+    {
+        CreateManagerInstance(World);
+    }
+	
+    if(Instance  &&  Instance->CharactersDataTable)
+    {
+		const FString Context(TEXT("CONTEXT DATATABLE TEXT"));
+		const FString CharacterType = Instance->OrderedRowNames[ FMath::RandRange(0, Instance->OrderedRowNames.Num() - 1)].ToString();
+
+		const FName Row = *(CharacterType);
+
+	
+		FCharacterStats* CharacterData = Instance->CharactersDataTable->FindRow<FCharacterStats>(Row, Context, true);
+		int UniqueID = AWidgetManager::IncrementSpawnedDraggableCount();
 		FCharacterStats* CopyStruct = new FCharacterStats(*CharacterData);
 		// CopyStruct->Price = 50;
 		CopyStruct->MaxHealth += CopyStruct->MaxHealth * FMath::RandRange(0.0f, 0.20f);
@@ -29,17 +63,6 @@ FCharacterStats* CharacterGenerationManager::CreateRandomCharacter()
 
 		return  CopyStruct;
 	}
-	else
-	{
-		return  nullptr;
-	}
-}
-
-void CharacterGenerationManager::SetCharactersTable(UDataTable* Table)
-{
-	 if(Table != nullptr)
-    {
-        CharactersDataTable = Table;
-        CharactersDataTable->GetRowMap().GenerateKeyArray(OrderedRowNames);
-    }
+	
+	return  nullptr;
 }

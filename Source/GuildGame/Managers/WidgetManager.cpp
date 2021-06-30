@@ -3,39 +3,52 @@
 #include "CharacterManager.h"
 #include "Blueprint/UserWidget.h"
 
-UDataTable* WidgetManager::WidgetsDataTable = nullptr;
-UDataTable* WidgetManager::SequenceDataTable = nullptr;
+int AWidgetManager::SpawnedDraggableWidgetCount = 0;
 
-int WidgetManager::SpawnedDraggableWidgetCount = 0;
+AWidgetManager* AWidgetManager::Instance = nullptr;
 
-TMap<EWidgetKeys, UUserWidget* > WidgetManager::WidgetInstanceMap;
-
-void WidgetManager::SetWidgetTable(UDataTable* Table)
+void AWidgetManager::BeginDestroy()
 {
-    if(Table != nullptr)
-    {
-        WidgetsDataTable = Table;
-    }
-
-    WidgetInstanceMap.Empty();
+    Super::BeginDestroy();
+    Instance = nullptr;
 }
 
-void WidgetManager::SetSequenceTable(UDataTable* Table)
+void AWidgetManager::CreateManagerInstance(UWorld* World)
 {
-    if(Table != nullptr)
-    {
-        SequenceDataTable = Table;
-    }
+    if(World == nullptr) return;
+    
+	if(Instance == nullptr)
+	{
+		Instance = World->SpawnActor<AWidgetManager>();
+
+	    UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(World));
+	    if(GameInstance && Instance)
+	    {
+	        Instance->WidgetsDataTable = GameInstance->WidgetsTable;
+	        Instance->SequenceDataTable = GameInstance->SequenceTable;
+	    }
+	    // for (auto It = Instance->WidgetInstanceMap.CreateIterator(); It; ++It)
+     //    {
+     //        It->Value.SetWorld(World);
+     //    }
+	}
+
 }
 
-TSubclassOf<UUserWidget> WidgetManager::GetWidget(const EWidgetKeys Key)
+TSubclassOf<UUserWidget> AWidgetManager::GetWidget(const EWidgetKeys Key, UWorld* World)
 {
-     if(WidgetsDataTable)
+    if(World == nullptr) return nullptr;
+    
+    if(Instance == nullptr)
+    {
+        CreateManagerInstance(World);
+    }
+     if(Instance  &&  Instance->WidgetsDataTable)
     {
         const FString Context(TEXT("Widget Row Missing"));
         const FName Row = *(GetWidgetRowName(Key));
 
-        FWidgetsDataTable* WidgetData = WidgetsDataTable->FindRow<FWidgetsDataTable>(Row, Context, true);
+        FWidgetsDataTable* WidgetData = Instance->WidgetsDataTable->FindRow<FWidgetsDataTable>(Row, Context, true);
 
         if(WidgetData)
         {
@@ -46,7 +59,7 @@ TSubclassOf<UUserWidget> WidgetManager::GetWidget(const EWidgetKeys Key)
     return nullptr;
 }
 
-FString WidgetManager::GetWidgetRowName(const EWidgetKeys Key)
+FString AWidgetManager::GetWidgetRowName(const EWidgetKeys Key)
 {
     if(Key == EWidgetKeys::YesOrNo)
     {
@@ -134,62 +147,91 @@ FString WidgetManager::GetWidgetRowName(const EWidgetKeys Key)
 
 
 
-void WidgetManager::SetWidgetInstance(const EWidgetKeys Key, UUserWidget* Widget)
+void AWidgetManager::SetWidgetInstance(const EWidgetKeys Key, UUserWidget* Widget, UWorld* World)
 {
     /*if(WidgetInstanceMap.Contains(Key))
     {
         WidgetInstanceMap.Remove(Key);
     }*/
-    WidgetInstanceMap.Add(Key, Widget);
+
+    if(World == nullptr) return;
+    
+    if(Instance == nullptr)
+    {
+        CreateManagerInstance(World);
+    }
+
+    if(Instance)
+    {
+        Instance->WidgetInstanceMap.Add(Key, Widget);
+    }
 }
 
-UUserWidget* WidgetManager::GetWidgetInstance(const EWidgetKeys Key)
+UUserWidget* AWidgetManager::GetWidgetInstance(const EWidgetKeys Key, UWorld* World)
 {
-    UUserWidget** Widget = WidgetInstanceMap.Find(Key);
-    if(Widget)
+    if(World == nullptr) return nullptr;
+    
+    if(Instance == nullptr)
     {
-        return  *Widget;
+        CreateManagerInstance(World);
+    }
+    if (Instance)
+    {
+        UUserWidget** Widget = Instance->WidgetInstanceMap.Find(Key);
+        if(Widget)
+        {
+            return  *Widget;
+        }
     }
     return  nullptr;
 }
 
-UUserWidget* WidgetManager::GetOrCreateWidgetInstance(const EWidgetKeys Key, UObject* Owner)
+UUserWidget* AWidgetManager::GetOrCreateWidgetInstance(const EWidgetKeys Key, UWorld* World)
 {
-     UUserWidget* NewWidget = GetWidgetInstance(Key);
-     if(NewWidget == nullptr)
-     {
-         NewWidget = CreateWidgetInstance(Key, Owner);
-         SetWidgetInstance(Key, NewWidget);
-     }
+    if(World == nullptr) return nullptr;
+    
+    if(Instance == nullptr)
+    {
+        CreateManagerInstance(World);
+    }
+    
+    UUserWidget* NewWidget = GetWidgetInstance(Key, World);
+    if(NewWidget == nullptr)
+    {
+        NewWidget = CreateWidgetInstance(Key, World);
+        SetWidgetInstance(Key, NewWidget, World);
+    }
     return  NewWidget;
 }
 
-UUserWidget* WidgetManager::CreateWidgetInstance(const EWidgetKeys Key, UObject* Owner)
+UUserWidget* AWidgetManager::CreateWidgetInstance(const EWidgetKeys Key, UWorld* World)
 {
-     return CreateWidget<UUserWidget>(Owner->GetWorld(), GetWidget(Key));
+    if(World == nullptr) return nullptr;
+    
+     return CreateWidget<UUserWidget>(World, GetWidget(Key, World));
 }
 
-UUserWidget* WidgetManager::GetSkillsWidgetByType(ECharacterClassType ClassType, UObject* Owner)
+UUserWidget* AWidgetManager::GetSkillsWidgetByType(ECharacterClassType ClassType, UWorld* World)
 {
+    if(World == nullptr) return nullptr;
+    
     if(ClassType == ECharacterClassType::Knight)
     {
-        return GetOrCreateWidgetInstance(EWidgetKeys::KnightSkills, Owner);
+        return GetOrCreateWidgetInstance(EWidgetKeys::KnightSkills, World);
     }
-    else if(ClassType == ECharacterClassType::Mage)
+    if(ClassType == ECharacterClassType::Mage)
     {
-        return GetOrCreateWidgetInstance(EWidgetKeys::MageSkills, Owner);
+        return GetOrCreateWidgetInstance(EWidgetKeys::MageSkills, World);
     }
-    else if(ClassType == ECharacterClassType::Archer)
+    if(ClassType == ECharacterClassType::Archer)
     {
-        return GetOrCreateWidgetInstance(EWidgetKeys::ArcherSkills, Owner);
+        return GetOrCreateWidgetInstance(EWidgetKeys::ArcherSkills, World);
     }
-    else
-    {
-        return  nullptr;
-    }
+    
+    return  nullptr;
 }
 
-FString WidgetManager::GetSequenceRowName(const ESequenceKeys Key)
+FString AWidgetManager::GetSequenceRowName(const ESequenceKeys Key)
 {
     if(Key == ESequenceKeys::TavernMenu)
     {
@@ -203,13 +245,20 @@ FString WidgetManager::GetSequenceRowName(const ESequenceKeys Key)
     return FString(TEXT("EMPTY"));
 }
 
-ULevelSequence* WidgetManager::GetSequence(const ESequenceKeys Key)
+ULevelSequence* AWidgetManager::GetSequence(const ESequenceKeys Key, UWorld* World)
 {
-     if(SequenceDataTable)
+    if(World == nullptr) return nullptr;
+
+     if(Instance == nullptr)
+     {
+         CreateManagerInstance(World);
+     }
+    
+     if(Instance && Instance->SequenceDataTable)
     {
         const FString Context(TEXT("Sequence Row Missing"));
         const FName Row = *(GetSequenceRowName(Key));
-        FSequenceDataTable* WidgetData = SequenceDataTable->FindRow<FSequenceDataTable>(Row, Context, true);
+        FSequenceDataTable* WidgetData = Instance->SequenceDataTable->FindRow<FSequenceDataTable>(Row, Context, true);
 
         if(WidgetData)
         {
@@ -220,12 +269,7 @@ ULevelSequence* WidgetManager::GetSequence(const ESequenceKeys Key)
     return nullptr;
 }
 
-void WidgetManager::ResetWidgetInstances()
-{
-    WidgetInstanceMap.Empty();
-}
-
-int WidgetManager::IncrementSpawnedDraggableCount()
+int AWidgetManager::IncrementSpawnedDraggableCount()
 {
     return SpawnedDraggableWidgetCount++;
 }

@@ -26,7 +26,7 @@ void UCharacterSkillsWidget::NativeConstruct()
 		AcquireSkillButton->SetVisibility(ESlateVisibility::Hidden);
 	}
 
-	Tooltip = CreateWidget<UCharacterSkillTooltipWidget>(GetWorld(), WidgetManager::GetWidget(EWidgetKeys::CharacterSkillTooltip));
+	Tooltip = CreateWidget<UCharacterSkillTooltipWidget>(GetWorld(), AWidgetManager::GetWidget(EWidgetKeys::CharacterSkillTooltip, GetWorld()));
 	//RefreshSkillsArray();
 
 }

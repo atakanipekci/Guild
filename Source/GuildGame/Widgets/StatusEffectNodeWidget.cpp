@@ -28,7 +28,7 @@ void UStatusEffectNodeWidget::NativeOnMouseEnter(const FGeometry& InGeometry, co
 		{
 			if(StatusEffectData[i] != nullptr && TooltipPool && TooltipPool->IsInitialized())
 			{
-				UStatusEffectTooltipWidget* CreatedTooltipChild = Cast<UStatusEffectTooltipWidget>(TooltipPool->GetOrCreateInstance(WidgetManager::GetWidget(EWidgetKeys::StatusEffectTooltip)));
+				UStatusEffectTooltipWidget* CreatedTooltipChild = Cast<UStatusEffectTooltipWidget>(TooltipPool->GetOrCreateInstance(AWidgetManager::GetWidget(EWidgetKeys::StatusEffectTooltip, GetWorld())));
 				if(CreatedTooltipChild)
 				{
 					CreatedTooltipChild->Refresh(*StatusFile, *StatusEffectData[i]);

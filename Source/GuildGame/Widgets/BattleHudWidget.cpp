@@ -21,7 +21,7 @@
 void UBattleHudWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	Tooltip = CreateWidget<UCharacterSkillTooltipWidget>(GetWorld(), WidgetManager::GetWidget(EWidgetKeys::CharacterSkillTooltip));
+	Tooltip = CreateWidget<UCharacterSkillTooltipWidget>(GetWorld(), AWidgetManager::GetWidget(EWidgetKeys::CharacterSkillTooltip, GetWorld()));
 
 	if(FinishTurnButton)
 	{

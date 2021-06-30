@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 
+#include "Blueprint/UserWidgetPool.h"
 #include "Engine/DataTable.h"
 #include "WidgetManager.generated.h"
 
@@ -65,34 +66,38 @@ struct FSequenceDataTable : public FTableRowBase
 	class ULevelSequence* SequenceAsset;
 };
 
-class GUILDGAME_API WidgetManager
+UCLASS()
+class GUILDGAME_API AWidgetManager : public AActor
 {
+	GENERATED_BODY()
+	
 	public:
 
-		static void SetWidgetTable(UDataTable* Table);
-		static TSubclassOf<UUserWidget> GetWidget(const EWidgetKeys Key);
-		static FString GetWidgetRowName(const EWidgetKeys Key);
-		static void SetWidgetInstance(const EWidgetKeys Key, UUserWidget* Widget);
-		static UUserWidget* GetWidgetInstance(const EWidgetKeys Key);
-		static UUserWidget* GetOrCreateWidgetInstance(const EWidgetKeys Key, UObject* Owner);
-		static UUserWidget* CreateWidgetInstance(const EWidgetKeys Key, UObject* Owner);
-		static UUserWidget* GetSkillsWidgetByType(ECharacterClassType ClassType, UObject* Owner);
+		virtual void BeginDestroy() override;
 	
-		static void SetSequenceTable(UDataTable* Table);
+		static AWidgetManager* Instance;
+		UPROPERTY()
+		UDataTable* WidgetsDataTable;
+		UPROPERTY()
+		UDataTable* SequenceDataTable;
+
+		UPROPERTY()
+		TMap<EWidgetKeys, UUserWidget* > WidgetInstanceMap;
+
+		static void CreateManagerInstance(UWorld* World);
+	
+		static TSubclassOf<UUserWidget> GetWidget(const EWidgetKeys Key, UWorld* World);
+		static FString GetWidgetRowName(const EWidgetKeys Key);
+		static void SetWidgetInstance(const EWidgetKeys Key, UUserWidget* Widget, UWorld* World);
+		static UUserWidget* GetWidgetInstance(const EWidgetKeys Key, UWorld* World);
+		static UUserWidget* GetOrCreateWidgetInstance(const EWidgetKeys Key, UWorld* World);
+		static UUserWidget* CreateWidgetInstance(const EWidgetKeys Key, UWorld* World);
+		static UUserWidget* GetSkillsWidgetByType(ECharacterClassType ClassType, UWorld* World);
+	
 		static FString GetSequenceRowName(ESequenceKeys Key);
-		static ULevelSequence* GetSequence(ESequenceKeys Key);
-		static void ResetWidgetInstances();
+		static ULevelSequence* GetSequence(ESequenceKeys Key, UWorld* World);
 		
 		static int IncrementSpawnedDraggableCount();
-
-		
-		static UDataTable* WidgetsDataTable;
-		static UDataTable* SequenceDataTable;
-		static TMap<EWidgetKeys, UUserWidget* > WidgetInstanceMap;
-
-
 		static int SpawnedDraggableWidgetCount;
-	
-
 
 }; 

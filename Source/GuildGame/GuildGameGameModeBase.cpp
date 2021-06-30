@@ -99,7 +99,7 @@ void AGuildGameGameModeBase::BeginPlay()
 	BattleTurnManager.SetGameMode(this);
 	//BattleTurnManager.Start();
 
-	HudWidgetInstance = Cast<UBattleHudWidget>(WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::BattleHud, this));
+	HudWidgetInstance = Cast<UBattleHudWidget>(AWidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::BattleHud, GetWorld()));
     if(HudWidgetInstance)
     {
 		BattleTurnManager.SetTurnWidget(HudWidgetInstance->GetTurnInfoWidget());

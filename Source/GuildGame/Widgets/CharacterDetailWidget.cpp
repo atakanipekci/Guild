@@ -4,7 +4,6 @@
 #include "CharacterDetailWidget.h"
 
 #include "CharacterSkillsWidget.h"
-#include "Components/Button.h"
 #include "Components/ScaleBox.h"
 #include "Components/TextBlock.h"
 #include "GuildGame/Managers/ImageManager.h"
@@ -64,7 +63,7 @@ void UCharacterDetailWidget::OpenSkillsWidget()
 {
     if(CharacterStat == nullptr) return;
     
-     UUserWidget* SkillsPage = WidgetManager::GetSkillsWidgetByType(CharacterStat->ClassType, this);
+     UUserWidget* SkillsPage = AWidgetManager::GetSkillsWidgetByType(CharacterStat->ClassType, GetWorld());
      if(SkillsPage)
      {
          SkillsPage->SetVisibility(ESlateVisibility::Visible);

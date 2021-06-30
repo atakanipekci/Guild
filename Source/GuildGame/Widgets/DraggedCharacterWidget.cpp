@@ -202,7 +202,7 @@ FReply UDraggedCharacterWidget::NativeOnMouseButtonDown(const FGeometry& InGeome
     Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
     if(InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
 	{
-        UUserWidget* NewWidget = WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::CharacterDetail, this);
+        UUserWidget* NewWidget = AWidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::CharacterDetail, GetWorld());
         if(NewWidget)
         {
             //NewWidget->RemoveFromViewport();

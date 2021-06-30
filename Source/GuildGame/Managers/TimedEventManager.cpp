@@ -7,7 +7,7 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 
-ATimedEventManager* ATimedEventManager::ManagerInstance = nullptr;
+ATimedEventManager* ATimedEventManager::Instance = nullptr;
 
 // Sets default values
 ATimedEventManager::ATimedEventManager()
@@ -26,7 +26,7 @@ void ATimedEventManager::BeginPlay()
 void ATimedEventManager::BeginDestroy()
 {
 	Super::BeginDestroy();
-	ManagerInstance = nullptr;
+	Instance = nullptr;
 }
 
 // Called every frame
@@ -131,11 +131,13 @@ void ATimedEventManager::Tick(float DeltaTime)
 	
 }
 
-void ATimedEventManager::CreateTimedEvent(UWorld* World)
+void ATimedEventManager::CreateManagerInstance(UWorld* World)
 {
-	if(ManagerInstance == nullptr)
+	if(World == nullptr) return;
+	
+	if(Instance == nullptr)
 	{
-		ManagerInstance = World->SpawnActor<ATimedEventManager>();
+		Instance = World->SpawnActor<ATimedEventManager>();
 	}
 }
 
@@ -143,17 +145,17 @@ void ATimedEventManager::Rotate(AActor* ActorToRotate, FRotator TargetRotation, 
 {
 	if(ActorToRotate == nullptr || World == nullptr) return;
 	
-	CreateTimedEvent(World);
+	CreateManagerInstance(World);
 
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 	
-	for (int i = 0; i < ManagerInstance->RotationData.Num(); ++i)
+	for (int i = 0; i < Instance->RotationData.Num(); ++i)
 	{
-		if(ManagerInstance->RotationData[i].OwnerActor)
+		if(Instance->RotationData[i].OwnerActor)
 		{
-			if(ManagerInstance->RotationData[i].OwnerActor == ActorToRotate)
+			if(Instance->RotationData[i].OwnerActor == ActorToRotate)
 			{
-				ManagerInstance->RotationData.RemoveAt(i);
+				Instance->RotationData.RemoveAt(i);
 				break;
 			}
 		}
@@ -166,16 +168,16 @@ void ATimedEventManager::Rotate(AActor* ActorToRotate, FRotator TargetRotation, 
 	NewData.Duration = Duration;
 	NewData.Timer = 0;
 	
-	ManagerInstance->RotationData.Add(NewData);
+	Instance->RotationData.Add(NewData);
 }
 
 void ATimedEventManager::Move(AActor* ActorToMove, FVector TargetLocation, float Duration, float Delay, FConditionEvent& ConditionDelegate, TArray<FTimedEvent>& OnComplete, FTimedEvent& OnDelayedCompleteDelegate, UWorld* World)
 {
 	if(ActorToMove == nullptr || World == nullptr) return;
 	
-	CreateTimedEvent(World);
+	CreateManagerInstance(World);
 
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 	
 	RemoveLocationTimer(ActorToMove);
 
@@ -196,16 +198,16 @@ void ATimedEventManager::Move(AActor* ActorToMove, FVector TargetLocation, float
 	NewData.Delay = Delay;
 	NewData.Timer = 0;
 	
-	ManagerInstance->LocationData.Add(NewData);
+	Instance->LocationData.Add(NewData);
 }
 
 void ATimedEventManager::MoveToActorAndFollow(AActor* ActorToMove, AActor* ActorToFollow, float Duration, float OverridenLocationZ, FConditionEvent& ConditionDelegate, UWorld* World)
 {
 	if(ActorToMove == nullptr || ActorToFollow == nullptr || World == nullptr) return;
 	
-	CreateTimedEvent(World);
+	CreateManagerInstance(World);
 
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 	
 	RemoveLocationTimer(ActorToMove);
 
@@ -222,19 +224,19 @@ void ATimedEventManager::MoveToActorAndFollow(AActor* ActorToMove, AActor* Actor
 	NewData.Duration = Duration;
 	NewData.Timer = 0;
 	
-	ManagerInstance->LocationData.Add(NewData);
+	Instance->LocationData.Add(NewData);
 }
 
 void ATimedEventManager::RemoveLocationTimer(AActor* ActorToMove)
 {
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 	
-	for (int i = 0; i < ManagerInstance->LocationData.Num(); ++i)
+	for (int i = 0; i < Instance->LocationData.Num(); ++i)
 	{
-		if(ManagerInstance->LocationData[i].OwnerActor == ActorToMove)
+		if(Instance->LocationData[i].OwnerActor == ActorToMove)
 		{
-			FTargetLocationData DataToRemove = ManagerInstance->LocationData[i];
-			ManagerInstance->LocationData.RemoveAt(i);
+			FTargetLocationData DataToRemove = Instance->LocationData[i];
+			Instance->LocationData.RemoveAt(i);
 
 			if(DataToRemove.bFollowMode == false)
 			{
@@ -256,9 +258,9 @@ void ATimedEventManager::CallEventWithDelay(AActor* EventActor, FString Key, FTi
 {
 	if(EventActor == nullptr || World == nullptr) return;
 	
-	CreateTimedEvent(World);
+	CreateManagerInstance(World);
 
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 
 	RemoveEventData(Key, true);
 	FTimerEventData EventData;
@@ -269,17 +271,17 @@ void ATimedEventManager::CallEventWithDelay(AActor* EventActor, FString Key, FTi
 	{
 		EventData.OnTimeEnds = EventToCall;
 	}
-	ManagerInstance->TimedEventMap.Add(Key, EventData);
+	Instance->TimedEventMap.Add(Key, EventData);
 }
 
 bool ATimedEventManager::RemoveEventData(FString Key, bool bCallEvent)
 {
-	if(ManagerInstance == nullptr) return false;
+	if(Instance == nullptr) return false;
 
-	if(ManagerInstance->TimedEventMap.Contains(Key))
+	if(Instance->TimedEventMap.Contains(Key))
 	{
 		FTimerEventData EventData;
-		ManagerInstance->TimedEventMap.RemoveAndCopyValue(Key, EventData);
+		Instance->TimedEventMap.RemoveAndCopyValue(Key, EventData);
 
 		if(bCallEvent && EventData.OwnerActor)
 		{
@@ -298,17 +300,17 @@ void ATimedEventManager::LerpProgressBar(UProgressBar* ProgressBar, float Durati
 {
 	if(ProgressBar == nullptr || World == nullptr) return;
 	
-	CreateTimedEvent(World);
+	CreateManagerInstance(World);
 
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 	
-	for (int i = 0; i < ManagerInstance->ProgressBarData.Num(); ++i)
+	for (int i = 0; i < Instance->ProgressBarData.Num(); ++i)
 	{
-		if(ManagerInstance->ProgressBarData[i].ProgressBar)
+		if(Instance->ProgressBarData[i].ProgressBar)
 		{
-			if(ManagerInstance->ProgressBarData[i].ProgressBar == ProgressBar)
+			if(Instance->ProgressBarData[i].ProgressBar == ProgressBar)
 			{
-				ManagerInstance->ProgressBarData.RemoveAt(i);
+				Instance->ProgressBarData.RemoveAt(i);
 				break;
 			}
 		}
@@ -321,7 +323,7 @@ void ATimedEventManager::LerpProgressBar(UProgressBar* ProgressBar, float Durati
 	NewData.Duration = Duration;
 	NewData.Timer = 0;
 	
-	ManagerInstance->ProgressBarData.Add(NewData);
+	Instance->ProgressBarData.Add(NewData);
 }
 
 void ATimedEventManager::LerpTextNumber(UTextBlock* TextBlock, FText FormatText, FString ArgumentKey, float Duration,
@@ -329,17 +331,17 @@ void ATimedEventManager::LerpTextNumber(UTextBlock* TextBlock, FText FormatText,
 {
 	if(TextBlock == nullptr || World == nullptr) return;
 	
-	CreateTimedEvent(World);
+	CreateManagerInstance(World);
 
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 	
-	for (int i = 0; i < ManagerInstance->TextData.Num(); ++i)
+	for (int i = 0; i < Instance->TextData.Num(); ++i)
 	{
-		if(ManagerInstance->TextData[i].TextBlock)
+		if(Instance->TextData[i].TextBlock)
 		{
-			if(ManagerInstance->TextData[i].TextBlock == TextBlock)
+			if(Instance->TextData[i].TextBlock == TextBlock)
 			{
-				ManagerInstance->TextData.RemoveAt(i);
+				Instance->TextData.RemoveAt(i);
 				break;
 			}
 		}
@@ -354,7 +356,7 @@ void ATimedEventManager::LerpTextNumber(UTextBlock* TextBlock, FText FormatText,
 	NewData.Duration = Duration;
 	NewData.Timer = 0;
 	
-	ManagerInstance->TextData.Add(NewData);
+	Instance->TextData.Add(NewData);
 }
 
 void ATimedEventManager::LerpWidgetOpacity(UWidget* Widget, float Duration, float StartValue, float EndValue,
@@ -362,9 +364,9 @@ void ATimedEventManager::LerpWidgetOpacity(UWidget* Widget, float Duration, floa
 {
 	if(Widget == nullptr || World == nullptr) return;
 	
-	CreateTimedEvent(World);
+	CreateManagerInstance(World);
 
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 	
 	RemoveWidgetOpacityTimer(Widget);
 
@@ -376,18 +378,18 @@ void ATimedEventManager::LerpWidgetOpacity(UWidget* Widget, float Duration, floa
 	NewData.IsLooped = IsLooped;
 	NewData.Timer = 0;
 	
-	ManagerInstance->WidgetOpacityData.Add(NewData);
+	Instance->WidgetOpacityData.Add(NewData);
 }
 
 void ATimedEventManager::RemoveWidgetOpacityTimer(UWidget* Widget)
 {
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 
-	for (int i = 0; i < ManagerInstance->WidgetOpacityData.Num(); ++i)
+	for (int i = 0; i < Instance->WidgetOpacityData.Num(); ++i)
 	{
-		if(ManagerInstance->WidgetOpacityData[i].Widget == Widget)
+		if(Instance->WidgetOpacityData[i].Widget == Widget)
 		{
-			ManagerInstance->WidgetOpacityData.RemoveAt(i);
+			Instance->WidgetOpacityData.RemoveAt(i);
 			return;
 		}
 	}
@@ -398,9 +400,9 @@ void ATimedEventManager::MoveWidget(UWidget* Widget, float Duration,FVector2D Of
 {
 	if(Widget == nullptr || World == nullptr) return;
 	
-	CreateTimedEvent(World);
+	CreateManagerInstance(World);
 
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 
 	FWidgetTransformData NewData;
 	NewData.Widget = Widget;
@@ -419,7 +421,7 @@ void ATimedEventManager::MoveWidget(UWidget* Widget, float Duration,FVector2D Of
 	if(PreviouslyAddedData == nullptr)
 	{
 		RemoveWidgetTransformTimer(Widget);
-		ManagerInstance->WidgetTransformData.Add(NewData);
+		Instance->WidgetTransformData.Add(NewData);
 	}
 	else
 	{
@@ -431,9 +433,9 @@ void ATimedEventManager::MoveWidgetAsync(UWidget* Widget, float Duration, FVecto
 {
 	if(Widget == nullptr || World == nullptr) return;
 	
-	CreateTimedEvent(World);
+	CreateManagerInstance(World);
 
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 
 	FWidgetTransformData NewData;
 	NewData.Widget = Widget;
@@ -459,7 +461,7 @@ void ATimedEventManager::MoveWidgetAsync(UWidget* Widget, float Duration, FVecto
 	}
 
 	// RemoveWidgetTransformTimer(Widget);
-	ManagerInstance->WidgetAsyncTransformData.Add(NewData);
+	Instance->WidgetAsyncTransformData.Add(NewData);
 }
 
 // void ATimedEventManager::MergeLerpWidgetTransform(UWidget* Widget, float Duration, FVector2D OffsetValue, UWorld* World)
@@ -496,7 +498,7 @@ void ATimedEventManager::MoveWidgetAsync(UWidget* Widget, float Duration, FVecto
 
 void ATimedEventManager::CloneWidgetMovement(UWidget* From, UWidget* To)
 {
-	if(From == nullptr || To == nullptr || ManagerInstance == nullptr) return;
+	if(From == nullptr || To == nullptr || Instance == nullptr) return;
 	if(FindWidgetTransformData(To) != nullptr) return;
 
 	FWidgetTransformData* WidgetDataToClone = FindWidgetTransformData(From);
@@ -515,13 +517,13 @@ void ATimedEventManager::CloneWidgetMovement(UWidget* From, UWidget* To)
 			NewData.Queue.Add(NewQueue);
 		}
 
-		ManagerInstance->WidgetTransformData.Add(NewData);
+		Instance->WidgetTransformData.Add(NewData);
 	}
 }
 
 void ATimedEventManager::CloneWidgetMovementAsync(UWidget* From, UWidget* To, FString Key)
 {
-	if(From == nullptr || To == nullptr || ManagerInstance == nullptr) return;
+	if(From == nullptr || To == nullptr || Instance == nullptr) return;
 
 	TArray<FWidgetTransformData*> WidgetData;
 	FindWidgetTransformAsyncData(From, Key, WidgetData);
@@ -534,20 +536,20 @@ void ATimedEventManager::CloneWidgetMovementAsync(UWidget* From, UWidget* To, FS
 		{
 			FWidgetTransformData NewQueue = *WidgetData[i];
 			NewQueue.Widget = To;
-			ManagerInstance->WidgetAsyncTransformData.Add(NewQueue);
+			Instance->WidgetAsyncTransformData.Add(NewQueue);
 		}
 	}
 }
 
 void ATimedEventManager::RemoveWidgetTransformTimer(UWidget* Widget)
 {
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 
-	for (int i = 0; i < ManagerInstance->WidgetTransformData.Num(); ++i)
+	for (int i = 0; i < Instance->WidgetTransformData.Num(); ++i)
 	{
-		if(ManagerInstance->WidgetTransformData[i].Widget == Widget)
+		if(Instance->WidgetTransformData[i].Widget == Widget)
 		{
-			ManagerInstance->WidgetTransformData.RemoveAt(i);
+			Instance->WidgetTransformData.RemoveAt(i);
 			return;
 		}
 	}
@@ -555,13 +557,13 @@ void ATimedEventManager::RemoveWidgetTransformTimer(UWidget* Widget)
 
 FWidgetTransformData* ATimedEventManager::FindWidgetTransformData(UWidget* Widget)
 {
-	if(ManagerInstance == nullptr) return nullptr;
+	if(Instance == nullptr) return nullptr;
 
-	for (int i = 0; i < ManagerInstance->WidgetTransformData.Num(); ++i)
+	for (int i = 0; i < Instance->WidgetTransformData.Num(); ++i)
 	{
-		if(ManagerInstance->WidgetTransformData[i].Widget == Widget)
+		if(Instance->WidgetTransformData[i].Widget == Widget)
 		{
-			return &ManagerInstance->WidgetTransformData[i];
+			return &Instance->WidgetTransformData[i];
 		}
 	}
 
@@ -570,26 +572,26 @@ FWidgetTransformData* ATimedEventManager::FindWidgetTransformData(UWidget* Widge
 
 void ATimedEventManager::FindWidgetTransformAsyncData(UWidget* Widget, FString Key, TArray<FWidgetTransformData*>& OutFoundWidgets)
 {
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 
-	for (int i = 0; i < ManagerInstance->WidgetAsyncTransformData.Num(); ++i)
+	for (int i = 0; i < Instance->WidgetAsyncTransformData.Num(); ++i)
 	{
-		if(ManagerInstance->WidgetAsyncTransformData[i].Widget == Widget && Key.Equals(ManagerInstance->WidgetAsyncTransformData[i].Key))
+		if(Instance->WidgetAsyncTransformData[i].Widget == Widget && Key.Equals(Instance->WidgetAsyncTransformData[i].Key))
 		{
-			OutFoundWidgets.Add(&ManagerInstance->WidgetAsyncTransformData[i]);
+			OutFoundWidgets.Add(&Instance->WidgetAsyncTransformData[i]);
 		}
 	}
 }
 
 void ATimedEventManager::FindWidgetTransformAsyncData(UWidget* Widget, TArray<FWidgetTransformData*>& OutFoundWidgets)
 {
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 
-	for (int i = 0; i < ManagerInstance->WidgetAsyncTransformData.Num(); ++i)
+	for (int i = 0; i < Instance->WidgetAsyncTransformData.Num(); ++i)
 	{
-		if(ManagerInstance->WidgetAsyncTransformData[i].Widget == Widget)
+		if(Instance->WidgetAsyncTransformData[i].Widget == Widget)
 		{
-			OutFoundWidgets.Add(&ManagerInstance->WidgetAsyncTransformData[i]);
+			OutFoundWidgets.Add(&Instance->WidgetAsyncTransformData[i]);
 		}
 	}
 }
@@ -599,9 +601,9 @@ void ATimedEventManager::LerpCanvasPanelSlotSize(UCanvasPanelSlot* Slot, float D
 {
 	if(Slot == nullptr || World == nullptr) return;
 	
-	CreateTimedEvent(World);
+	CreateManagerInstance(World);
 
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 	
 	RemoveCanvasPanelSlotSizeTimer(Slot);
 
@@ -612,18 +614,18 @@ void ATimedEventManager::LerpCanvasPanelSlotSize(UCanvasPanelSlot* Slot, float D
 	NewData.Duration = Duration;
 	NewData.Timer = 0;
 	
-	ManagerInstance->CanvasPanelSlotSizeData.Add(NewData);
+	Instance->CanvasPanelSlotSizeData.Add(NewData);
 }
 
 void ATimedEventManager::RemoveCanvasPanelSlotSizeTimer(UCanvasPanelSlot* Slot)
 {
-	if(ManagerInstance == nullptr) return;
+	if(Instance == nullptr) return;
 
-	for (int i = 0; i < ManagerInstance->CanvasPanelSlotSizeData.Num(); ++i)
+	for (int i = 0; i < Instance->CanvasPanelSlotSizeData.Num(); ++i)
 	{
-		if(ManagerInstance->CanvasPanelSlotSizeData[i].Slot == Slot)
+		if(Instance->CanvasPanelSlotSizeData[i].Slot == Slot)
 		{
-			ManagerInstance->CanvasPanelSlotSizeData.RemoveAt(i);
+			Instance->CanvasPanelSlotSizeData.RemoveAt(i);
 			return;
 		}
 	}

@@ -5,7 +5,6 @@
 
 #include "BuildingStats.h"
 #include "GuildGameInstance.h"
-#include "GuildGame/Managers/DayTaskManager.h"
 #include "GuildGame/Widgets/TownHudWidget.h"
 #include "GuildGame/Town/Navigation/TownNpcManager.h"
 #include "TownPlayerController.h"
@@ -32,7 +31,7 @@ void ATownGameModeBase::BeginPlay()
     //DayTaskManager::UpdateTasks(this);
 
 
-    HudWidgetInstance = Cast<UTownHudWidget>(WidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::TownHud, this));
+    HudWidgetInstance = Cast<UTownHudWidget>(AWidgetManager::GetOrCreateWidgetInstance(EWidgetKeys::TownHud, GetWorld()));
     if(HudWidgetInstance)
     {
         HudWidgetInstance->AddToViewport();
@@ -79,7 +78,6 @@ void ATownGameModeBase::BeginDestroy()
 {
     Super::BeginDestroy();
     UE_LOG(LogTemp, Warning, TEXT("GameMode DESTROY "));
-    WidgetManager::ResetWidgetInstances();
 
     delete NpcManager;
 }

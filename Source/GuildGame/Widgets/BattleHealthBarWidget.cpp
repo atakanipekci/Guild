@@ -6,7 +6,6 @@
 #include "CharacterSkillTooltipWidget.h"
 #include "StatusEffectNodeWidget.h"
 #include "StatusEffectStackableTooltipWidg.h"
-#include "Components/CanvasPanelSlot.h"
 #include "Components/HorizontalBox.h"
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
@@ -18,7 +17,7 @@
 void UBattleHealthBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	StackableTooltip = Cast<UStatusEffectStackableTooltipWidg>(WidgetManager::CreateWidgetInstance(EWidgetKeys::StatusEffectStackableTooltip, GetWorld()));
+	StackableTooltip = Cast<UStatusEffectStackableTooltipWidg>(AWidgetManager::CreateWidgetInstance(EWidgetKeys::StatusEffectStackableTooltip, GetWorld()));
 
 	StatusEffectNodePool.SetWorld(GetWorld());
 	StatusEffectTooltipPool.SetWorld(GetWorld());
@@ -98,7 +97,7 @@ void UBattleHealthBarWidget::SetStatusEffects(TArray<FStatusEffectData>* StatusE
 		UStatusEffectNodeWidget* ExistingNode = GetHorzBoxChildWithSameType((*StatusEffects)[i].Type);
 		if(ExistingNode == nullptr && StatusEffectNodePool.IsInitialized())
 		{
-			ExistingNode = Cast<UStatusEffectNodeWidget>(StatusEffectNodePool.GetOrCreateInstance(WidgetManager::GetWidget(EWidgetKeys::StatusEffectNodeWidget)));
+			ExistingNode = Cast<UStatusEffectNodeWidget>(StatusEffectNodePool.GetOrCreateInstance(AWidgetManager::GetWidget(EWidgetKeys::StatusEffectNodeWidget, GetWorld())));
 			StatusEffectsHorzBox->AddChildToHorizontalBox(ExistingNode);
 		}
 

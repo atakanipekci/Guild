@@ -69,7 +69,7 @@ void URecruitableCharactersDroppableWidget::RefreshRecruitables()
 		
 		for (int i = 0; i < 4; ++i)
 		{
-			UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), WidgetManager::GetWidget(EWidgetKeys::DraggedRecruitWidget));
+			UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), AWidgetManager::GetWidget(EWidgetKeys::DraggedRecruitWidget, GetWorld()));
 			if(NewWidget)
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("REFRESH"));
@@ -79,7 +79,7 @@ void URecruitableCharactersDroppableWidget::RefreshRecruitables()
 
 				 // if(NewWidget->Stat == nullptr)
 			  //   {
-			        FCharacterStats* NewCharacter = CharacterGenerationManager::CreateRandomCharacter();
+			        FCharacterStats* NewCharacter = ACharacterGenerationManager::CreateRandomCharacter(GetWorld());
 
 			        if(NewCharacter)
 			        {

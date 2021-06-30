@@ -41,14 +41,25 @@ struct FCharacterGenerationStats : public FTableRowBase
 	TArray<FTierPercentages> Tiers;
 };
 
-class GUILDGAME_API CharacterGenerationManager
+UCLASS()
+class GUILDGAME_API ACharacterGenerationManager : public AActor
 {
-public:
-	static FCharacterStats* CreateRandomCharacter();
-	static void SetCharactersTable(UDataTable* Table);
 
-	static UDataTable* CharactersDataTable;
-	static TArray<FName> OrderedRowNames;
+	GENERATED_BODY()
+	
+public:
+
+	virtual void BeginDestroy() override;
+
+	static ACharacterGenerationManager* Instance;
+
+	static void CreateManagerInstance(UWorld* World);
+	static FCharacterStats* CreateRandomCharacter(UWorld* World);
+
+	UPROPERTY()
+	UDataTable* CharactersDataTable;
+	
+	TArray<FName> OrderedRowNames;
 
 	
 };

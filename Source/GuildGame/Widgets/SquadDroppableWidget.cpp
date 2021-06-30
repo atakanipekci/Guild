@@ -2,8 +2,6 @@
 
 
 #include "SquadDroppableWidget.h"
-
-
 #include "DraggedCharacterWidget.h"
 #include "GuildGame/Managers/ImageManager.h"
 #include "GuildGameInstance.h"
@@ -105,7 +103,7 @@ void USquadDroppableWidget::UpdateChildIndices()
 
 UDraggedCharacterWidget* USquadDroppableWidget::CreateChildWidget(UDraggedCharacterWidget* DraggedWidget)
 {
-	UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), WidgetManager::GetWidget(EWidgetKeys::DraggedSquadWidget));
+	UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), AWidgetManager::GetWidget(EWidgetKeys::DraggedSquadWidget, GetWorld()));
 	if(NewWidget && ContentScaleBox)
 	{
 		ContentScaleBox->AddChild(NewWidget);

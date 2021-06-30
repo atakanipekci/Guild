@@ -6,7 +6,6 @@
 #include "TurnInfoNodeWidget.h"
 #include "Algo/StableSort.h"
 #include "Blueprint/UserWidgetPool.h"
-#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/GridPanel.h"
@@ -158,7 +157,7 @@ UTurnInfoNodeWidget* UTurnInfoWidget::CreateEmptyNode()
 {
 		if(Pool.IsInitialized())
 		{
-			UTurnInfoNodeWidget* PoolObject = Cast<UTurnInfoNodeWidget>(Pool.GetOrCreateInstance(WidgetManager::GetWidget(EWidgetKeys::TurnInfoNode)));
+			UTurnInfoNodeWidget* PoolObject = Cast<UTurnInfoNodeWidget>(Pool.GetOrCreateInstance(AWidgetManager::GetWidget(EWidgetKeys::TurnInfoNode, GetWorld())));
 			// if(PoolObject)
 			// {
 			// 	PoolObject->EmptyData();
@@ -167,7 +166,7 @@ UTurnInfoNodeWidget* UTurnInfoWidget::CreateEmptyNode()
 		}
 		else
 		{
-			return Cast<UTurnInfoNodeWidget>(WidgetManager::CreateWidgetInstance(EWidgetKeys::TurnInfoNode, GetWorld()));
+			return Cast<UTurnInfoNodeWidget>(AWidgetManager::CreateWidgetInstance(EWidgetKeys::TurnInfoNode, GetWorld()));
 		}
 }
 

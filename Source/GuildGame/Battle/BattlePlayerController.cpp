@@ -171,6 +171,15 @@ bool ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)
 
 			int ApCost = SelectedCharacter->GetApCostByDistance(Dist);
 
+			AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+			if(BattleGameMode)
+			{
+				if(BattleGameMode->HudWidgetInstance)
+				{
+					BattleGameMode->HudWidgetInstance->PreviewSpending(ApCost);
+				}
+			}
+
 			UE_LOG(LogTemp, Warning, TEXT("AP COST At Location %d"), ApCost);
 		}
 

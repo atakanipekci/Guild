@@ -39,6 +39,9 @@ class GUILDGAME_API UBattleHudWidget : public UUserWidget
 
 	UPROPERTY(meta = (BindWidget))
 	class UTurnInfoWidget* TurnWidget;
+
+	UPROPERTY(meta = (BindWidget))
+	class UApBarWidget* ApBar;
 	
 
 public:
@@ -60,6 +63,11 @@ public:
 
 	UFUNCTION()
 	void SetSkillsPanelVisible();
+
+	void ResetApBar(int MaxAp);
+	void RefreshApBar(int CurrentAp);
+	void PreviewSpending(int ApToSpend);
+	void StopPreview();
 
 	UFUNCTION(BlueprintCallable)
 	void RemoveRandomNode();

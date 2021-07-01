@@ -38,7 +38,8 @@ enum class EWidgetKeys: uint8
 	StatusEffectNodeWidget,
 	StatusEffectTooltip,
 	StatusEffectStackableTooltip,
-	TurnInfoNode
+	TurnInfoNode,
+	ApNode
 };
 
 UENUM()

@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "DroppableAreaWidget.generated.h"
 
+enum class EWidgetKeys : uint8;
 /**
  * 
  */
@@ -16,14 +17,6 @@ enum class EDroppableAreaType: uint8
 	OwnedCharacters,
 	RecruitableCharacters,
 	SquadCharacters
-};
-
-UENUM(BlueprintType)
-enum class EDroppableWidgetType: uint8
-{
-	None,
-	Scroller,
-	Dropbox
 };
 
 UCLASS()
@@ -42,9 +35,14 @@ class GUILDGAME_API UDroppableAreaWidget : public UUserWidget
 	virtual bool DropTo(class UDraggedCharacterWidget* DraggedWidget);
 	virtual void DropFrom( UDraggedCharacterWidget* DraggedWidget);
 	virtual void UpdateChildIndices();
+	virtual void RemoveFromDroppableArea(UDraggedCharacterWidget* DraggableToRemove);
+	virtual void OnDragEnterIntoAnotherDraggable(UDraggedCharacterWidget* Dragged, UDraggedCharacterWidget* To);
+	virtual void OnChildDraggableDragCancelled(UDraggedCharacterWidget* Dragged, int PreviousChildIndex);
+	virtual UDraggedCharacterWidget* CreateAndAddChildToContentPanel(struct FCharacterStats* Stat, EWidgetKeys WidgetKey);
+	virtual UDraggedCharacterWidget* CreateAndAddChildToContentPanel(struct FCharacterStats* Stat, EWidgetKeys WidgetKey, int Row);
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UPanelWidget* ContentPanel;
 	EDroppableAreaType AreaType;
-	EDroppableWidgetType WidgetType;
 };

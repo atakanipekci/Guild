@@ -4,12 +4,16 @@
 #include "OwnedCharactersDroppableWidget.h"
 #include "GuildGame/Characters/CharacterStats.h"
 #include "DraggedCharacterWidget.h"
-#include "GuildGame/Managers/ImageManager.h"
 #include "GuildGameInstance.h"
 #include "GuildGame/Town/TownGameModeBase.h"
 #include "GuildGame/Town/Navigation/TownNpcCharacter.h"
 #include "GuildGame/Managers/WidgetManager.h"
 #include "Components/ScrollBox.h"
+#include "Components/Spacer.h"
+#include "Components/TextBlock.h"
+#include "Components/UniformGridPanel.h"
+#include "Components/UniformGridSlot.h"
+#include "GuildGame/Managers/ImageManager.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -17,8 +21,11 @@ void UOwnedCharactersDroppableWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     AreaType = EDroppableAreaType::OwnedCharacters;
-    WidgetType = EDroppableWidgetType::Scroller;
-	ContentPanel = ScrollBox;
+	if(ScrollUniformGridPanel)
+	{
+		ContentPanel = Cast<UPanelWidget>(ScrollUniformGridPanel);
+	}
+	// ContentPanel = ScrollBox;
 
 	GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this->GetWorld()));
 	if(GameMode)
@@ -30,7 +37,7 @@ void UOwnedCharactersDroppableWidget::NativeConstruct()
 void UOwnedCharactersDroppableWidget::DropFrom(UDraggedCharacterWidget* DraggedWidget)
 {
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("DROPPPED FROM OWNED"));
-
+		RemoveFromDroppableArea(DraggedWidget);
 }
 
 bool UOwnedCharactersDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
@@ -41,55 +48,30 @@ bool UOwnedCharactersDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWid
     	{
     		if(DraggedWidget->OwnerDroppableArea->AreaType ==  EDroppableAreaType::RecruitableCharacters)
     		{
-    			if(ScrollBox)
+				UDraggedCharacterWidget* NewWidget = SpawnCopyCharacterWidget(DraggedWidget);
+    			
+				if(NewWidget)
 				{
-					UDraggedCharacterWidget* NewWidget = CreateChildWidget(DraggedWidget);
-					if(NewWidget)
+					NewWidget->SetVisibility(ESlateVisibility::Visible);
+					if(GameMode)
 					{
-						DraggedWidget->RemoveFromRoot();
-						if(GameMode)
+						if(NewWidget->Stat)
 						{
-							if(GameMode->OwnedCharacters.Find(NewWidget->Stat) == INDEX_NONE)
-							{
-								NewWidget->Stat->bIsOwned = true;
-								GameMode->OwnedCharacters.Add(NewWidget->Stat);
-								//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Team array count  %d"), GameMode->OwnedCharacters.Num()));
-							}
-							if(NewWidget->Stat)
-							{
-								GameMode->SetNpcBehaviourState(NewWidget->Stat->UniqueID, ENpcBehaviourStates::WalkingAround, NewWidget->Stat->ClassType);
-							}
+							GameMode->SetNpcBehaviourState(NewWidget->Stat->UniqueID, ENpcBehaviourStates::WalkingAround, NewWidget->Stat->ClassType);
 						}
-						
-						return true;
 					}
+					
+					return true;
 				}
     		}
     		else if(DraggedWidget->OwnerDroppableArea->AreaType ==  EDroppableAreaType::SquadCharacters)
     		{
-    			if(ScrollBox)
+				UDraggedCharacterWidget* NewWidget = SpawnCopyCharacterWidget(DraggedWidget);
+
+				if(NewWidget)
 				{
-					UDraggedCharacterWidget* NewWidget = CreateChildWidget(DraggedWidget);
-
-					if(NewWidget)
-					{
-						DraggedWidget->RemoveFromRoot();
-
-						if(GameMode->OwnedCharacters.Find(NewWidget->Stat) == INDEX_NONE)
-						{
-							GameMode->OwnedCharacters.Add(NewWidget->Stat);
-							
-							UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(this->GetWorld()));
-
-							if(GameInstance->SquadCharacters.Find(NewWidget->Stat) != INDEX_NONE)
-							{
-								GameInstance->SquadCharacters.Remove(NewWidget->Stat);
-							}
-							//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Squad count  %d"), GameInstance->SquadCharacters.Num()));
-							//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Team array count  %d"), GameMode->OwnedCharacters.Num()));
-						}
-						return true;
-					}
+					NewWidget->SetVisibility(ESlateVisibility::Visible);
+					return true;
 				}
     		}
     	}
@@ -98,97 +80,221 @@ bool UOwnedCharactersDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWid
 	return false;
 }
 
-void UOwnedCharactersDroppableWidget::UpdateChildIndices()
+void UOwnedCharactersDroppableWidget::RemoveFromDroppableArea(UDraggedCharacterWidget* DraggableToRemove)
 {
-	if(ScrollBox)
+	if(DraggableToRemove == nullptr || ScrollUniformGridPanel == nullptr) return;
+
+
+	if(ScrollUniformGridPanel->HasChild(DraggableToRemove))
 	{
-		for (int i = 0; i < ScrollBox->GetChildrenCount(); ++i)
+		int RowIndex = 0;
+		UUniformGridSlot* GridSlotToRemove = Cast<UUniformGridSlot>(DraggableToRemove->Slot);
+		if(GridSlotToRemove)
 		{
-			UDraggedCharacterWidget* Child = Cast<UDraggedCharacterWidget>(ScrollBox->GetChildAt(i));
+			RowIndex = GridSlotToRemove->Row;
+			DraggableToRemove->SetPreviousChildIndex(GridSlotToRemove->Row);
+		}
+		
+
+		for (int i = 0; i < ScrollUniformGridPanel->GetChildrenCount(); ++i)
+		{
+			UWidget* Child = ScrollUniformGridPanel->GetChildAt(i);
 			if(Child)
 			{
-				Child->SetPreviousChildIndex(i);
+				UUniformGridSlot* GridSlot = Cast<UUniformGridSlot>(Child->Slot);
+
+				if(GridSlot && GridSlot->Row > RowIndex)
+				{
+					GridSlot->SetRow(GridSlot->Row - 1);
+				}
+			}
+		}
+		
+		if(GameMode && DraggableToRemove->Stat && GameMode->OwnedCharacters.Contains(DraggableToRemove->Stat))
+		{
+			DraggableToRemove->Stat->bIsOwned = false;
+			GameMode->OwnedCharacters.Remove(DraggableToRemove->Stat);
+		}
+		ScrollUniformGridPanel->RemoveChild(DraggableToRemove);
+	}
+	
+	RemoveFromDroppableArea(DraggableToRemove->DraggedCopy);
+	DraggableToRemove->DraggedCopy = nullptr;
+
+}
+
+void UOwnedCharactersDroppableWidget::Refresh()
+{
+	if(ScrollUniformGridPanel)
+	{
+		ScrollUniformGridPanel->ClearChildren();
+		for (int i = 0; i < GameMode->OwnedCharacters.Num(); ++i)
+		{
+			CreateAndAddChildToContentPanel(GameMode->OwnedCharacters[i], EWidgetKeys::DraggedOwnedWidget, ScrollUniformGridPanel->GetChildrenCount());
+		}
+	}
+}
+
+void UOwnedCharactersDroppableWidget::AddToScrollGrid(UDraggedCharacterWidget* WidgetToAdd, int Index, FCharacterStats* Stat)
+{
+	if(ScrollUniformGridPanel && WidgetToAdd && ScrollUniformGridPanel->HasChild(WidgetToAdd) == false && Stat)
+	{
+		for (int i = 0; i < ScrollUniformGridPanel->GetChildrenCount(); ++i)
+		{
+			UWidget* Child = ScrollUniformGridPanel->GetChildAt(i);
+			if(Child)
+			{
+				UUniformGridSlot* GridSlot = Cast<UUniformGridSlot>(Child->Slot);
+
+				if(GridSlot && GridSlot->Row >= Index)
+				{
+					GridSlot->SetRow(GridSlot->Row + 1);
+				}
+			}
+		}
+		UUniformGridSlot* NewAddedSlot = ScrollUniformGridPanel->AddChildToUniformGrid(WidgetToAdd, Index);
+		if(GameMode && Stat && GameMode->OwnedCharacters.Contains(Stat) == false)
+		{
+			Stat->bIsOwned = true;
+			GameMode->OwnedCharacters.Add(WidgetToAdd->Stat);
+		}
+		
+		if(NewAddedSlot)
+		{
+			NewAddedSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
+			NewAddedSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
+		}
+	}
+}
+
+UDraggedCharacterWidget* UOwnedCharactersDroppableWidget::SpawnCopyCharacterWidget(UDraggedCharacterWidget* DraggedWidget)
+{
+	if(DraggedWidget == nullptr || DraggedWidget->OwnerDroppableArea == nullptr || ScrollUniformGridPanel == nullptr) return nullptr;
+
+	if(ScrollUniformGridPanel->HasChild(DraggedWidget))
+	{
+		return DraggedWidget;
+	}
+	else if(DraggedWidget->DraggedCopy && ScrollUniformGridPanel->HasChild(DraggedWidget->DraggedCopy))
+	{
+		return DraggedWidget->DraggedCopy;
+	}
+	else
+	{
+		UDraggedCharacterWidget* NewWidget = CreateAndAddChildToContentPanel(DraggedWidget->Stat, EWidgetKeys::DraggedOwnedWidget, ScrollUniformGridPanel->GetChildrenCount());
+		if(NewWidget)
+		{
+			DraggedWidget->OwnerDroppableArea->RemoveFromDroppableArea(DraggedWidget);
+			// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("OWNEd added index %d"), ScrollBox->GetChildIndex(NewWidget)));
+		}
+
+		return NewWidget;
+	}
+}
+
+void UOwnedCharactersDroppableWidget::OnDragEnterIntoAnotherDraggable(UDraggedCharacterWidget* Dragged,
+	UDraggedCharacterWidget* To)
+{
+	if(Dragged == nullptr || To == nullptr || ScrollUniformGridPanel == nullptr) return;
+
+	if(ScrollUniformGridPanel->HasChild(To))
+	{
+		if(ScrollUniformGridPanel->HasChild(Dragged))
+		{
+			UUniformGridSlot* DraggedGridSlot = Cast<UUniformGridSlot>(Dragged->Slot);
+			UUniformGridSlot* ToGridSlot = Cast<UUniformGridSlot>(To->Slot);
+			if(DraggedGridSlot && ToGridSlot)
+			{
+				int TempRow = DraggedGridSlot->Row;
+				DraggedGridSlot->SetRow(ToGridSlot->Row);
+				ToGridSlot->SetRow(TempRow);
+				if(SpacerForUpdate)
+				{
+					ScrollUniformGridPanel->AddChild(SpacerForUpdate);
+					ScrollUniformGridPanel->RemoveChild(SpacerForUpdate);
+				}
+			}
+		}
+		else
+		{
+			if(Dragged->OwnerDroppableArea && Dragged->OwnerDroppableArea->AreaType == AreaType)
+			{
+				AddToScrollGrid(Dragged, Dragged->GetPreviousChildIndex(), Dragged->Stat);
+			}
+			else if(Dragged->DraggedCopy != nullptr)
+			{
+				UUniformGridSlot* CopyGridSlot = Cast<UUniformGridSlot>(Dragged->DraggedCopy->Slot);
+				UUniformGridSlot* ToGridSlot = Cast<UUniformGridSlot>(To->Slot);
+				if(CopyGridSlot && ToGridSlot)
+				{
+					int TempRow = CopyGridSlot->Row;
+					CopyGridSlot->SetRow(ToGridSlot->Row);
+					ToGridSlot->SetRow(TempRow);
+					if(SpacerForUpdate)
+					{
+						ScrollUniformGridPanel->AddChild(SpacerForUpdate);
+						ScrollUniformGridPanel->RemoveChild(SpacerForUpdate);
+					}
+				}
+			}
+			else if(Dragged->DraggedCopy == nullptr)
+			{
+				UUniformGridSlot* GridSlot = Cast<UUniformGridSlot>(To->Slot);
+				if(GridSlot)
+				{
+					UDraggedCharacterWidget* CreatedCopy = CreateAndAddChildToContentPanel(Dragged->Stat, EWidgetKeys::DraggedOwnedWidget,GridSlot->Row);
+
+					if(CreatedCopy)
+					{
+						CreatedCopy->SetVisibility(ESlateVisibility::Hidden);
+						Dragged->DraggedCopy = CreatedCopy;
+					}
+				}
 			}
 		}
 	}
 }
 
-void UOwnedCharactersDroppableWidget::Refresh()
+UDraggedCharacterWidget* UOwnedCharactersDroppableWidget::CreateAndAddChildToContentPanel(FCharacterStats* Stat,
+	EWidgetKeys WidgetKey, int Row)
 {
-	if(ScrollBox)
+	if(Stat == nullptr || ScrollUniformGridPanel == nullptr) return nullptr;
+	
+	UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), AWidgetManager::GetWidget(WidgetKey, GetWorld()));
+	if(NewWidget)
 	{
-		ScrollBox->ClearChildren();
+		AddToScrollGrid(NewWidget, Row, Stat);
 
-		for (int i = 0; i < GameMode->OwnedCharacters.Num(); ++i)
+		UUniformGridSlot* GridSlot = Cast<UUniformGridSlot>(NewWidget->Slot);
+		if(GridSlot)
 		{
-			CreateChildWidget(GameMode->OwnedCharacters[i]);
-		}
-	}
-}
-
-UDraggedCharacterWidget* UOwnedCharactersDroppableWidget::CreateChildWidget(UDraggedCharacterWidget* DraggedWidget)
-{
-	UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), AWidgetManager::GetWidget(EWidgetKeys::DraggedOwnedWidget, GetWorld()));
-	if(NewWidget && ScrollBox)
-	{
-		//NewWidget->SetVisibility(ESlateVisibility::Hidden);
-		if(ScrollBox->HasChild(DraggedWidget))
-		{
-			ScrollBox->InsertChildAt(ScrollBox->GetChildIndex(DraggedWidget), NewWidget);
-			
-			TArray<UWidget*> Childs;
-            UPanelWidget* Parent = ScrollBox;
-			
-            for (int i = 0; i < Parent->GetChildrenCount(); ++i)
-            {
-                UWidget* Child = Parent->GetChildAt(i);
-                Childs.Add(Child);
-            }
-            Parent->ClearChildren();
-            for (int i = 0; i < Childs.Num(); ++i)
-            {
-                Parent->AddChild(Childs[i]);
-            }
-		}
-		else
-		{
-			ScrollBox->AddChild(NewWidget);
+			GridSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
+			GridSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
 		}
 		NewWidget->SetOwnerAreaWidget(this);
-
-		NewWidget->SetStat(DraggedWidget->Stat);
-		// NewWidget->LatestChildIndex = ScrollBox->GetChildIndex(NewWidget);
-
-		UpdateChildIndices();
-
-		if(DraggedWidget->Stat)
-			ImageManager::SetPortraitTextureByClass(DraggedWidget->Stat->ClassType, NewWidget->Portrait);
-
-		DraggedWidget->RemoveFromParent();
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("OWNEd added index %d"), ScrollBox->GetChildIndex(NewWidget)));
-
-	}
-
-	return NewWidget;
-}
-
-UDraggedCharacterWidget* UOwnedCharactersDroppableWidget::CreateChildWidget(FCharacterStats* Stat)
-{
-	UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), AWidgetManager::GetWidget(EWidgetKeys::DraggedOwnedWidget, GetWorld()));
-	if(NewWidget && ScrollBox && Stat)
-	{
-		ScrollBox->AddChild(NewWidget);
-		NewWidget->SetOwnerAreaWidget(this);
-
 		NewWidget->SetStat(Stat);
-		// NewWidget->LatestChildIndex = ScrollBox->GetChildIndex(NewWidget);
+
 		if(Stat)
 			ImageManager::SetPortraitTextureByClass(Stat->ClassType, NewWidget->Portrait);
 
 
 	}
 	return  NewWidget;
+}
+
+void UOwnedCharactersDroppableWidget::OnChildDraggableDragCancelled(UDraggedCharacterWidget* Dragged,
+	int PreviousChildIndex)
+{
+    if(ScrollUniformGridPanel)
+    {
+        Dragged->SetVisibility(ESlateVisibility::Visible);
+
+        if(ScrollUniformGridPanel->HasChild(Dragged) == false)
+        {
+            AddToScrollGrid(Dragged, PreviousChildIndex, Dragged->Stat);
+        }
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("DRAG CANCEL INDEX %d"), PreviousChildIndex ));
+    }
 }
 
 	

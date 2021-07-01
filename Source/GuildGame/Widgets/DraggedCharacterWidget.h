@@ -45,6 +45,9 @@ class GUILDGAME_API UDraggedCharacterWidget : public UUserWidget
 		UPROPERTY()
 		UUserWidget* DraggedVisualInstance;
 
+		UPROPERTY()
+		UDraggedCharacterWidget* DraggedCopy = nullptr;
+
 		UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		TSubclassOf<UDragDropOperation> DragDropOperation;
 
@@ -54,4 +57,5 @@ class GUILDGAME_API UDraggedCharacterWidget : public UUserWidget
 		void SetCharacterNameText(FText Text);
 		void SetStat(FCharacterStats* NewStat);
 		void SetPreviousChildIndex(int NewIndex); 
+		int GetPreviousChildIndex(); 
 };

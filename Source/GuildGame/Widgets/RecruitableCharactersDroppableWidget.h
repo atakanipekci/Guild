@@ -17,7 +17,6 @@ class GUILDGAME_API URecruitableCharactersDroppableWidget : public UDroppableAre
 		virtual void NativeConstruct() override;
 		virtual void DropFrom(UDraggedCharacterWidget* DraggedWidget) override;
 		virtual bool DropTo(UDraggedCharacterWidget* DraggedWidget) override;
-		virtual void UpdateChildIndices() override; 
 	
 		void RefreshRecruitables();
 	

@@ -156,7 +156,7 @@ void UOwnedCharactersDroppableWidget::AddToScrollGrid(UDraggedCharacterWidget* W
 		if(GameMode && Stat && GameMode->OwnedCharacters.Contains(Stat) == false)
 		{
 			Stat->bIsOwned = true;
-			GameMode->OwnedCharacters.Add(WidgetToAdd->Stat);
+			GameMode->OwnedCharacters.Add(Stat);
 		}
 		
 		if(NewAddedSlot)

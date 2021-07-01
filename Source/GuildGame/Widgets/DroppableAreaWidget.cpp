@@ -68,7 +68,7 @@ void UDroppableAreaWidget::UpdateChildIndices()
 
 void UDroppableAreaWidget::RemoveFromDroppableArea(UDraggedCharacterWidget* DraggableToRemove)
 {
-    if(DraggableToRemove && ContentPanel)
+    if(DraggableToRemove && ContentPanel && ContentPanel->HasChild(DraggableToRemove))
 	{
 		ContentPanel->RemoveChild(DraggableToRemove);
     	UpdateChildIndices();
@@ -115,7 +115,7 @@ void UDroppableAreaWidget::OnChildDraggableDragCancelled(UDraggedCharacterWidget
 UDraggedCharacterWidget* UDroppableAreaWidget::CreateAndAddChildToContentPanel(FCharacterStats* Stat, EWidgetKeys WidgetKey)
 {
 	if(Stat == nullptr || ContentPanel == nullptr) return nullptr;
-	
+
 	UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), AWidgetManager::GetWidget(WidgetKey, GetWorld()));
 	if(NewWidget)
 	{

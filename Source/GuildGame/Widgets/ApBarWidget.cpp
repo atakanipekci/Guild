@@ -2,12 +2,9 @@
 
 
 #include "ApBarWidget.h"
-
 #include "ApNodeWidget.h"
 #include "Components/HorizontalBox.h"
 #include "Components/Image.h"
-#include "Components/OverlaySlot.h"
-#include "Components/Spacer.h"
 #include "GuildGame/Managers/TimedEventManager.h"
 #include "GuildGame/Managers/WidgetManager.h"
 
@@ -34,8 +31,6 @@ void UApBarWidget::ResetBar(int TotalAp)
 
 	StopPreview();
 
-	UE_LOG(LogTemp, Warning, TEXT("AP ResetBar"));
-	
 	for (int i = ApHorizBox->GetChildrenCount() - 1; i >= 0; --i)
 	{
 		UApNodeWidget* Child = Cast<UApNodeWidget>(ApHorizBox->GetChildAt(i));
@@ -61,23 +56,6 @@ void UApBarWidget::ResetBar(int TotalAp)
 			}
 		}
 	}
-
-	// if(ApHorizBox->HasChild(EndSpacer))
-	// {
-	// 	ApHorizBox->RemoveChild(EndSpacer);
-	// }
-	// if(ApHorizBox->HasChild(EndSpacer) == false)
-	// {
-	// 	ApHorizBox->AddChildToHorizontalBox(EndSpacer);
-	//
-	// 	UOverlaySlot* OvSlot = Cast<UOverlaySlot>(ApHorizBox->Slot);
-	// 	if(OvSlot)
-	// 	{
-	// 		OvSlot->SetHorizontalAlignment(HAlign_Fill);
-	// 		OvSlot->SetVerticalAlignment(VAlign_Fill);
-	// 	}
-	// }
-
 	FullAmount = TotalAp;
 }
 

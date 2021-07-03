@@ -22,7 +22,19 @@ bool EffectDealDamage::ApplyEffectToCharacter(AGGCharacter* Character)
 		return false;
 	}
 
+	int CritChance = FMath::RandRange(0, 100);
+
 	int Result = FMath::RandRange(Data.MinValue, Data.MaxValue);
+
+	if(CritChance < Data.CritChance)
+	{
+		Result *= 2;
+	}
+	else if(CritChance < Data.CritChance + Owner->GetLuck()*2 - Character->GetLuck()*2)
+	{
+		//Lucky
+		Result *= 2;
+	}
 	Character->TakeDefaultDamage(Owner->GetBaseDamage()*Result/100, Owner);
 	return true;
 }
@@ -39,9 +51,18 @@ bool EffectDealPhysicalDamage::ApplyEffectToCharacter(AGGCharacter* Character)
 	{
 		return false;
 	}
-
+	int CritChance = FMath::RandRange(0, 100);
 	
 	int Total = FMath::RandRange(Data.MinValue, Data.MaxValue);
+	if(CritChance < Data.CritChance)
+	{
+		Total *= 2;
+	}
+	else if(CritChance < Data.CritChance + Owner->GetLuck()*2 - Character->GetLuck()*2)
+	{
+		//Lucky
+		Total *= 2;
+	}
 	int Physical = Total*(100-Data.ExtraValue)/100;
 	int True = Total - Physical;
 	Character->TakePhysicalDamage(Owner->GetBaseDamage()*Physical/100, Owner);
@@ -61,8 +82,18 @@ bool EffectDealMagicalDamage::ApplyEffectToCharacter(AGGCharacter* Character)
 	{
 		return false;
 	}
-
+	int CritChance = FMath::RandRange(0, 100);
+	
 	int Total = FMath::RandRange(Data.MinValue, Data.MaxValue);
+	if(CritChance < Data.CritChance)
+	{
+		Total *= 2;
+	}
+	else if(CritChance < Data.CritChance + Owner->GetLuck()*2 - Character->GetLuck()*2)
+	{
+		//Lucky
+		Total *= 2;
+	}
 	int Magical = Total*(100-Data.ExtraValue)/100;
 	int True = Total - Magical;
 	Character->TakeMagicalDamage(Owner->GetBaseDamage()*Magical/100, Owner);
@@ -82,8 +113,18 @@ bool EffectHeal::ApplyEffectToCharacter(AGGCharacter* Character)
 	{
 		return false;
 	}
-
+	int CritChance = FMath::RandRange(0, 100);
+	
 	int Result = FMath::RandRange(Data.MinValue, Data.MaxValue);
+	if(CritChance < Data.CritChance)
+	{
+		Result *= 2;
+	}
+	else if(CritChance < Data.CritChance + Owner->GetLuck()*2 - Character->GetLuck()*2)
+	{
+		//Lucky
+		Result *= 2;
+	}
 	Character->Heal(Result,Owner);
 	return true;
 	
@@ -101,7 +142,7 @@ bool EffectStatus::ApplyEffectToCharacter(AGGCharacter* Character)
 	{
 		return false;
 	}
-
+	
 	StatusEffectManager::AddStatusEffect(Character, Owner, &Data);
 	AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(Owner));
 	if(BattleGameMode)

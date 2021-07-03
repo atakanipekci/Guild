@@ -136,6 +136,8 @@ public:
 	int GetAccuracy()const;
 	int GetLuck()const;
 	int GetDodge()const;
+	int GetPhysicalResistance()const;
+	int GetMagicalResistance()const;
 	int GetCurrentAP() const;
 	void SetCurrentAP(int NewAP) const;
 	int GetApCostByDistance(float Distance);

@@ -264,6 +264,40 @@ void StatusEffectManager::OnStatusEnd(AGGCharacter* Target, FStatusEffectData* S
 	}
 }
 
+bool StatusEffectManager::CanBePhysicallyResisted(const FEffectData* StatusEffect)
+{
+	if(StatusEffect == nullptr)
+	{
+		return false;
+	}
+
+	EEffectType Type = StatusEffect->Type;
+	
+	if(Type == EEffectType::StatusBleed || Type == EEffectType::StatusStun || Type == EEffectType::StatusPoison)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool StatusEffectManager::CanBeMagicallyResisted(const FEffectData* StatusEffect)
+{
+	if(StatusEffect == nullptr)
+	{
+		return false;
+	}
+
+	EEffectType Type = StatusEffect->Type;
+	
+	if(Type == EEffectType::StatusDeBuff || Type == EEffectType::StatusBurn)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 FString StatusEffectManager::GetStatusFileRowName(EEffectType StatusType)
 {
 	if(StatusType == EEffectType::StatusBleed)

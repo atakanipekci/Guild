@@ -320,6 +320,26 @@ int AGGCharacter::GetDodge() const
 	return StatsComponent->GetDodge();
 }
 
+int AGGCharacter::GetPhysicalResistance() const
+{
+	if(StatsComponent == nullptr)
+	{
+		return 0;
+	}
+	
+	return StatsComponent->GetPhysicalResistance();
+}
+
+int AGGCharacter::GetMagicalResistance() const
+{
+	if(StatsComponent == nullptr)
+	{
+		return 0;
+	}
+	
+	return StatsComponent->GetMagicalResistance();
+}
+
 int AGGCharacter::GetCurrentAP() const
 {
 	if(StatsComponent == nullptr)

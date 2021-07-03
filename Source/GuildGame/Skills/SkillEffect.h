@@ -71,6 +71,9 @@ struct FEffectData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Chance;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CritChance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MinValue;
@@ -80,6 +83,7 @@ struct FEffectData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float ExtraValue;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int RemainingTurns;

@@ -7,6 +7,7 @@
 #include "EffectFactory.h"
 #include "GGLogHelper.h"
 #include "GuildGameInstance.h"
+#include "GuildGame/Managers/StatusEffectManager.h"
 #include "Kismet/GameplayStatics.h"
 
 CharacterSkill::CharacterSkill(const FSkillData& Data, const FCharSkillFileDataTable& File, AGGCharacter* CharOwner)
@@ -51,6 +52,25 @@ void CharacterSkill::ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& T
 			{
 				//missed effect
 				continue;
+			}
+
+			if(StatusEffectManager::CanBePhysicallyResisted(&Effect->GetEffectData()))
+			{
+				int Chance = FMath::RandRange(0, 100);
+				if(Chance <= TargetCharacter->GetPhysicalResistance())
+				{
+					//resisted effect
+					continue;
+				}
+			}
+			else if(StatusEffectManager::CanBeMagicallyResisted(&Effect->GetEffectData()))
+			{
+				int Chance = FMath::RandRange(0, 100);
+				if(Chance <= TargetCharacter->GetMagicalResistance())
+				{
+					//resisted effect
+					continue;
+				}
 			}
 
 			switch(Effect->GetEffectData().Target)

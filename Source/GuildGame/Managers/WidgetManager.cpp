@@ -141,6 +141,10 @@ FString AWidgetManager::GetWidgetRowName(const EWidgetKeys Key)
     {
         return FString(TEXT("TurnInfoNode"));
     }
+    else if(Key == EWidgetKeys::ApNode)
+    {
+        return FString(TEXT("ApNode"));
+    }
     
     return FString(TEXT("EMPTY"));
 }

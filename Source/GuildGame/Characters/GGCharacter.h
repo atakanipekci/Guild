@@ -139,6 +139,7 @@ public:
 	int GetPhysicalResistance()const;
 	int GetMagicalResistance()const;
 	int GetCurrentAP() const;
+	int GetBaseAP() const;
 	void SetCurrentAP(int NewAP) const;
 	int GetApCostByDistance(float Distance);
 	ECharacterStatus GetStatus()const;
@@ -180,6 +181,7 @@ public:
 	void PlayCharacterMontage(UAnimMontage* Montage);
 
 	bool IsApEnoughForSkill(CharacterSkill* Skill, int& OutCost);
+	int GetApCostOfCurrentSkill();
 	class CharacterSkill* GetCurrentSkill();
 	float GetCurrentSkillDamage();
 	class CharacterSkill* GetOwnedSkillbyID(int ID);

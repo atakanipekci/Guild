@@ -59,6 +59,16 @@ void ControllerStateDefault::RightClickReleaseHandler()
 
 	PlayerController->MoveSelectedChar();
 
+	AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(PlayerController));
+	AGGCharacter* SelectedChar = PlayerController->GetSelectedCharacter();
+	if(BattleGameMode && SelectedChar)
+	{
+		if(BattleGameMode->HudWidgetInstance)
+		{
+			BattleGameMode->HudWidgetInstance->RefreshApBar(SelectedChar->GetCurrentAP());
+		}
+	}
+
 	/*AGuildGameGameModeBase* GameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(PlayerController->GetWorld()));
 	if(GameMode)
 		GameMode->BattleTurnManager.NextCharacter();*/
@@ -166,6 +176,15 @@ void ControllerStateCastingSkill::LeftClickReleaseHandler()
 						GridMan->GetCharsInEffectSight(Targets, TargetsToEffect, SelectedCharacter, PlayerController->GetWorld());
 						SelectedCharacter->CastSkill(TargetsToEffect);
 						StopDamagePreview();
+
+						AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(PlayerController));
+						if(BattleGameMode)
+						{
+							if(BattleGameMode->HudWidgetInstance)
+							{
+								BattleGameMode->HudWidgetInstance->RefreshApBar(SelectedCharacter->GetCurrentAP());
+							}
+						}
 					}
 				}
 			}
@@ -231,6 +250,15 @@ void ControllerStateCastingSkill::ChangeTo()
 		if (SelectedCharacter->OnSkillChangeDelegate.IsBound() == false)
 		{
 			SelectedCharacter->OnSkillChangeDelegate.BindRaw(this, &ControllerStateCastingSkill::OnCurrentSkillChange);
+		}
+
+		AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(PlayerController));
+		if(BattleGameMode)
+		{
+			if(BattleGameMode->HudWidgetInstance)
+			{
+				BattleGameMode->HudWidgetInstance->PreviewSpending(SelectedCharacter->GetApCostOfCurrentSkill());
+			}
 		}
 	}
 }

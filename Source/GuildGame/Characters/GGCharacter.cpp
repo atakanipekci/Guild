@@ -349,6 +349,15 @@ int AGGCharacter::GetCurrentAP() const
 	
 	return StatsComponent->GetCurrentAP();
 }
+int AGGCharacter::GetBaseAP() const
+{
+	if(StatsComponent == nullptr)
+	{
+		return 0;
+	}
+	
+	return StatsComponent->GetBaseAP();
+}
 
 void AGGCharacter::SetCurrentAP(int NewAP) const
 {
@@ -871,6 +880,22 @@ bool AGGCharacter::IsApEnoughForSkill(CharacterSkill* Skill, int& OutCost)
 		OutCost = SkillData->ApCost;
 		return  true;
 	}
+}
+
+int AGGCharacter::GetApCostOfCurrentSkill()
+{
+	CharacterSkill* CurrentSkill = GetCurrentSkill();
+	if(CurrentSkill)
+	{
+		FSkillData* SkillData =  &(CurrentSkill->GetSkillData());
+		if(SkillData)
+		{
+			return  SkillData->ApCost;
+		}
+
+	}
+
+	return 0;
 }
 
 CharacterSkill* AGGCharacter::GetCurrentSkill()

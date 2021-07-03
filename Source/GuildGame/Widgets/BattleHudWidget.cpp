@@ -3,6 +3,7 @@
 
 #include "BattleHudWidget.h"
 
+#include "ApBarWidget.h"
 #include "BattleCharSkillNodeWidget.h"
 #include "CharacterSkillTooltipWidget.h"
 #include "GuildGameInstance.h"
@@ -34,6 +35,8 @@ void UBattleHudWidget::RefreshSkillsArray(AGGCharacter* SelectedChar)
 {
 	if(SelectedChar == nullptr)
 		return;
+
+	ResetApBar(SelectedChar->GetBaseAP());
 
 	LatestSelectedChar = SelectedChar;
 
@@ -179,6 +182,38 @@ void UBattleHudWidget::SetSkillsPanelVisible()
 		}
 		SkillsPanel->SetVisibility(ESlateVisibility::Visible);
 		SkillsPanel->SetIsEnabled(true);
+	}
+}
+
+void UBattleHudWidget::ResetApBar(int MaxAp)
+{
+	if(ApBar)
+	{
+		ApBar->ResetBar(MaxAp);
+	}
+}
+
+void UBattleHudWidget::RefreshApBar(int CurrentAp)
+{
+	if(ApBar)
+	{
+		ApBar->RefreshBar(CurrentAp);
+	}
+}
+
+void UBattleHudWidget::PreviewSpending(int ApToSpend)
+{
+	if(ApBar)
+	{
+		ApBar->PreviewSpending(ApToSpend);
+	}
+}
+
+void UBattleHudWidget::StopPreview()
+{
+	if(ApBar)
+	{
+		ApBar->StopPreview();
 	}
 }
 

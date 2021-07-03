@@ -14,7 +14,6 @@ void USquadDroppableWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     AreaType = EDroppableAreaType::SquadCharacters;
-    WidgetType = EDroppableWidgetType::Scroller;
 	ContentPanel = ContentScaleBox;
 	
 }
@@ -22,6 +21,7 @@ void USquadDroppableWidget::NativeConstruct()
 void USquadDroppableWidget::DropFrom(UDraggedCharacterWidget* DraggedWidget)
 {
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("DROPPPED FROM SQUAD"));
+	//RemoveFromDroppableArea(DraggedWidget);
 }
 
 bool USquadDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
@@ -37,40 +37,29 @@ bool USquadDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
     				if(ContentScaleBox->GetChildAt(0) != nullptr)
 					{
 						UDraggedCharacterWidget* PrevItem = Cast<UDraggedCharacterWidget>(ContentScaleBox->GetChildAt(0));
-						if(PrevItem)
+						if(PrevItem && PrevItem->OwnerDroppableArea)
 						{
-							PrevItem->RemoveFromParent();
+							RemoveFromDroppableArea(PrevItem);
 							DraggedWidget->OwnerDroppableArea->DropTo(PrevItem);
 						}
 					}
     				
-					UDraggedCharacterWidget* NewWidget = CreateChildWidget(DraggedWidget);
+					UDraggedCharacterWidget* NewWidget = CreateAndAddChildToContentPanel(DraggedWidget->Stat, EWidgetKeys::DraggedSquadWidget);
 					
 					if(NewWidget)
 					{
-						DraggedWidget->RemoveFromRoot();
-							
-						ATownGameModeBase* GameMode = Cast<ATownGameModeBase>(UGameplayStatics::GetGameMode(this->GetWorld()));
-						if(GameMode->OwnedCharacters.Find(NewWidget->Stat) != INDEX_NONE)
-						{
-							GameMode->OwnedCharacters.Remove(NewWidget->Stat);
-
-							UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(this->GetWorld()));
-							if(GameInstance->SquadCharacters.Find(NewWidget->Stat) == INDEX_NONE)
-							{
-								GameInstance->SquadCharacters.Add(NewWidget->Stat);
-							}
-							GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("After Remove Team array count  %d"), GameMode->OwnedCharacters.Num()));
-							GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("SQuad count  %d"), GameInstance->SquadCharacters.Num()));
-						}
-						NewWidget->SetVisibility(ESlateVisibility::Visible);
+						//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("After Remove Team array count  %d"), GameMode->OwnedCharacters.Num()));
+						// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("SQuad count  %d"), GameInstance->SquadCharacters.Num()));
 						return true;
 					}
 				}
     		}
     		else if(DraggedWidget->OwnerDroppableArea->AreaType ==  EDroppableAreaType::SquadCharacters)
     		{
-    			if(ContentScaleBox && DraggedWidget)
+    			USquadDroppableWidget* FromArea = Cast<USquadDroppableWidget>(DraggedWidget->OwnerDroppableArea);
+    			FCharacterStats* DraggedStat = DraggedWidget->Stat;
+    			
+    			if(ContentScaleBox && FromArea && FromArea != this && DraggedStat)
     			{
     				DraggedWidget->RemoveFromParent();
     				if(ContentScaleBox->GetChildAt(0) != nullptr)
@@ -78,17 +67,23 @@ bool USquadDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
 						UDraggedCharacterWidget* PrevItem = Cast<UDraggedCharacterWidget>(ContentScaleBox->GetChildAt(0));
 						if(PrevItem)
 						{
+							FCharacterStats* PrevStat = PrevItem->Stat;
+							GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("SQUAD SWAp")));
 							PrevItem->RemoveFromParent();
-							DraggedWidget->OwnerDroppableArea->DropTo(PrevItem);
+							if(PrevStat)
+							{
+								FromArea->CreateAndAddChildToContentPanel(PrevStat, EWidgetKeys::DraggedSquadWidget);
+							}
 						}
 					}
-    				
-    				ContentScaleBox->AddChild(DraggedWidget);
-    				DraggedWidget->SetOwnerAreaWidget(this);
 
-    				DraggedWidget->SetVisibility(ESlateVisibility::Visible);
+    				UDraggedCharacterWidget* NewWidget = CreateAndAddChildToContentPanel(DraggedStat, EWidgetKeys::DraggedSquadWidget);
+					
+					if(NewWidget)
+					{
+						return true;
+					}
     			}
-    			return true;
     		}
     	}
     }
@@ -96,23 +91,31 @@ bool USquadDroppableWidget::DropTo(UDraggedCharacterWidget* DraggedWidget)
 	return false;
 }
 
-void USquadDroppableWidget::UpdateChildIndices()
+void USquadDroppableWidget::RemoveFromDroppableArea(UDraggedCharacterWidget* DraggableToRemove)
 {
+	Super::RemoveFromDroppableArea(DraggableToRemove);
+
+	UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(this->GetWorld()));
+	if(DraggableToRemove && GameInstance->SquadCharacters.Contains(DraggableToRemove->Stat))
+	{
+		GameInstance->SquadCharacters.Remove(DraggableToRemove->Stat);
+	}
 }
 
-
-UDraggedCharacterWidget* USquadDroppableWidget::CreateChildWidget(UDraggedCharacterWidget* DraggedWidget)
+UDraggedCharacterWidget* USquadDroppableWidget::CreateAndAddChildToContentPanel(FCharacterStats* Stat, EWidgetKeys WidgetKey)
 {
-	UDraggedCharacterWidget* NewWidget = CreateWidget<UDraggedCharacterWidget>(this->GetWorld(), AWidgetManager::GetWidget(EWidgetKeys::DraggedSquadWidget, GetWorld()));
-	if(NewWidget && ContentScaleBox)
+	UDraggedCharacterWidget* NewWidget = Super::CreateAndAddChildToContentPanel(Stat, WidgetKey);
+	if(NewWidget && NewWidget->Stat)
 	{
-		ContentScaleBox->AddChild(NewWidget);
-		NewWidget->SetOwnerAreaWidget(this);
-		NewWidget->SetStat(DraggedWidget->Stat);
-
-		if(DraggedWidget->Stat)
-			ImageManager::SetPortraitTextureByClass(DraggedWidget->Stat->ClassType, NewWidget->Portrait);
+		UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(this->GetWorld()));
+		if(GameInstance->SquadCharacters.Contains(NewWidget->Stat) == false)
+		{
+			GameInstance->SquadCharacters.Add(NewWidget->Stat);
+		}
+		NewWidget->SetVisibility(ESlateVisibility::Visible);
 	}
-
+	
 	return NewWidget;
 }
+
+

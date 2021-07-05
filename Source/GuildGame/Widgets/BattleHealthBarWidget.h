@@ -23,13 +23,23 @@ class GUILDGAME_API UBattleHealthBarWidget : public UUserWidget
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 	void SetHpBar(int CurrentHealth, int MaxHealth, int StartHealth);
+	void SetArmorShieldBar(int CurrentArmor, int MaxArmor, int StartArmorShield);
+	void SetMagicShieldBar(int CurrentMagic, int MaxMagic, int StartMagicShield);
 	void SetHpText(int CurrentHealth, int MaxHealth, int StartHealth);
+	void SetArmorShieldText(int CurrentArmorShield, int MaxArmorShield, int StartArmorShield);
+	void SetMagicShieldText(int CurrentMagicShield, int MaxMagicShield, int StartMagicShield);
 	void SetStatusEffects(TArray<FStatusEffectData>* StatusEffects);
 	bool ContainsStatusEffect(EEffectType TypeToSearch, TArray<FStatusEffectData>* StatusEffects);
 	class UStatusEffectNodeWidget* GetHorzBoxChildWithSameType(EEffectType TypeToSearch);
 
-	void SetDamagePreviewBar(float DamageToPreview, int MaxHealth);
-	void ResetDamagePreviewBar(int MaxHealth);
+	void SetHpDamagePreviewBar(float DamageToPreview, int MaxHealth);
+	void ResetHpDamagePreviewBar(int MaxHealth);
+
+	void SetArmorDamagePreviewBar(float DamageToPreview, int MaxArmor);
+	void ResetArmorDamagePreviewBar(int MaxArmor);
+
+	void SetMagicArmorDamagePreviewBar(float DamageToPreview, int MaxMagicArmor);
+	void ResetMagicArmorDamagePreviewBar(int MaxMagicArmor);
 
 
 	UPROPERTY()
@@ -42,10 +52,40 @@ class GUILDGAME_API UBattleHealthBarWidget : public UUserWidget
 	class UProgressBar* PreviewBar;
 
 	UPROPERTY(meta = (BindWidget))
+	class UProgressBar* ArmorShieldBar;
+
+	UPROPERTY(meta = (BindWidget))
+	class UProgressBar* ArmorShieldPreviewBar;
+
+	UPROPERTY(meta = (BindWidget))
+	class UCanvasPanel* ArmorShieldPanel;
+
+	UPROPERTY(meta = (BindWidget))
+	class UProgressBar* MagicShieldBar;
+
+	UPROPERTY(meta = (BindWidget))
+	class UProgressBar* MagicShieldPreviewBar;
+
+	UPROPERTY(meta = (BindWidget))
+	class UCanvasPanel* MagicShieldPanel;
+
+	UPROPERTY(meta = (BindWidget))
+	class UCanvasPanel* SeperatorPanel;
+
+	UPROPERTY(meta = (BindWidget))
 	class USizeBox* HpSizeBox;
 	
 	UPROPERTY(meta = (BindWidget))
+	class USizeBox* ArmorSizeBox;
+	
+	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* HpText;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* ArmorShieldText;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* MagicShieldText;
 
 	UPROPERTY(meta = (BindWidget))
 	class UHorizontalBox* StatusEffectsHorzBox;

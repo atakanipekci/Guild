@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "Blueprint/UserWidgetPool.h"
 #include "GameFramework/Actor.h"
 #include "TimedEventManager.generated.h"
 
@@ -138,13 +140,42 @@ struct FCanvasPanelSlotSizeData
 	float Timer;
 };
 
+USTRUCT()
+struct FPopupTextData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	class UPopupTextWidget* PopupWidget;
+	UPROPERTY()
+	class ABattlePlayerController* PlayerController;
+
+	FVector SpawnLocation;
+	float RandomXdir;
+	float Duration;
+	float Timer;
+
+	bool Move;
+};
+
+enum class EPopupTextType:uint8
+{
+	Dodged,
+	TrueDamage,
+	PhysicalDamage,
+	MagicalDamage,
+	Lucky,
+	Crit,
+	Resisted,
+	MissedEffect,
+	Heal
+};
+
 UCLASS()
 class GUILDGAME_API ATimedEventManager : public AActor
 {
 	GENERATED_BODY()
 	
-	static void CreateManagerInstance(UWorld* World);
-public:	
 	// Sets default values for this actor's properties
 	ATimedEventManager();
 
@@ -152,8 +183,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void BeginDestroy() override;
-
-public:
+	virtual void Tick(float DeltaTime) override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 	static ATimedEventManager* Instance;
 	TArray<FTargetRotationData> RotationData;
@@ -164,14 +195,17 @@ public:
 	TArray<FWidgetTransformData> WidgetTransformData;
 	TArray<FWidgetTransformData> WidgetAsyncTransformData;
 	TArray<FCanvasPanelSlotSizeData> CanvasPanelSlotSizeData;
+	TArray<FPopupTextData> PopupTextData;
+
+	FUserWidgetPool PopupTextPool;
 	
 	TMap<FString, FTimerEventData> TimedEventMap;
-
 	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	static void CreateManagerInstance(UWorld* World);
 
-	
+public:
+
 	static void Rotate(AActor* ActorToRotate, FRotator TargetRotation, float Duration, UWorld* World);
 	static void Move(AActor* ActorToMove, FVector TargetLocation, float Duration, float Delay, FConditionEvent& ConditionDelegate, TArray<FTimedEvent>& OnComplete, FTimedEvent& OnDelayedCompleteDelegate, UWorld* World);
 	static void MoveToActorAndFollow(AActor* ActorToMove, AActor* ActorToFollow, float Duration, float OverridenLocationZ, FConditionEvent& ConditionDelegate, UWorld* World);
@@ -198,6 +232,8 @@ public:
 
 	static void LerpCanvasPanelSlotSize(class UCanvasPanelSlot* Slot, float Duration, FVector2D StartValue, FVector2D EndValue, UWorld* World);
 	static void RemoveCanvasPanelSlotSizeTimer(class UCanvasPanelSlot* Slot);
+
+	static void SpawnPopupText(EPopupTextType TextType, int Amount, float Duration, FVector SpawnLocation,UWorld* World, bool Move = true);
 	
 	bool UpdateTextNumber(FTextData& Data, float DeltaTime);
 	bool UpdateProgressBar(FProgressBarData& Data, float DeltaTime);
@@ -207,4 +243,7 @@ public:
 	bool UpdateWidgetTranslation(FWidgetTransformData& Data, float DeltaTime);
 	bool UpdateWidgetTranslationAsync(FWidgetTransformData& Data, float DeltaTime);
 	bool UpdateCanvasPanelSlotSize(FCanvasPanelSlotSizeData& Data, float DeltaTime);
+	bool UpdatePopupText(FPopupTextData& Data, float DeltaTime);
+
+	FText GetTextToPop(EPopupTextType, int Amount);
 };

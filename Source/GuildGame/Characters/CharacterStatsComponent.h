@@ -60,10 +60,7 @@ public:
 	void SetCurrentHealth(int Amount)
 	{
 		Stats.CurrentHealth = Amount;
-		if(Stats.CurrentHealth > Stats.MaxHealth)
-		{
-			Stats.CurrentHealth = Stats.MaxHealth;
-		}
+		Stats.CurrentHealth = FMath::Clamp(Stats.CurrentHealth, 0, Stats.MaxHealth);
 	}
 
 	int GetMaxArmor() const
@@ -84,10 +81,7 @@ public:
 	void SetCurrentArmor(int Amount)
 	{
 		Stats.CurrentArmor = Amount;
-		if(Stats.CurrentArmor > Stats.MaxArmor)
-		{
-			Stats.CurrentArmor = Stats.MaxArmor;
-		}
+		Stats.CurrentArmor = FMath::Clamp(Stats.CurrentArmor, 0, Stats.MaxArmor);
 	}
 
 	int GetMaxMagicArmor() const
@@ -108,10 +102,7 @@ public:
 	void SetCurrentMagicArmor(int Amount)
 	{
 		Stats.CurrentMagicArmor = Amount;
-		if(Stats.CurrentMagicArmor > Stats.MaxMagicArmor)
-		{
-			Stats.CurrentMagicArmor = Stats.MaxMagicArmor;
-		}
+		Stats.CurrentMagicArmor = FMath::Clamp(Stats.CurrentMagicArmor, 0, Stats.MaxMagicArmor);
 	}
 
 	float GetAccuracy() const

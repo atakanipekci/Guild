@@ -34,9 +34,6 @@ class GUILDGAME_API UBattleHudWidget : public UUserWidget
 	UPROPERTY()
 	class AGGCharacter* LatestSelectedChar;
 
-	UPROPERTY( meta = (BindWidget))
-	class UTextBlock* ApText;
-
 	UPROPERTY(meta = (BindWidget))
 	class UTurnInfoWidget* TurnWidget;
 

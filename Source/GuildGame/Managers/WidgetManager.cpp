@@ -145,6 +145,10 @@ FString AWidgetManager::GetWidgetRowName(const EWidgetKeys Key)
     {
         return FString(TEXT("ApNode"));
     }
+    else if(Key == EWidgetKeys::PopupTextWidget)
+    {
+        return FString(TEXT("PopupTextWidget"));
+    }
     
     return FString(TEXT("EMPTY"));
 }

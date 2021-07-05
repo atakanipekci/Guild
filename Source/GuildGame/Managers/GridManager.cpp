@@ -911,14 +911,14 @@ void GridManager::GetCharsInEffectSight(TArray<AGGCharacter*> CharsInArea, TArra
                             FVector EndLocation = CharInArray->GetActorLocation();
                             StartLocation.Z = EndLocation.Z;
 
-                            DrawDebugLine(
-                                 World,
-                                 StartLocation,
-                                 EndLocation,
-                                 FColor(255, 0, 0),
-                                 false, 3, 0,
-                                 12.333
-                             );
+                            // DrawDebugLine(
+                            //      World,
+                            //      StartLocation,
+                            //      EndLocation,
+                            //      FColor(255, 0, 0),
+                            //      false, 3, 0,
+                            //      12.333
+                            //  );
                                 
                             bool bDidHit = World->LineTraceSingleByObjectType(HitResult, StartLocation, EndLocation, ObjectsToCollide, CollisionParams);
                             if(bDidHit)

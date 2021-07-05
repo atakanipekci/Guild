@@ -61,10 +61,11 @@ int UCharacterStatsComponent::ChangeArmor(int Amount)
 {
 	if(GetCurrentArmor() > 0)
 	{
-		SetCurrentArmor(GetCurrentArmor() + Amount);
-		if(GetCurrentArmor() <= 0)
+		float Diff = GetCurrentArmor() + Amount;
+		SetCurrentArmor(Diff);
+		if(Diff <= 0)
 		{
-			return GetCurrentArmor();
+			return Diff;
 		}
 		return  0;
 	}
@@ -75,10 +76,11 @@ int UCharacterStatsComponent::ChangeMagicArmor(int Amount)
 {
 	if(GetCurrentMagicArmor() > 0)
 	{
-		SetCurrentMagicArmor(GetCurrentMagicArmor() + Amount);
+		float Diff = GetCurrentMagicArmor() + Amount;
+		SetCurrentMagicArmor(Diff);
 		if(GetCurrentMagicArmor() <= 0)
 		{
-			return GetCurrentMagicArmor();
+			return Diff;
 		}
 		return  0;
 	}

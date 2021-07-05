@@ -28,7 +28,7 @@ void TurnManager::Start()
 
 void TurnManager::NextCharacter()
 {
-	if(CharactersList.Num() == 0)
+	if(CharactersList.Num() == 0 || CurrentCharacterIndex >= CharactersList.Num())
 	{
 		return;
 	}

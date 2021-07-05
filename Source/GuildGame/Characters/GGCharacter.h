@@ -173,6 +173,8 @@ public:
 	virtual void ThrowProjectile(FName SocketName, bool bUseBoneRotation) override;
 
 	void UpdateHealthBar(int StartHealth);
+	void UpdateArmorShieldBar(int StartArmorShield);
+	void UpdateMagicShieldBar(int StartMagicShield);
 	void UpdateHealthBarStatusEffects();
 	class UCharacterAnimInstance* GetAnimInstance();
 	void PrepareAnimInstance();
@@ -183,7 +185,7 @@ public:
 	bool IsApEnoughForSkill(CharacterSkill* Skill, int& OutCost);
 	int GetApCostOfCurrentSkill();
 	class CharacterSkill* GetCurrentSkill();
-	float GetCurrentSkillDamage();
+	void GetCurrentSkillDamage(float& OutHpDamage, float& OutArmorDamage, float& OutMagicArmorDamage);
 	class CharacterSkill* GetOwnedSkillbyID(int ID);
 	TArray<class CharacterSkill*>* GetSkills();
 
@@ -213,8 +215,9 @@ public:
 	void AddAppliedSpeed(int SpeedToAdd);
 	
 	bool bIsInDamagePreviewMode = false;
-	void BeginDamagePreview(float DamageToPreview);
-	void StopDamagePreview();	
+	void BeginDamagePreview(float HpDamage, float ArmorDamage, float MagicArmorDamage);
+	void StopDamagePreview();
+
 
 private:
 	TArray<Grid*> MovableGrids;

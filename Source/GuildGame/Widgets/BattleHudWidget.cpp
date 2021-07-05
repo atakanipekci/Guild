@@ -40,11 +40,6 @@ void UBattleHudWidget::RefreshSkillsArray(AGGCharacter* SelectedChar)
 
 	LatestSelectedChar = SelectedChar;
 
-	if(ApText)
-	{
-		ApText->SetText(FText::AsNumber(SelectedChar->GetCurrentAP()));
-	}
-	
     if(SkillNodesGrid && SkillsPanel)
 	{
         SkillNodes.Empty();
@@ -143,11 +138,6 @@ void UBattleHudWidget::RefreshHud()
 		{
 			SkillNodes[i]->RefreshNodeState();
 		}
-	}
-
-	if(ApText && LatestSelectedChar)
-	{
-		ApText->SetText(FText::AsNumber(LatestSelectedChar->GetCurrentAP()));
 	}
 }
 

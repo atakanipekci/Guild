@@ -3,9 +3,14 @@
 
 #include "TimedEventManager.h"
 
+#include "WidgetManager.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/ProgressBar.h"
+#include "Components/RichTextBlock.h"
 #include "Components/TextBlock.h"
+#include "GuildGame/Battle/BattlePlayerController.h"
+#include "GuildGame/Widgets/PopupTextWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 ATimedEventManager* ATimedEventManager::Instance = nullptr;
 
@@ -15,6 +20,7 @@ ATimedEventManager::ATimedEventManager()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
+
 
 // Called when the game starts or when spawned
 void ATimedEventManager::BeginPlay()
@@ -128,7 +134,27 @@ void ATimedEventManager::Tick(float DeltaTime)
 		}
 	}
 
-	
+	for (int i = PopupTextData.Num() - 1; i >= 0; --i)
+	{
+		if(UpdatePopupText(PopupTextData[i], DeltaTime) == false)
+		{
+			if(PopupTextData[i].PopupWidget && PopupTextPool.IsInitialized())
+			{
+				PopupTextPool.Release(PopupTextData[i].PopupWidget);
+				PopupTextData[i].PopupWidget->RemoveFromViewport();
+			}
+			PopupTextData.RemoveAt(i);
+		}
+	}
+}
+
+void ATimedEventManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	if(PopupTextPool.IsInitialized())
+	{
+		PopupTextPool.ReleaseAllSlateResources();
+	}
 }
 
 void ATimedEventManager::CreateManagerInstance(UWorld* World)
@@ -631,6 +657,56 @@ void ATimedEventManager::RemoveCanvasPanelSlotSizeTimer(UCanvasPanelSlot* Slot)
 	}
 }
 
+void ATimedEventManager::SpawnPopupText(EPopupTextType TextType, int Amount, float Duration, FVector SpawnLocation, UWorld* World,  bool Move)
+{
+	if(World == nullptr) return;
+	
+	CreateManagerInstance(World);
+
+	if(Instance == nullptr) return;
+
+	if(Instance->PopupTextPool.IsInitialized() == false)
+	{
+		Instance->PopupTextPool.SetWorld(World);
+	}
+
+	if(Instance->PopupTextPool.IsInitialized())
+	{
+		UPopupTextWidget* PopupWidget = Cast<UPopupTextWidget>(Instance->PopupTextPool.GetOrCreateInstance(AWidgetManager::GetWidget(EWidgetKeys::PopupTextWidget, World)));
+		if(PopupWidget && PopupWidget->TextBlock)
+		{
+			PopupWidget->TextBlock->SetText(Instance->GetTextToPop(TextType, Amount));
+
+			PopupWidget->AddToViewport();
+
+			PopupWidget->SetAlignmentInViewport(FVector2D(0.5f, 0.5f));
+
+			ABattlePlayerController* BattleController = Cast<ABattlePlayerController>(UGameplayStatics::GetPlayerController(World, 0));
+
+			if(BattleController)
+			{
+				SpawnLocation.X += FMath::RandRange(-20, 20);
+				SpawnLocation.Y += FMath::RandRange(-20, 20);
+				SpawnLocation.Z += FMath::RandRange(40, 100);
+				FVector2D ScreenPos;
+				UGameplayStatics::ProjectWorldToScreen(BattleController, SpawnLocation, ScreenPos);
+				PopupWidget->SetPositionInViewport(ScreenPos);
+				FPopupTextData NewData;
+				NewData.Duration = Duration;
+				NewData.Timer = 0;
+				NewData.Move = Move;
+				NewData.SpawnLocation = SpawnLocation;
+				NewData.RandomXdir = FMath::RandRange(40, 70) * (1 - 2 *  FMath::RandRange(0, 1));
+				
+;
+				NewData.PopupWidget = PopupWidget;
+				NewData.PlayerController = BattleController;
+				Instance->PopupTextData.Add(NewData);
+			}
+		}
+	}
+}
+
 bool ATimedEventManager::UpdateTextNumber(FTextData& Data, float DeltaTime)
 {
 	if(Data.TextBlock == nullptr)
@@ -927,6 +1003,100 @@ bool ATimedEventManager::UpdateCanvasPanelSlotSize(FCanvasPanelSlotSizeData& Dat
 		Data.Slot->SetSize(NewOpacity);
 	}
 	return  true;
+}
+
+bool ATimedEventManager::UpdatePopupText(FPopupTextData& Data, float DeltaTime)
+{
+	if(Data.PopupWidget == nullptr || Data.PlayerController == nullptr)
+	{
+		return  false;
+	}
+
+	FVector2D ScreenPos;
+	UGameplayStatics::ProjectWorldToScreen(Data.PlayerController, Data.SpawnLocation, ScreenPos);
+
+	FVector2D EndPosition = ScreenPos + FVector2D(Data.RandomXdir, -FMath::Abs(Data.RandomXdir));
+
+	Data.Timer += DeltaTime;
+	if(Data.Timer >= Data.Duration)
+	{
+		if(Data.Move)
+		{
+			Data.PopupWidget->SetPositionInViewport(EndPosition);
+		}
+		else
+		{
+			Data.PopupWidget->SetPositionInViewport(ScreenPos);
+		}
+		return  false;
+	}
+	else if(Data.Duration > 0)
+	{
+		FVector2D NewPosition;
+		if(Data.Move)
+		{
+			NewPosition = FMath::Lerp(ScreenPos, EndPosition, Data.Timer / Data.Duration);
+		}
+		else
+		{
+			NewPosition = ScreenPos;
+		}
+		Data.PopupWidget->SetPositionInViewport(NewPosition);
+	}
+	return  true;
+}
+
+FText ATimedEventManager::GetTextToPop(EPopupTextType PopupType, int Amount)
+{
+	FFormatNamedArguments Args;
+	Args.Add("Amount", Amount);
+
+	FText FormatText;
+	if(EPopupTextType::TrueDamage == PopupType)
+	{
+		FormatText = NSLOCTEXT("CommonWords", "Dmg", "<Red_Big>{Amount}</>");
+	}
+	else if(EPopupTextType::PhysicalDamage == PopupType)
+	{
+		FormatText = NSLOCTEXT("CommonWords", "Dmg", "<Orange_Big>{Amount}</>");
+	}
+	else if(EPopupTextType::MagicalDamage == PopupType)
+	{
+		FormatText = NSLOCTEXT("CommonWords", "Dmg", "<Blue_Big>{Amount}</>");
+	}
+	else if(EPopupTextType::Dodged == PopupType)
+	{
+		FormatText = NSLOCTEXT("CommonWords", "Dodge", "<Orange_Big>Dodged</>");
+	}
+	else if(EPopupTextType::Lucky == PopupType)
+	{
+		FormatText = NSLOCTEXT("CommonWords", "Lucky", "<Blue_Big>Lucky Bastard!</>");
+	}
+	else if(EPopupTextType::Resisted == PopupType)
+	{
+		FormatText = NSLOCTEXT("CommonWords", "Resisted", "<Orange_Big>Resisted!</>");
+	}
+	else if(EPopupTextType::Crit == PopupType)
+	{
+		FormatText = NSLOCTEXT("CommonWords", "Crit", "<Red_Big>CRIT!</>");
+	}
+	else if(EPopupTextType::MissedEffect == PopupType)
+	{
+		FormatText = NSLOCTEXT("CommonWords", "MissedEffect", "<Orange_Big>Effect is Missed!</>");
+	}
+	else if(EPopupTextType::Heal == PopupType)
+	{
+		FormatText = NSLOCTEXT("CommonWords", "MissedEffect", "<Green_Big>{Amount}</>");
+	}
+	
+	
+	const FText FormattedText = FText::Format(
+		FormatText,
+		Args
+	);
+
+
+	return FormattedText;
 }
 
 

@@ -127,8 +127,8 @@ void ControllerStateCastingSkill::Update()
 		if(PlayerController->GetSelectedCharacter() && PlayerController->GetSelectedCharacter()->GetStatus() == ECharacterStatus::Idle && PlayerController->GetGridFloor() && PlayerController->GetGridFloor()->GetGridManager())
 		{
 			GridManager* GridMan = PlayerController->GetGridFloor()->GetGridManager();
-			TArray<Grid*>* Targetables = PlayerController->GetSelectedCharacter()->GetTargetableGrids();
 			AGGCharacter* Char = PlayerController->GetSelectedCharacter();
+			TArray<Grid*>* Targetables = Char->GetTargetableGrids();
 
 			if(GridMan->DoesInclude(Targetables, PlayerController->GetSelectedGridIndex()))
 			{
@@ -139,6 +139,8 @@ void ControllerStateCastingSkill::Update()
 				Char->ShowDamageableGrids(GridMan->GetClosestInArray(Targetables, PlayerController->GetSelectedGridIndex()), false);
 			}
 
+			UpdateHighlights();
+
 			PlayerController->GetGridFloor()->DrawTrajectory(Char);
 
 			BeginDamagePreview(Char);
@@ -146,6 +148,7 @@ void ControllerStateCastingSkill::Update()
 		else
 		{
 			StopDamagePreview();
+			ResetHighlight();
 		}
 	}
 }
@@ -176,6 +179,7 @@ void ControllerStateCastingSkill::LeftClickReleaseHandler()
 						GridMan->GetCharsInEffectSight(Targets, TargetsToEffect, SelectedCharacter, PlayerController->GetWorld());
 						SelectedCharacter->CastSkill(TargetsToEffect);
 						StopDamagePreview();
+						ResetHighlight();
 
 						AGuildGameGameModeBase* BattleGameMode = Cast<AGuildGameGameModeBase>(UGameplayStatics::GetGameMode(PlayerController));
 						if(BattleGameMode)
@@ -233,6 +237,7 @@ void ControllerStateCastingSkill::ChangeTo()
 	{
 		return;
 	}
+
 	
 	AGGCharacter* SelectedCharacter = PlayerController->GetSelectedCharacter();
 	if(SelectedCharacter)
@@ -261,6 +266,8 @@ void ControllerStateCastingSkill::ChangeTo()
 			}
 		}
 	}
+
+	UpdateHighlights();
 }
 
 void ControllerStateCastingSkill::ChangeFrom()
@@ -277,6 +284,7 @@ void ControllerStateCastingSkill::ChangeFrom()
 	}
 
 	StopDamagePreview();
+	ResetHighlight();
 }
 
 bool ControllerStateCastingSkill::CanChangeTo()
@@ -314,7 +322,12 @@ void ControllerStateCastingSkill::BeginDamagePreview(AGGCharacter* SelectedChar)
 	{
 		if(TargetsToEffect[i])
 		{
-			TargetsToEffect[i]->BeginDamagePreview(SelectedChar->GetCurrentSkillDamage());
+			float HpDamage = 0;
+			float ArmorDamage = 0;
+			float MagicArmorDamage = 0;
+			SelectedChar->GetCurrentSkillDamage(HpDamage, ArmorDamage, MagicArmorDamage);
+
+			TargetsToEffect[i]->BeginDamagePreview(HpDamage, ArmorDamage, MagicArmorDamage);
 			DamagePreviewedCharacters.Add(TargetsToEffect[i]);
 		}
 	}
@@ -332,6 +345,43 @@ void ControllerStateCastingSkill::StopDamagePreview()
 	DamagePreviewedCharacters.Empty();
 }
 
+void ControllerStateCastingSkill::UpdateHighlights()
+{
+	if(PlayerController == nullptr || PlayerController->GetGridFloor() == nullptr || PlayerController->GetGridFloor()->GetGridManager() == nullptr || PlayerController->GetSelectedCharacter() == nullptr) return;
+
+	GridManager* GridMan = PlayerController->GetGridFloor()->GetGridManager();
+	AGGCharacter* Char = PlayerController->GetSelectedCharacter();
+	TArray<Grid*>* Damagables = Char->GetDamageableGrids();
+	TArray<AGGCharacter*> Targets;
+	TArray<AGGCharacter*> TargetsToEffect;
+
+	ResetHighlight();
+
+	GridMan->GetCharactersInArray(Damagables, &Targets);
+	GridMan->GetCharsInEffectSight(Targets, TargetsToEffect, Char, PlayerController->GetWorld());
+
+	for (int i = 0; i < TargetsToEffect.Num(); ++i)
+	{
+		if(TargetsToEffect[i])
+		{
+			TargetsToEffect[i]->SetCustomDepth(true,3);
+			HighlightedCharacters.Add(TargetsToEffect[i]);
+		}
+	}
+}
+
+void ControllerStateCastingSkill::ResetHighlight()
+{
+	for (int i = HighlightedCharacters.Num() - 1; i >= 0; --i)
+	{
+		if(HighlightedCharacters[i])
+		{
+			HighlightedCharacters[i]->SetCustomDepth(false,1);
+		}
+		HighlightedCharacters.RemoveAt(i);
+	}
+}
+
 void ControllerStateCastingSkill::OnCurrentSkillChange()
 {
 	if (PlayerController != nullptr)
@@ -343,6 +393,8 @@ void ControllerStateCastingSkill::OnCurrentSkillChange()
 		}
 	}
 }
+
+
 
 ControllerStatePlacement::ControllerStatePlacement(ABattlePlayerController* Controller)
 {

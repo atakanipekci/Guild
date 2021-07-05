@@ -9,7 +9,7 @@ void UApNodeWidget::SetFull()
 {
 	if(FilledImage && BlankImage)
 	{
-		// BlankImage->SetVisibility(ESlateVisibility::Collapsed);
+		BlankImage->SetVisibility(ESlateVisibility::Collapsed);
 		FilledImage->SetVisibility(ESlateVisibility::Visible);
 	}
 }

@@ -5,6 +5,7 @@
 
 #include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Managers/StatusEffectManager.h"
+#include "GuildGame/Managers/TimedEventManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Math/UnrealMathUtility.h"
 
@@ -33,9 +34,11 @@ bool EffectDealDamage::ApplyEffectToCharacter(AGGCharacter* Character)
 	else if(CritChance < Data.CritChance + Owner->GetLuck()*2 - Character->GetLuck()*2)
 	{
 		//Lucky
+		ATimedEventManager::SpawnPopupText(EPopupTextType::Lucky, 0, 2, Character->GetActorLocation(), Character->GetWorld(), false);
 		Result *= 2;
 	}
-	Character->TakeDefaultDamage(Owner->GetBaseDamage()*Result/100, Owner);
+	int Damage = Owner->GetBaseDamage()*Result/100;
+	Character->TakeDefaultDamage(Damage, Owner);
 	return true;
 }
 
@@ -61,12 +64,17 @@ bool EffectDealPhysicalDamage::ApplyEffectToCharacter(AGGCharacter* Character)
 	else if(CritChance < Data.CritChance + Owner->GetLuck()*2 - Character->GetLuck()*2)
 	{
 		//Lucky
+		ATimedEventManager::SpawnPopupText(EPopupTextType::Lucky, 0, 2, Character->GetActorLocation(), Character->GetWorld(), false);
 		Total *= 2;
 	}
 	int Physical = Total*(100-Data.ExtraValue)/100;
 	int True = Total - Physical;
-	Character->TakePhysicalDamage(Owner->GetBaseDamage()*Physical/100, Owner);
-	Character->TakeDefaultDamage(Owner->GetBaseDamage()*True/100, Owner);
+
+	int PhysicalDamage = Owner->GetBaseDamage()*Physical/100;
+	int TrueDamage = Owner->GetBaseDamage()*True/100;
+
+	Character->TakePhysicalDamage(PhysicalDamage, Owner);
+	Character->TakeDefaultDamage(TrueDamage, Owner);
 	return true;
 }
 
@@ -92,12 +100,18 @@ bool EffectDealMagicalDamage::ApplyEffectToCharacter(AGGCharacter* Character)
 	else if(CritChance < Data.CritChance + Owner->GetLuck()*2 - Character->GetLuck()*2)
 	{
 		//Lucky
+		ATimedEventManager::SpawnPopupText(EPopupTextType::Lucky, 0, 2, Character->GetActorLocation(), Character->GetWorld(), false);
 		Total *= 2;
 	}
 	int Magical = Total*(100-Data.ExtraValue)/100;
 	int True = Total - Magical;
-	Character->TakeMagicalDamage(Owner->GetBaseDamage()*Magical/100, Owner);
-	Character->TakeDefaultDamage(Owner->GetBaseDamage()*True/100, Owner);
+
+	int MagicalDamage = Owner->GetBaseDamage()*Magical/100;
+	int TrueDamage = Owner->GetBaseDamage()*True/100;
+	
+	
+	Character->TakeMagicalDamage(MagicalDamage, Owner);
+	Character->TakeDefaultDamage(TrueDamage, Owner);
 	return true;
 }
 
@@ -123,7 +137,13 @@ bool EffectHeal::ApplyEffectToCharacter(AGGCharacter* Character)
 	else if(CritChance < Data.CritChance + Owner->GetLuck()*2 - Character->GetLuck()*2)
 	{
 		//Lucky
+		ATimedEventManager::SpawnPopupText(EPopupTextType::Lucky, 0, 2, Character->GetActorLocation(), Character->GetWorld(), false);
 		Result *= 2;
+	}
+
+	if(Result > 0)
+	{
+		ATimedEventManager::SpawnPopupText(EPopupTextType::Heal, Result, 2, Character->GetActorLocation(), Character->GetWorld());
 	}
 	Character->Heal(Result,Owner);
 	return true;

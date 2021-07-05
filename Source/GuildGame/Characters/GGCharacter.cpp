@@ -127,6 +127,9 @@ void AGGCharacter::SetStats(const FCharacterStats& Stats)
 
 
 		UpdateHealthBar(StatsComponent->GetCurrentHealth());
+		UpdateArmorShieldBar(StatsComponent->GetCurrentArmor());
+		UpdateMagicShieldBar(StatsComponent->GetCurrentMagicArmor());
+		
 		UGuildGameInstance* GameInstance = Cast<UGuildGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 		for (auto Element : StatsComponent->GetSkillIDs())
 		{
@@ -432,6 +435,10 @@ int AGGCharacter::TakeDefaultDamage(int DamageAmount, AActor* Dealer)
 	{
 		float PreviousHealth = StatsComponent->GetCurrentHealth();
 		bool bIsDead = StatsComponent->ChangeHealth(-DamageAmount);
+		if(DamageAmount > 0)
+		{
+			ATimedEventManager::SpawnPopupText(EPopupTextType::TrueDamage, DamageAmount, 2, GetActorLocation(), GetWorld());
+		}
 		if(bIsDead == false)
 		{
 			PlayCharacterMontage(CharFile.GetRandomTakeHitMontage());
@@ -449,8 +456,16 @@ int AGGCharacter::TakePhysicalDamage(int DamageAmount, AActor* Dealer)
 	{
 		return 0;
 	}
-	int RemainingAmount = StatsComponent->ChangeArmor(-DamageAmount);
+	float PreviousArmor = StatsComponent->GetCurrentArmor();
+	int RemainingAmount = FMath::Abs(StatsComponent->ChangeArmor(-DamageAmount));
+	
+	float PhysicalDamageGiven = DamageAmount - RemainingAmount;
+	if(PhysicalDamageGiven > 0)
+	{
+		ATimedEventManager::SpawnPopupText(EPopupTextType::PhysicalDamage, PhysicalDamageGiven, 2, GetActorLocation(), GetWorld());
+	}
 	TakeDefaultDamage(RemainingAmount, Dealer);
+	UpdateArmorShieldBar(PreviousArmor);
 	return DamageAmount;
 }
 
@@ -460,8 +475,16 @@ int AGGCharacter::TakeMagicalDamage(int DamageAmount, AActor* Dealer)
 	{
 		return 0;
 	}
-	int RemainingAmount = StatsComponent->ChangeMagicArmor(-DamageAmount);
+	float PreviousMagicArmor = StatsComponent->GetCurrentMagicArmor();
+	int RemainingAmount = FMath::Abs(StatsComponent->ChangeMagicArmor(-DamageAmount));
+
+	float MagicalDamageGiven = DamageAmount - RemainingAmount;
+	if(MagicalDamageGiven > 0)
+	{
+		ATimedEventManager::SpawnPopupText(EPopupTextType::MagicalDamage, MagicalDamageGiven, 2, GetActorLocation(), GetWorld());
+	}
 	TakeDefaultDamage(RemainingAmount, Dealer);
+	UpdateMagicShieldBar(PreviousMagicArmor);
 	return DamageAmount;
 }
 
@@ -792,6 +815,22 @@ void AGGCharacter::UpdateHealthBar(int StartHealth)
 	}
 }
 
+void AGGCharacter::UpdateArmorShieldBar(int StartArmorShield)
+{
+	if(HealthBarWidget && StatsComponent)
+	{
+		HealthBarWidget->SetArmorShieldBar(StatsComponent->GetCurrentArmor(), StatsComponent->GetMaxArmor(), StartArmorShield);
+	}
+}
+
+void AGGCharacter::UpdateMagicShieldBar(int StartMagicShield)
+{
+	if(HealthBarWidget && StatsComponent)
+	{
+		HealthBarWidget->SetMagicShieldBar(StatsComponent->GetCurrentMagicArmor(), StatsComponent->GetMaxMagicArmor(), StartMagicShield);
+	}
+}
+
 void AGGCharacter::UpdateHealthBarStatusEffects()
 {
 	if(HealthBarWidget)
@@ -908,24 +947,33 @@ CharacterSkill* AGGCharacter::GetCurrentSkill()
 	return Skills[CurrentSkillIndex];
 }
 
-float AGGCharacter::GetCurrentSkillDamage()
+void AGGCharacter::GetCurrentSkillDamage(float& OutHpDamage, float& OutArmorDamage, float& OutMagicArmorDamage)
 {
 	if(CurrentSkillIndex >= Skills.Num()|| CurrentSkillIndex < 0 || Skills[CurrentSkillIndex] == nullptr)
 	{
-		return 0;
+		OutHpDamage = 0;
+		OutArmorDamage = 0;
+		OutMagicArmorDamage = 0;
 	}
 
-	float DamageAmount = 0;
-	
 	for (int i = 0; i < Skills[CurrentSkillIndex]->GetSkillData().EffectData.Num(); ++i)
 	{
 		if(Skills[CurrentSkillIndex]->GetSkillData().EffectData[i].Type == EEffectType::DealDamage)
 		{
-			DamageAmount += Skills[CurrentSkillIndex]->GetSkillData().EffectData[i].MinValue;
+			OutHpDamage += Skills[CurrentSkillIndex]->GetSkillData().EffectData[i].MinValue * GetBaseDamage();
+		}
+		else if(Skills[CurrentSkillIndex]->GetSkillData().EffectData[i].Type == EEffectType::DealPhysicalDamage)
+		{
+			OutArmorDamage += Skills[CurrentSkillIndex]->GetSkillData().EffectData[i].MinValue * GetBaseDamage();
+		}
+		else if(Skills[CurrentSkillIndex]->GetSkillData().EffectData[i].Type == EEffectType::DealMagicalDamage)
+		{
+			OutMagicArmorDamage += Skills[CurrentSkillIndex]->GetSkillData().EffectData[i].MinValue * GetBaseDamage();
 		}
 	}
-
-	return  DamageAmount;
+	OutHpDamage /= 100;
+	OutArmorDamage /= 100;
+	OutMagicArmorDamage /= 100;
 }
 
 CharacterSkill* AGGCharacter::GetOwnedSkillbyID(int ID)
@@ -1103,12 +1151,28 @@ void AGGCharacter::AddAppliedSpeed(int SpeedToAdd)
 	UE_LOG(LogTemp, Warning, TEXT("NEW Speed  %d"), StatsComponent->GetSpeed());
 }
 
-void AGGCharacter::BeginDamagePreview(float DamageToPreview)
+void AGGCharacter::BeginDamagePreview(float HpDamage, float ArmorDamage, float MagicArmorDamage)
 {
-	if(HealthBarWidget == nullptr || StatsComponent == nullptr) return;
+	if(HealthBarWidget == nullptr || StatsComponent == nullptr || StatsComponent == nullptr) return;
+	
 	bIsInDamagePreviewMode = true;
 
-	HealthBarWidget->SetDamagePreviewBar(DamageToPreview, StatsComponent->GetMaxHealth());
+	float Armor = StatsComponent->GetCurrentArmor();
+	float MagicArmor = StatsComponent->GetCurrentMagicArmor();
+
+	HpDamage += FMath::Clamp(ArmorDamage - Armor, 0.0f, ArmorDamage);
+	HpDamage += FMath::Clamp(MagicArmorDamage - MagicArmor, 0.0f, MagicArmorDamage);
+	
+
+	if(HpDamage > 0.0f)
+		HealthBarWidget->SetHpDamagePreviewBar(HpDamage, StatsComponent->GetMaxHealth());
+
+	if(ArmorDamage > 0.0f)
+		HealthBarWidget->SetArmorDamagePreviewBar(ArmorDamage, StatsComponent->GetMaxArmor());
+
+	if(MagicArmorDamage > 0.0f)
+		HealthBarWidget->SetMagicArmorDamagePreviewBar(MagicArmorDamage, StatsComponent->GetMaxMagicArmor());
+
 }
 
 void AGGCharacter::StopDamagePreview()
@@ -1116,9 +1180,10 @@ void AGGCharacter::StopDamagePreview()
 	if(HealthBarWidget == nullptr || StatsComponent == nullptr) return;
 	bIsInDamagePreviewMode = false;
 
-	HealthBarWidget->ResetDamagePreviewBar(StatsComponent->GetMaxHealth());
+	HealthBarWidget->ResetHpDamagePreviewBar(StatsComponent->GetMaxHealth());
+	HealthBarWidget->ResetArmorDamagePreviewBar(StatsComponent->GetMaxArmor());
+	HealthBarWidget->ResetMagicArmorDamagePreviewBar(StatsComponent->GetMaxMagicArmor());
 }
-
 
 TArray<struct FStatusEffectData>* AGGCharacter::GetAppliedStatusEffects()
 {

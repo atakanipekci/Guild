@@ -8,6 +8,7 @@
 #include "GGLogHelper.h"
 #include "GuildGameInstance.h"
 #include "GuildGame/Managers/StatusEffectManager.h"
+#include "GuildGame/Managers/TimedEventManager.h"
 #include "Kismet/GameplayStatics.h"
 
 CharacterSkill::CharacterSkill(const FSkillData& Data, const FCharSkillFileDataTable& File, AGGCharacter* CharOwner)
@@ -42,6 +43,7 @@ void CharacterSkill::ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& T
 		if(HitChance > Caster->GetAccuracy() - TargetCharacter->GetDodge())
 		{
 			//dodged
+			ATimedEventManager::SpawnPopupText(EPopupTextType::Dodged, 0, 2, TargetCharacter->GetActorLocation(), TargetCharacter->GetWorld(), false);
 			continue;
 		}
 
@@ -51,6 +53,7 @@ void CharacterSkill::ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& T
 			if(EffectChance > Effect->GetEffectData().Chance)
 			{
 				//missed effect
+				ATimedEventManager::SpawnPopupText(EPopupTextType::MissedEffect, 0, 2, TargetCharacter->GetActorLocation(), TargetCharacter->GetWorld(), false);
 				continue;
 			}
 
@@ -60,6 +63,7 @@ void CharacterSkill::ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& T
 				if(Chance <= TargetCharacter->GetPhysicalResistance())
 				{
 					//resisted effect
+					ATimedEventManager::SpawnPopupText(EPopupTextType::Resisted, 0, 2, TargetCharacter->GetActorLocation(), TargetCharacter->GetWorld(), false);
 					continue;
 				}
 			}
@@ -69,6 +73,7 @@ void CharacterSkill::ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& T
 				if(Chance <= TargetCharacter->GetMagicalResistance())
 				{
 					//resisted effect
+					ATimedEventManager::SpawnPopupText(EPopupTextType::Resisted, 0, 2, TargetCharacter->GetActorLocation(), TargetCharacter->GetWorld(), false);
 					continue;
 				}
 			}
@@ -113,6 +118,7 @@ void CharacterSkill::ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& T
 		if(EffectChance > CasterEffect->GetEffectData().Chance)
 		{
 			//missed effect
+			ATimedEventManager::SpawnPopupText(EPopupTextType::MissedEffect, 0, 2, Caster->GetActorLocation(), Caster->GetWorld(), false);
 			continue;
 		}
 

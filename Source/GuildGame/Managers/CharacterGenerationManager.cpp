@@ -53,8 +53,15 @@ FCharacterStats* ACharacterGenerationManager::CreateRandomCharacter(UWorld* Worl
 		int UniqueID = AWidgetManager::IncrementSpawnedDraggableCount();
 		FCharacterStats* CopyStruct = new FCharacterStats(*CharacterData);
 		// CopyStruct->Price = 50;
-		CopyStruct->MaxHealth += CopyStruct->MaxHealth * FMath::RandRange(0.0f, 0.20f);
+		CopyStruct->MaxHealth = CopyStruct->MaxHealth + CopyStruct->MaxHealth * FMath::RandRange(0.0f, 0.20f);
 		CopyStruct->CurrentHealth = CopyStruct->MaxHealth;
+
+    	CopyStruct->MaxArmor = CopyStruct->MaxArmor + CopyStruct->MaxArmor * FMath::RandRange(0.0f, 0.20f);
+		CopyStruct->CurrentArmor = CopyStruct->MaxArmor;
+
+    	CopyStruct->MaxMagicArmor = CopyStruct->MaxMagicArmor + CopyStruct->MaxMagicArmor * FMath::RandRange(0.0f, 0.20f);
+		CopyStruct->CurrentMagicArmor = CopyStruct->MaxMagicArmor;
+    	
 		CopyStruct->BaseDamage += CopyStruct->BaseDamage * FMath::RandRange(0.0f, 0.05f);
 		CopyStruct->UniqueID = UniqueID;
 		CopyStruct->TownNpcBehaviourState = ENpcBehaviourStates::WalkingAround;

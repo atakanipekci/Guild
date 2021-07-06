@@ -180,7 +180,6 @@ bool ABattlePlayerController::UpdateSelectedGrid(bool DrawPathTo)
 				}
 			}
 
-			UE_LOG(LogTemp, Warning, TEXT("AP COST At Location %d"), ApCost);
 		}
 
 		if(SelectedCharacter)

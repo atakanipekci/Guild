@@ -26,6 +26,26 @@ void ControllerStateDefault::Update()
 	}
 
 	PlayerController->UpdateSelectedGrid(true);
+
+	AGGCharacter* SelectedChar = PlayerController->GetSelectedCharacter();
+	if(SelectedChar && SelectedChar->GetStatus() == ECharacterStatus::Moving && PlayerController->GetGridFloor())
+	{
+		GridManager* GridMan = PlayerController->GetGridFloor()->GetGridManager();
+		if(GridMan)
+		{
+			int NewGridIndex = GridMan->WorldToGrid(SelectedChar->GetActorLocation());
+
+			
+			if(LatestSelectedChar == SelectedChar && LatestGridIndex != NewGridIndex)
+			{
+				GridMan->ApplyGridStatusEffectsToCharacter(SelectedChar, NewGridIndex);
+			}
+
+			LatestGridIndex = NewGridIndex;
+			LatestSelectedChar = SelectedChar;
+		}
+	}
+	
 }
 
 void ControllerStateDefault::LeftClickHandler()
@@ -84,10 +104,11 @@ void ControllerStateDefault::ChangeTo()
 	{
 		return;
 	}
-	
-	if(PlayerController->GetSelectedCharacter())
+
+	AGGCharacter* SelecterChar = PlayerController->GetSelectedCharacter();
+	if(SelecterChar)
 	{
-		PlayerController->GetSelectedCharacter()->SetSelected();
+		SelecterChar->SetSelected();
 	}
 }
 

@@ -3,7 +3,9 @@
 
 #include "GuildGame/Managers/TurnManager.h"
 
+#include "CharacterManager.h"
 #include "GGLogHelper.h"
+#include "GridManager.h"
 #include "Algo/StableSort.h"
 #include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Characters/GGCharacter.h"
@@ -16,6 +18,9 @@ void TurnManager::Start()
 	{
 		return;
 	}
+
+	GridMan = CharacterManager::CharGridManager;
+
 
 	if(CharactersList[0] != nullptr)
 	{
@@ -35,6 +40,10 @@ void TurnManager::NextCharacter()
 
 	if(CharactersList[CurrentCharacterIndex] != nullptr)
 	{
+		if(GridMan)
+		{
+			GridMan->ApplyGridStatusEffectsToCharacter(CharactersList[CurrentCharacterIndex], CharactersList[CurrentCharacterIndex]->GetCurrentIndex());
+		}
 		CharactersList[CurrentCharacterIndex]->OnTurnEnds();
 		CharactersList[CurrentCharacterIndex]->Deselect();
 
@@ -51,6 +60,12 @@ void TurnManager::NextCharacter()
 				TurnInfoWidget->RefreshIndices();
 				SortCharactersBySpeed(CharactersList);
 				UpdateWidgetOrder();
+			}
+
+			
+			if(GridMan)
+			{
+				GridMan->DecreaseGridStatusEffectTurns();
 			}
 			
 			CurrentCharacterIndex = 0;

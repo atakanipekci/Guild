@@ -37,7 +37,8 @@ enum class EEffectType: uint8
 	StatusDeBuff,
 	StatusPoison,
 	StatusBurn,
-	StatusHeal
+	StatusHeal,
+	GridStatusBurn
 };
 
 UENUM()
@@ -105,6 +106,8 @@ public:
 	{
 		return Data;
 	}
+
+
 protected:
 	FEffectData Data;
 	AGGCharacter* Owner = nullptr;
@@ -143,3 +146,11 @@ public:
 	explicit EffectStatus(const FEffectData& , AGGCharacter* OwnerChar);
 	virtual bool ApplyEffectToCharacter(AGGCharacter*) override;
 };
+
+class GUILDGAME_API EffectGridStatus : public SkillEffect
+{
+public:
+	explicit EffectGridStatus(const FEffectData& , AGGCharacter* OwnerChar);
+	virtual bool ApplyEffectToCharacter(AGGCharacter*) override;
+};
+

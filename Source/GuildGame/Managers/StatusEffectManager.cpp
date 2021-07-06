@@ -264,16 +264,9 @@ void StatusEffectManager::OnStatusEnd(AGGCharacter* Target, FStatusEffectData* S
 	}
 }
 
-bool StatusEffectManager::CanBePhysicallyResisted(const FEffectData* StatusEffect)
+bool StatusEffectManager::CanBePhysicallyResisted(EEffectType StatusEffectType)
 {
-	if(StatusEffect == nullptr)
-	{
-		return false;
-	}
-
-	EEffectType Type = StatusEffect->Type;
-	
-	if(Type == EEffectType::StatusBleed || Type == EEffectType::StatusStun || Type == EEffectType::StatusPoison)
+	if(StatusEffectType == EEffectType::StatusBleed || StatusEffectType == EEffectType::StatusStun || StatusEffectType == EEffectType::StatusPoison)
 	{
 		return true;
 	}
@@ -281,16 +274,9 @@ bool StatusEffectManager::CanBePhysicallyResisted(const FEffectData* StatusEffec
 	return false;
 }
 
-bool StatusEffectManager::CanBeMagicallyResisted(const FEffectData* StatusEffect)
+bool StatusEffectManager::CanBeMagicallyResisted(EEffectType StatusEffectType)
 {
-	if(StatusEffect == nullptr)
-	{
-		return false;
-	}
-
-	EEffectType Type = StatusEffect->Type;
-	
-	if(Type == EEffectType::StatusDeBuff || Type == EEffectType::StatusBurn)
+	if(StatusEffectType == EEffectType::StatusDeBuff || StatusEffectType == EEffectType::StatusBurn || StatusEffectType == EEffectType::GridStatusBurn)
 	{
 		return true;
 	}

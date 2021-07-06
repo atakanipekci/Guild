@@ -39,6 +39,10 @@ class GUILDGAME_API ControllerStateDefault: public BattleControllerState
     void ChangeTo() override;
     void ChangeFrom() override;
     bool CanChangeTo() override;
+
+    int LatestGridIndex = -1;
+    class AGGCharacter* LatestSelectedChar = nullptr;
+    
 };
 
 class GUILDGAME_API ControllerStateCastingSkill: public BattleControllerState

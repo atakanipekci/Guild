@@ -44,6 +44,8 @@ public:
 	UDataTable* CharacterSkillsFileTable;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	UDataTable* StatusEffectsFileTable;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	UDataTable* GridStatusEffectFileTable;
 	
 	UFUNCTION()
 	bool TryToPurchase(int Amount);

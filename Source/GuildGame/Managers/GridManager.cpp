@@ -9,6 +9,7 @@
 #include "NavigationPath.h"
 #include "GuildGame/GuildGameGameModeBase.h"
 #include "GuildGame/Characters/GGCharacter.h"
+#include "GuildGame/GridSystem/GridEffect.h"
 #include "GuildGame/GridSystem/GridFloor.h"
 #include "GuildGame/GridSystem/GridObstacle.h"
 #include "GuildGame/Skills/CharacterSkill.h"
@@ -26,6 +27,7 @@ GridManager::GridManager(FVector2D StartPos, float GridSize, int ColumnCount, in
     this->GridSize = GridSize;
     this->ColumnCount = ColumnCount;
     this->RowCount = RowCount;
+
 }
 GridManager::~GridManager()
 {
@@ -1038,4 +1040,155 @@ bool GridManager::SetGridStates(TArray<Grid*>* GridsToSet, EGridState NewState)
 
     return true;
 
+}
+
+void GridManager::ApplyGridStatusEffectsToCharacter(AGGCharacter* Char, int GridIndex)
+{
+    if(AttachedFloor == nullptr || Char == nullptr)
+    {
+        return ;
+    }
+
+    Grid* CharGrid = GetGridWithStatusEffectByGridIndex(GridIndex);
+    if(CharGrid)
+    {
+        CharGrid->ApplyStatusEffectsToCharacter(Char, GridIndex);
+    }
+}
+
+void GridManager::DecreaseGridStatusEffectTurns()
+{
+    for (int i = GridsWithStatusEffect.Num() - 1; i >= 0; --i)
+    {
+        if(GridsWithStatusEffect[i])
+        {
+            for (auto It = GridsWithStatusEffect[i]->GridStatusEffects.CreateIterator(); It; ++It)
+            {
+                It.Value()->DecreaseRemainingTurn();
+                
+                if(It.Value()->GetReminingTurn() <= 0)
+                {
+                    delete It.Value();
+                    It.RemoveCurrent();
+                }
+            }
+
+            if(GridsWithStatusEffect[i]->GridStatusEffects.Num() <= 0 && GridsWithStatusEffect[i]->StatusVisual)
+            {
+                GridsWithStatusEffect[i]->StatusVisual->StopParticleEffectAndDestroy();
+                GridsWithStatusEffect[i]->StatusVisual = nullptr;
+                GridsWithStatusEffect.RemoveAt(i);
+            }
+        }
+    }
+    
+    
+    
+}
+
+void GridManager::AddStatusEffectToGrid(EEffectType EffectType, Grid* Grid, AGGCharacter* Owner)
+{
+    if(Grid != nullptr && Owner != nullptr)
+    {
+        GridEffect* ExistingEffect = Grid->GetEffect(EffectType);
+        if(ExistingEffect)
+        {
+            
+        }
+        else
+        {
+            GridEffect* NewEffect = CreateGridStatusEffect(EffectType, Owner, Grid);
+            Grid->GridStatusEffects.Add(EffectType, NewEffect);
+        }
+
+        // Grid->GridState = EGridState::StatusEffect;
+        if(GridsWithStatusEffect.Contains(Grid) == false)
+        {
+            GridsWithStatusEffect.Add(Grid);
+        }
+    }
+}
+
+void GridManager::AddStatusEffectToGrid(FEffectData& EffectData, Grid* Grid, AGGCharacter* Owner)
+{
+    if(Grid != nullptr && Owner != nullptr)
+    {
+        GridEffect* ExistingEffect = Grid->GetEffect(EffectData.Type);
+        if(ExistingEffect)
+        {
+            
+        }
+        else
+        {
+            GridEffect* NewEffect = CreateGridStatusEffect(EffectData, Owner, Grid);
+            Grid->GridStatusEffects.Add(EffectData.Type, NewEffect);
+        }
+
+        // Grid->GridState = EGridState::StatusEffect;
+        if(GridsWithStatusEffect.Contains(Grid) == false)
+        {
+            GridsWithStatusEffect.Add(Grid);
+        }
+    }
+}
+
+GridEffect* GridManager::CreateGridStatusEffect(EEffectType EffectType, AGGCharacter* Owner, Grid* Grid)
+{
+    if(Owner == nullptr || Grid == nullptr) return nullptr;
+    
+    if(EffectType == EEffectType::GridStatusBurn)
+    {
+        FGridStatusEffectFile* File = GridEffect::GetStatusEffectFile(EffectType, Owner->GetWorld());
+        if(File)
+        {
+            if(Grid->StatusVisual == nullptr)
+            {
+                Grid->StatusVisual = Owner->GetWorld()->SpawnActor<AGridStatusEffectVfxActor>(File->VisualEffect, GetGridCenter(Grid->Index), FRotator::ZeroRotator);
+            }
+            return new GridEffectBurn(3, 3, Owner);
+        }
+    }
+
+    return  nullptr;
+}
+
+GridEffect* GridManager::CreateGridStatusEffect(FEffectData& EffectData, AGGCharacter* Owner, Grid* Grid)
+{
+    if(Owner == nullptr || Grid == nullptr) return nullptr;
+    
+    if(EffectData.Type == EEffectType::GridStatusBurn)
+    {
+        FGridStatusEffectFile* File = GridEffect::GetStatusEffectFile(EffectData.Type, Owner->GetWorld());
+        if(File)
+        {
+            if(Grid->StatusVisual == nullptr)
+            {
+                Grid->StatusVisual = Owner->GetWorld()->SpawnActor<AGridStatusEffectVfxActor>(File->VisualEffect, GetGridCenter(Grid->Index), FRotator::ZeroRotator);
+            }
+            return new GridEffectBurn(EffectData.MaxValue, EffectData.RemainingTurns, Owner);
+        }
+    }
+
+    return  nullptr;
+}
+
+Grid* GridManager::GetGridWithStatusEffectByGridIndex(int GridIndex)
+{
+     if(AttachedFloor == nullptr)
+    {
+        return nullptr;
+    }
+
+    for (auto Grid : GridsWithStatusEffect)
+    {
+        if(Grid)
+        {
+            if(Grid->Index == GridIndex)
+            {
+                return  Grid;
+            }
+        }
+    }
+
+    return nullptr;
 }

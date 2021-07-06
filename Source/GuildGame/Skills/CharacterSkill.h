@@ -117,6 +117,17 @@ public:
 		return  SkillID;
 	}
 
+	void GetGridStatusEffects(TArray<FEffectData>& OutGridStatusEffects) const
+	{
+		for (auto Effect : SkillEffects)
+		{
+			if(Effect->GetEffectData().Type == EEffectType::GridStatusBurn)
+			{
+				OutGridStatusEffects.Add(Effect->GetEffectData());
+			}
+		}
+	}
+
 private:
 	FSkillData SkillData;
 	FCharSkillFileDataTable SkillFile;

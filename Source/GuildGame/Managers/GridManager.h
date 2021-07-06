@@ -62,6 +62,7 @@ public:
 		LargeGridActive = Active;
 	}
 
+
 	TArray<Grid> GGGrids;
 private:
 	FVector2D StartPos;
@@ -71,8 +72,9 @@ private:
 
 	bool LargeGridActive = false;
 	
-	UPROPERTY()
 	class AGridFloor* AttachedFloor = nullptr;
+	
+	TArray<Grid*> GridsWithStatusEffect;
 public:
 	
 	void SetAttachedFloor(AGridFloor* AAttachedFloor)
@@ -89,4 +91,12 @@ public:
 	{
 		return GridSize;
 	}
+
+	void ApplyGridStatusEffectsToCharacter(AGGCharacter* Char, int GridIndex);
+	void DecreaseGridStatusEffectTurns();
+	void AddStatusEffectToGrid(EEffectType EffectType, Grid* Grid, AGGCharacter* Owner);
+	void AddStatusEffectToGrid(struct FEffectData& EffectData, Grid* Grid, AGGCharacter* Owner);
+	GridEffect* CreateGridStatusEffect(EEffectType EffectType, AGGCharacter* Owner, Grid* Grid);
+	GridEffect* CreateGridStatusEffect(FEffectData& EffectData, AGGCharacter* Owner, Grid* Grid);
+	Grid* GetGridWithStatusEffectByGridIndex(int GridIndex);
 };

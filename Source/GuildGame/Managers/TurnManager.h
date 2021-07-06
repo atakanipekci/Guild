@@ -52,4 +52,5 @@ private:
 	TArray<class AGGCharacter*> CharactersList;
 
 	class UTurnInfoWidget* TurnInfoWidget = nullptr;
+	class GridManager* GridMan = nullptr;
 };

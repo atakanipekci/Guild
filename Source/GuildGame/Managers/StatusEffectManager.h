@@ -63,8 +63,8 @@ public:
 	static void ApplyOnTurnEnds(AGGCharacter* Target, TArray<struct FStatusEffectData>* StatusEffects);
 	static void OnStatusEnd(class AGGCharacter* Target, FStatusEffectData* StatusEffect);
 
-	static bool CanBePhysicallyResisted(const FEffectData* StatusEffect);
-	static bool CanBeMagicallyResisted(const FEffectData* StatusEffect);
+	static bool CanBePhysicallyResisted(EEffectType StatusEffectType);
+	static bool CanBeMagicallyResisted(EEffectType StatusEffectType);
 	
 	static FString GetStatusFileRowName(EEffectType StatusType);
 

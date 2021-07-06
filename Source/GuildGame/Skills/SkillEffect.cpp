@@ -175,3 +175,19 @@ bool EffectStatus::ApplyEffectToCharacter(AGGCharacter* Character)
 	return true;
 	
 }
+
+EffectGridStatus::EffectGridStatus(const FEffectData& EffectData, AGGCharacter* OwnerChar)
+{
+	Data = EffectData;
+	Owner = OwnerChar;
+}
+
+bool EffectGridStatus::ApplyEffectToCharacter(AGGCharacter* Character)
+{
+	if(Character == nullptr || Owner == nullptr)
+	{
+		return false;
+	}
+
+	return  true;
+}

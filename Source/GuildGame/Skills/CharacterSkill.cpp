@@ -57,7 +57,7 @@ void CharacterSkill::ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& T
 				continue;
 			}
 
-			if(StatusEffectManager::CanBePhysicallyResisted(&Effect->GetEffectData()))
+			if(StatusEffectManager::CanBePhysicallyResisted(Effect->GetEffectData().Type))
 			{
 				int Chance = FMath::RandRange(0, 100);
 				if(Chance <= TargetCharacter->GetPhysicalResistance())
@@ -67,7 +67,7 @@ void CharacterSkill::ApplyEffects(AGGCharacter* Caster, TArray<AGGCharacter*>& T
 					continue;
 				}
 			}
-			else if(StatusEffectManager::CanBeMagicallyResisted(&Effect->GetEffectData()))
+			else if(StatusEffectManager::CanBeMagicallyResisted(Effect->GetEffectData().Type))
 			{
 				int Chance = FMath::RandRange(0, 100);
 				if(Chance <= TargetCharacter->GetMagicalResistance())

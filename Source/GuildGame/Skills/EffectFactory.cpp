@@ -28,6 +28,10 @@ SkillEffect* EffectFactory::CreateEffect(const FEffectData& Data, AGGCharacter* 
 	{
 		return new EffectStatus(Data, Owner);
 	}
+	else if(Data.Type == EEffectType::GridStatusBurn)
+	{
+		return new EffectGridStatus(Data, Owner);
+	}
 
 	return nullptr;
 

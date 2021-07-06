@@ -659,6 +659,26 @@ void AGGCharacter::OnAttackHitsEnemies()
 	{
 		CurrentSkill->ApplyEffects(this, SelectedTargetCharacters);
 	}
+
+	GridManager* GridMan = CharacterManager::CharGridManager;
+	
+	if(GetDamageableGrids() == nullptr || GridMan == nullptr) return;
+
+	TArray<Grid*>* DmgGrids = GetDamageableGrids();
+
+	TArray<FEffectData> GridStatusEffects;
+	CurrentSkill->GetGridStatusEffects(GridStatusEffects);
+	
+	for (int i = 0; i < GridStatusEffects.Num(); ++i)
+	{
+		for (int j = 0; j < DmgGrids->Num(); ++j)
+		{
+			if((*DmgGrids)[j])
+			{
+				GridMan->AddStatusEffectToGrid(GridStatusEffects[i], (*DmgGrids)[j], this);
+			}
+		}
+	}
 }
 
 void AGGCharacter::OnAttackHitsEnemy(AActor* TargetToHit)

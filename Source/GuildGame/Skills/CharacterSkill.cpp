@@ -20,7 +20,7 @@ CharacterSkill::CharacterSkill(const FSkillData& Data, const FCharSkillFileDataT
 	SkillID = SkillData.SkillID;
 	
 	Shape = ShapeFactory::CreateShape(Data.ShapeType, Data.ShapeParameters);
-	for (auto Element : Data.EffectData)
+	for (auto& Element : Data.EffectData)
 	{
 		SkillEffects.Add(EffectFactory::CreateEffect(Element, Owner));		
 	}
